@@ -1,0 +1,1929 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Leet — Họp Trực Tuyến Không Giới Hạn</title>
+  <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+  <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    * {
+      box-sizing: border-box;
+      font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+      -webkit-tap-highlight-color: transparent;
+    }
+    body {
+      background-color: #F4F6F8;
+      color: #1A1A1A;
+      margin: 0;
+      overflow-x: hidden;
+    }
+    /* The IELTS Dictionary Signature Graph Paper Grid & Neo-Brutalist Tokens */
+    .tid-olive-grid {
+      background-color: #6B8E4E;
+      background-image:
+        linear-gradient(to right, rgba(255, 255, 255, 0.14) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(255, 255, 255, 0.14) 1px, transparent 1px);
+      background-size: 28px 28px;
+    }
+    .tid-blue-grid {
+      background-color: #3B66FF;
+      background-image:
+        linear-gradient(to right, rgba(255, 255, 255, 0.14) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(255, 255, 255, 0.14) 1px, transparent 1px);
+      background-size: 26px 26px;
+    }
+    .tid-page-grid {
+      background-color: #F4F6F8;
+      background-image:
+        radial-gradient(#CBD5E1 1.2px, transparent 1.2px);
+      background-size: 22px 22px;
+    }
+    .neo-card {
+      border: 3px solid #1A1A1A;
+      box-shadow: 6px 6px 0px #1A1A1A;
+      border-radius: 24px;
+    }
+    .neo-card-sm {
+      border: 2.5px solid #1A1A1A;
+      box-shadow: 4px 4px 0px #1A1A1A;
+      border-radius: 18px;
+    }
+    .neo-btn {
+      border: 2.5px solid #1A1A1A;
+      box-shadow: 4px 4px 0px #1A1A1A;
+      transition: transform 0.12s ease, box-shadow 0.12s ease, background-color 0.15s ease;
+    }
+    .neo-btn:hover {
+      transform: translate(1.5px, 1.5px);
+      box-shadow: 2.5px 2.5px 0px #1A1A1A;
+    }
+    .neo-btn:active {
+      transform: translate(3.5px, 3.5px);
+      box-shadow: 0.5px 0.5px 0px #1A1A1A;
+    }
+    .neo-input {
+      border: 2.5px solid #1A1A1A;
+      box-shadow: 3px 3px 0px #1A1A1A;
+      transition: box-shadow 0.15s ease;
+    }
+    .neo-input:focus {
+      outline: none;
+      box-shadow: 4px 4px 0px #F26B1D;
+    }
+    .neo-stamp {
+      border: 2.5px dashed #1A1A1A;
+      box-shadow: 4px 4px 0px #1A1A1A;
+      transform: rotate(-2deg);
+    }
+    .video-mirror { transform: scaleX(-1); }
+    .speaking-ring {
+      border-color: #FFCE38 !important;
+      box-shadow: 0 0 0 3px #1A1A1A, 6px 6px 0px #FFCE38 !important;
+    }
+    .pinned-ring {
+      border-color: #3B66FF !important;
+      box-shadow: 6px 6px 0px #3B66FF !important;
+    }
+    @keyframes floatUp {
+      0% { transform: translateY(0) scale(0.8); opacity: 1; }
+      70% { transform: translateY(-140px) scale(1.25); opacity: 0.95; }
+      100% { transform: translateY(-210px) scale(1); opacity: 0; }
+    }
+    .reaction-float {
+      animation: floatUp 2.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+      pointer-events: none;
+    }
+    @keyframes sunSpin {
+      0% { transform: rotate(0deg); }
+      50% { transform: rotate(8deg) scale(1.05); }
+      100% { transform: rotate(0deg); }
+    }
+    .sun-mascot {
+      animation: sunSpin 4s ease-in-out infinite;
+    }
+    ::-webkit-scrollbar { width: 8px; height: 8px; }
+    ::-webkit-scrollbar-track { background: #FFFDF0; border-left: 2px solid #1A1A1A; }
+    ::-webkit-scrollbar-thumb { background: #6B8E4E; border: 2px solid #1A1A1A; border-radius: 9999px; }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col tid-page-grid text-[#1A1A1A] select-none">
+
+  <!-- IN-APP BROWSER WARNING BANNER (ZALO / MESSENGER / FACEBOOK ON MOBILE) -->
+  <div id="inAppBrowserBanner" class="hidden bg-[#FFCE38] border-b-[3px] border-[#1A1A1A] text-[#1A1A1A] px-4 py-3 text-xs sm:text-sm font-bold flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 z-50">
+    <div>
+      ⚠️ <strong>Bạn đang mở link trong Zalo / Messenger!</strong> Trình duyệt nhúng này chặn Camera & Micro trên điện thoại. Hãy bấm nút <strong>•••</strong> ở góc trên phải → chọn <strong>"Mở bằng trình duyệt (Safari / Chrome)"</strong>.
+    </div>
+    <button id="openExternalBrowserBtn" type="button" class="neo-btn px-4 py-1.5 rounded-full bg-[#F26B1D] text-white text-xs font-extrabold shrink-0">
+      Mở bằng Chrome / Copy Link →
+    </button>
+  </div>
+
+  <!-- LOCAL / SANDBOX URL BAR -->
+  <div id="localUrlWarningBanner" class="hidden bg-[#FFFDF0] border-b-[3px] border-[#1A1A1A] text-[#1A1A1A] px-4 py-2 text-xs font-semibold flex flex-wrap items-center justify-between gap-2 z-40">
+    <span>✦ <strong>Mẹo gửi link cho điện thoại:</strong> Dán địa chỉ GitHub Pages / Netlify của bạn vào đây để nút Copy Link luôn tạo link mở được trên mọi điện thoại:</span>
+    <div class="flex items-center gap-2">
+      <input id="customPublicUrlInput" type="text" placeholder="vd: https://ten-ban.github.io/leet/" class="neo-input px-3 py-1 rounded-full bg-white text-[#1A1A1A] text-xs w-64 font-semibold" />
+      <button id="savePublicUrlBtn" type="button" class="neo-btn px-3.5 py-1 rounded-full bg-[#FFCE38] hover:bg-[#eab820] text-[#1A1A1A] font-extrabold text-xs">Lưu Link</button>
+    </div>
+  </div>
+
+  <!-- TOAST NOTIFICATION CONTAINER -->
+  <div id="toastContainer" class="fixed top-4 right-4 z-50 flex flex-col gap-2.5 max-w-sm w-full pointer-events-none px-3 sm:px-0"></div>
+
+  <!-- FLOATING REACTIONS CONTAINER -->
+  <div id="reactionContainer" class="fixed bottom-24 left-6 z-40 pointer-events-none flex gap-3"></div>
+
+  <!-- ==================== VIEW 1: PRE-JOIN / LOBBY (TID NEO-BRUTALIST STYLE) ==================== -->
+  <div id="lobbyView" class="flex-1 flex flex-col justify-between min-h-screen">
+    <!-- Top Editorial Neo-Brutalist Navbar -->
+    <header class="w-full border-b-[3px] border-[#1A1A1A] bg-[#FFFDF0] px-4 sm:px-8 py-3.5 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <!-- Brand Logo Pill -->
+        <div class="neo-btn w-11 h-11 rounded-2xl bg-[#6B8E4E] flex items-center justify-center">
+          <svg class="w-6 h-6 text-[#FFFDF0]" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/>
+          </svg>
+        </div>
+        <div class="flex items-center gap-2.5 flex-wrap">
+          <span class="font-extrabold text-xl sm:text-2xl tracking-tight text-[#1A1A1A] uppercase">THE <span class="bg-[#FFCE38] px-2 py-0.5 rounded-lg border-2 border-[#1A1A1A]">LEET</span> MEET</span>
+          <span class="hidden sm:inline-flex items-center gap-1 text-[11px] font-extrabold uppercase tracking-wider px-3 py-1 rounded-full bg-white text-[#1A1A1A] border-2 border-[#1A1A1A] shadow-[2px_2px_0px_#1A1A1A]">
+            ✦ UNLIMITED · HD VOICE
+          </span>
+          <span id="headerInviteBadge" class="hidden text-xs font-extrabold uppercase px-3 py-1 rounded-full bg-[#F26B1D] text-white border-2 border-[#1A1A1A] shadow-[2px_2px_0px_#1A1A1A]">
+            Lời mời vào phòng
+          </span>
+        </div>
+      </div>
+
+      <!-- Mode Switcher Pill -->
+      <div class="flex items-center gap-2">
+        <button id="toggleGuestPreviewBtn" type="button" class="neo-btn px-3.5 py-1.5 rounded-full bg-[#FFCE38] hover:bg-[#ffd859] text-[11px] sm:text-xs font-extrabold text-[#1A1A1A] uppercase tracking-wide">
+          Đổi chế độ: Khách mời / Chủ phòng
+        </button>
+      </div>
+    </header>
+
+    <!-- Main Pre-Join Content inside Olive Graph-Paper Hero Banner -->
+    <main class="flex-1 max-w-6xl w-full mx-auto px-4 sm:px-8 py-5 sm:py-8 flex flex-col justify-center">
+      <!-- TID Mascot Greeting Pill Bar -->
+      <div class="mb-4 flex flex-wrap items-center justify-between gap-3">
+        <div class="inline-flex items-center gap-2.5 bg-[#FFFDF0] border-[2.5px] border-[#1A1A1A] shadow-[4px_4px_0px_#1A1A1A] rounded-full px-4 py-1.5">
+          <!-- Cute Sun Mascot SVG -->
+          <span class="sun-mascot inline-flex items-center justify-center w-7 h-7 rounded-full bg-[#FFCE38] border-2 border-[#1A1A1A] text-sm">☀️</span>
+          <span class="text-xs sm:text-sm font-bold text-[#1A1A1A]">Hi bạn, <strong class="text-[#6B8E4E]">Leet on mic</strong>, sẵn sàng kết nối không giới hạn!</span>
+        </div>
+
+        <div class="hidden md:inline-flex items-center gap-2 bg-[#1B3312] text-[#FFFDF0] border-[2.5px] border-[#1A1A1A] shadow-[3px_3px_0px_#1A1A1A] rounded-full px-3.5 py-1 text-xs font-bold uppercase tracking-wider">
+          <span>🍃 MAX 10 NGƯỜI</span>
+          <span>·</span>
+          <span class="text-[#FFCE38]">FREE 100%</span>
+        </div>
+      </div>
+
+      <!-- Hero Grid Container (Olive Graph Paper Style like theieltsdictionary.com) -->
+      <div class="tid-olive-grid neo-card p-4 sm:p-7 grid grid-cols-1 lg:grid-cols-12 gap-6 sm:gap-8 items-center">
+        <!-- Left Column: Camera & Mic Live Preview Card -->
+        <div class="lg:col-span-7 flex flex-col gap-3">
+          <div class="relative rounded-[22px] overflow-hidden bg-[#1B3312] border-[3px] border-[#1A1A1A] shadow-[6px_6px_0px_#1A1A1A] aspect-video flex items-center justify-center">
+            <video id="lobbyVideoPreview" autoplay playsinline webkit-playsinline muted class="w-full h-full object-cover video-mirror"></video>
+
+            <!-- Fallback Avatar when Camera is Off (Postage Stamp / Pop-Art style) -->
+            <div id="lobbyCameraOffOverlay" class="hidden absolute inset-0 tid-blue-grid flex flex-col items-center justify-center gap-3 p-4">
+              <div class="neo-stamp w-24 h-24 sm:w-28 sm:h-28 rounded-2xl bg-[#FFCE38] flex items-center justify-center text-3xl sm:text-4xl font-extrabold text-[#1A1A1A]" id="lobbyAvatarInitials">
+                BN
+              </div>
+              <span class="px-3.5 py-1 rounded-full bg-[#FFFDF0] border-2 border-[#1A1A1A] shadow-[3px_3px_0px_#1A1A1A] text-xs font-extrabold uppercase tracking-wider text-[#1A1A1A]">
+                Camera đang tắt
+              </span>
+            </div>
+
+            <!-- Top-left Device Status Pill -->
+            <div class="absolute top-3.5 left-3.5 flex items-center gap-2 bg-[#FFFDF0] px-3 py-1.5 rounded-full border-2 border-[#1A1A1A] shadow-[3px_3px_0px_#1A1A1A] max-w-[68%]">
+              <span id="lobbyStreamModeDot" class="w-2.5 h-2.5 rounded-full bg-[#2E8B57] border border-[#1A1A1A] animate-pulse shrink-0"></span>
+              <span id="lobbyStreamModeText" class="text-[11px] sm:text-xs font-extrabold text-[#1A1A1A] truncate">Đang kiểm tra Camera & Mic...</span>
+            </div>
+
+            <!-- Top-right Mic Audio Meter Pill -->
+            <div class="absolute top-3.5 right-3.5 flex items-center gap-2 bg-[#FFCE38] px-3 py-1.5 rounded-full border-2 border-[#1A1A1A] shadow-[3px_3px_0px_#1A1A1A]" title="Âm lượng Micro">
+              <span class="text-xs font-extrabold">🎙️</span>
+              <div class="w-12 sm:w-16 h-2.5 bg-white rounded-full border border-[#1A1A1A] overflow-hidden">
+                <div id="lobbyAudioMeterBar" class="h-full bg-[#F26B1D] transition-all duration-75" style="width: 15%"></div>
+              </div>
+            </div>
+
+            <!-- Bottom Overlay Controls: Neo-Brutalist Pills -->
+            <div class="absolute bottom-3.5 inset-x-0 flex items-center justify-center gap-2.5 px-3">
+              <button id="lobbyToggleMicBtn" type="button" class="neo-btn w-11 h-11 sm:w-12 sm:h-12 rounded-full bg-[#FFFDF0] text-[#1A1A1A] flex items-center justify-center" title="Bật/Tắt Micro">
+                <svg id="lobbyMicOnIcon" class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z"/>
+                </svg>
+                <svg id="lobbyMicOffIcon" class="w-5 h-5 hidden" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z"/>
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M17 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2"/>
+                </svg>
+              </button>
+
+              <button id="lobbyToggleCamBtn" type="button" class="neo-btn w-11 h-11 sm:w-12 sm:h-12 rounded-full bg-[#FFFDF0] text-[#1A1A1A] flex items-center justify-center" title="Bật/Tắt Camera">
+                <svg id="lobbyCamOnIcon" class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/>
+                </svg>
+                <svg id="lobbyCamOffIcon" class="w-5 h-5 hidden" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"/>
+                </svg>
+              </button>
+
+              <button id="lobbyFlipCamBtn" type="button" class="neo-btn w-11 h-11 sm:w-12 sm:h-12 rounded-full bg-[#FFCE38] text-[#1A1A1A] flex items-center justify-center text-base font-bold" title="Đổi Camera Trước / Sau">
+                🔄
+              </button>
+
+              <button id="lobbyRetryRealDeviceBtn" type="button" class="neo-btn px-3.5 py-2 rounded-full bg-[#FFFDF0] hover:bg-[#FFCE38] text-xs font-extrabold text-[#1A1A1A] uppercase tracking-wide">
+                Bật Cam & Mic
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right Column: Warm Pastel Cream Card (#FFFDF0) with Thick Black Border & Hard Shadow -->
+        <div class="lg:col-span-5 bg-[#FFFDF0] neo-card p-5 sm:p-7 flex flex-col gap-5">
+          <!-- Guest Invite Header (Shown when ?room= is in URL) -->
+          <div id="guestWelcomeHeader" class="hidden flex-col gap-1.5">
+            <div class="inline-flex items-center gap-2 self-start px-3.5 py-1 rounded-full bg-[#FFCE38] border-2 border-[#1A1A1A] shadow-[2px_2px_0px_#1A1A1A] text-[#1A1A1A] text-xs font-extrabold uppercase">
+              <span>✦ PHÒNG HỌP: <strong id="guestRoomBadgeText">leet-team-10</strong></span>
+            </div>
+            <h1 class="text-2xl sm:text-3xl font-extrabold text-[#1A1A1A] mt-1 tracking-tight">Tham gia phòng họp</h1>
+            <p class="text-xs sm:text-sm font-medium text-gray-600">Chỉnh tên hiển thị, kiểm tra micro và camera rồi bấm Tham gia ngay.</p>
+          </div>
+
+          <!-- Host Header (Shown when opening main URL without ?room=) -->
+          <div id="hostWelcomeHeader" class="flex flex-col gap-1">
+            <div class="inline-flex items-center gap-1.5 self-start px-3 py-0.5 rounded-full bg-[#6B8E4E] text-white border-2 border-[#1A1A1A] shadow-[2px_2px_0px_#1A1A1A] text-[11px] font-extrabold uppercase">
+              ✦ LEET COMMUNITY ROOM
+            </div>
+            <h1 class="text-2xl sm:text-3xl font-extrabold text-[#1A1A1A] mt-1 tracking-tight">Bắt đầu cuộc họp</h1>
+            <p class="text-xs sm:text-sm font-medium text-gray-600">Nhập tên của bạn, lấy link phòng và gửi cho bạn bè cùng tham gia.</p>
+          </div>
+
+          <div class="flex flex-col gap-4">
+            <!-- Display Name Input -->
+            <div>
+              <label for="displayNameInput" class="block text-xs font-extrabold uppercase tracking-wider text-[#1A1A1A] mb-1.5">Tên hiển thị của bạn</label>
+              <input id="displayNameInput" type="text" value="" maxlength="32" placeholder="Nhập tên của bạn..." class="neo-input w-full px-4 py-3 rounded-full bg-white text-[#1A1A1A] text-sm font-bold placeholder-gray-400" />
+            </div>
+
+            <!-- Room Code Section (Automatically hidden when an invited friend clicks ?room=... link!) -->
+            <div id="hostRoomConfigSection">
+              <div class="flex items-center justify-between mb-1.5">
+                <label for="roomCodeInput" class="block text-xs font-extrabold uppercase tracking-wider text-[#1A1A1A]">Mã phòng họp (Room ID)</label>
+                <button id="randomRoomBtn" type="button" class="text-xs text-[#F26B1D] hover:underline font-extrabold uppercase">+ Đổi mã ngẫu nhiên</button>
+              </div>
+              <div class="flex flex-wrap sm:flex-nowrap gap-2">
+                <input id="roomCodeInput" type="text" value="leet-team-10" maxlength="28" placeholder="Nhập mã phòng..." class="neo-input flex-1 min-w-[120px] px-4 py-2.5 rounded-full bg-white text-[#1A1A1A] text-sm font-extrabold" />
+                <button id="copyRoomLobbyBtn" type="button" class="neo-btn px-3.5 py-2.5 rounded-full bg-white hover:bg-gray-100 text-xs font-extrabold text-[#1A1A1A] whitespace-nowrap">
+                  Sao chép mã
+                </button>
+                <button id="copyLinkLobbyBtn" type="button" class="neo-btn px-3.5 py-2.5 rounded-full bg-[#FFCE38] hover:bg-[#ffd859] text-xs font-extrabold text-[#1A1A1A] whitespace-nowrap">
+                  🔗 Copy Link Mời
+                </button>
+              </div>
+            </div>
+
+            <!-- Quick Mic & Cam Status Toggles inside Join Card -->
+            <div class="grid grid-cols-2 gap-3 pt-1">
+              <button id="cardToggleMicBtn" type="button" class="neo-btn py-2.5 px-3 rounded-full bg-white flex items-center justify-center gap-2 text-xs font-extrabold text-[#1A1A1A]">
+                <span id="cardMicStatusDot" class="w-2.5 h-2.5 rounded-full bg-[#2E8B57] border border-[#1A1A1A]"></span>
+                <span id="cardMicStatusText">Micro: Bật</span>
+              </button>
+              <button id="cardToggleCamBtn" type="button" class="neo-btn py-2.5 px-3 rounded-full bg-white flex items-center justify-center gap-2 text-xs font-extrabold text-[#1A1A1A]">
+                <span id="cardCamStatusDot" class="w-2.5 h-2.5 rounded-full bg-[#2E8B57] border border-[#1A1A1A]"></span>
+                <span id="cardCamStatusText">Camera: Bật</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Primary CTA Button: TID Vibrant Orange / Sunny Yellow Pill -->
+          <button id="joinMeetingBtn" type="button" class="neo-btn w-full py-3.5 px-6 rounded-full bg-[#F26B1D] hover:bg-[#ff782b] text-white font-extrabold text-base uppercase tracking-wide flex items-center justify-center gap-2">
+            <span>Tham gia ngay →</span>
+          </button>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- ==================== VIEW 2: IN-CALL MEETING ROOM (TID NEO-BRUTALIST STYLE) ==================== -->
+  <div id="meetingView" class="hidden flex-1 flex flex-col h-screen max-h-screen overflow-hidden tid-page-grid">
+    <!-- Top Meeting Bar -->
+    <header class="h-16 shrink-0 px-3 sm:px-6 border-b-[3px] border-[#1A1A1A] bg-[#FFFDF0] flex items-center justify-between gap-2">
+      <!-- Left: Room Code Pill + Copy Link + Timer -->
+      <div class="flex items-center gap-2 min-w-0">
+        <div class="neo-btn flex items-center gap-2 bg-white rounded-full px-3 py-1">
+          <span class="w-2.5 h-2.5 rounded-full bg-[#2E8B57] border border-[#1A1A1A] animate-pulse shrink-0"></span>
+          <span id="activeRoomCodeText" class="text-xs sm:text-sm font-extrabold text-[#1A1A1A] truncate max-w-[95px] sm:max-w-[170px]">leet-team-10</span>
+          <button id="copyRoomInCallBtn" type="button" class="text-[#1A1A1A] hover:text-[#F26B1D] transition" title="Sao chép mã phòng">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/>
+            </svg>
+          </button>
+          <button id="copyLinkInCallBtn" type="button" class="text-xs font-extrabold text-[#F26B1D] hover:underline border-l-2 border-[#1A1A1A] pl-2 whitespace-nowrap">
+            🔗 Link mời
+          </button>
+        </div>
+
+        <div class="hidden sm:flex items-center gap-1.5 bg-[#FFCE38] border-2 border-[#1A1A1A] shadow-[2px_2px_0px_#1A1A1A] rounded-full px-3 py-1 text-xs font-extrabold text-[#1A1A1A]">
+          <span>⏱️</span>
+          <span id="callTimerText">00:00:00</span>
+        </div>
+      </div>
+
+      <!-- Center: Real Participant Counter Pill -->
+      <div class="flex items-center gap-2 bg-[#6B8E4E] text-white border-2 border-[#1A1A1A] shadow-[3px_3px_0px_#1A1A1A] rounded-full px-3.5 py-1">
+        <span class="text-xs font-extrabold uppercase">Trong phòng: <strong id="participantCounterBadge" class="text-[#FFCE38]">1/10</strong></span>
+      </div>
+
+      <!-- Right: Layout Switcher -->
+      <div class="flex items-center gap-2">
+        <div class="flex items-center bg-white p-1 rounded-full border-2 border-[#1A1A1A] shadow-[3px_3px_0px_#1A1A1A]">
+          <button id="layoutGridBtn" type="button" class="px-3 py-1 rounded-full text-xs font-extrabold bg-[#FFCE38] text-[#1A1A1A] border border-[#1A1A1A] transition">
+            Lưới
+          </button>
+          <button id="layoutSpotlightBtn" type="button" class="px-3 py-1 rounded-full text-xs font-extrabold text-[#1A1A1A] hover:bg-gray-100 transition">
+            Tiêu điểm
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <!-- Active Screen Share Banner -->
+    <div id="screenShareBanner" class="hidden shrink-0 bg-[#3B66FF] border-b-[3px] border-[#1A1A1A] px-4 py-2 flex items-center justify-between text-xs font-bold text-white">
+      <div class="flex items-center gap-2">
+        <span>🖥️ Đang chia sẻ màn hình trực tiếp cho mọi người trong phòng</span>
+      </div>
+      <button id="stopScreenShareBannerBtn" type="button" class="neo-btn px-3 py-1 rounded-full bg-[#F26B1D] text-white font-extrabold">
+        Dừng chia sẻ
+      </button>
+    </div>
+
+    <!-- Main Video Stage + Side Drawer -->
+    <div class="flex-1 flex min-h-0 overflow-hidden relative">
+      <div id="stageWrapper" class="flex-1 p-3 sm:p-5 overflow-y-auto flex flex-col justify-center">
+        <!-- Spotlight Container -->
+        <div id="spotlightContainer" class="hidden flex-1 min-h-0 flex-col lg:flex-row gap-4 h-full">
+          <div id="primarySpotlightTile" class="flex-1 tid-olive-grid neo-card overflow-hidden relative flex items-center justify-center min-h-[240px]"></div>
+          <div id="filmstripContainer" class="lg:w-64 shrink-0 flex lg:flex-col gap-3 overflow-x-auto lg:overflow-y-auto pb-1 lg:pb-0"></div>
+        </div>
+
+        <!-- Tiled Grid Container (1 to 10 participants) -->
+        <div id="videoGridContainer" class="grid gap-3.5 sm:gap-4 w-full h-full mx-auto items-stretch"></div>
+      </div>
+
+      <!-- Right Side Drawer (Participants & Chat in Warm Cream #FFFDF0) -->
+      <aside id="sideDrawer" class="hidden w-full sm:w-80 md:w-96 shrink-0 bg-[#FFFDF0] border-l-[3px] border-[#1A1A1A] flex flex-col h-full z-20 absolute sm:static inset-0 sm:inset-auto">
+        <div class="p-3.5 border-b-[3px] border-[#1A1A1A] flex items-center justify-between bg-[#6B8E4E]">
+          <div class="flex gap-1.5 bg-[#FFFDF0] p-1 rounded-full border-2 border-[#1A1A1A] shadow-[3px_3px_0px_#1A1A1A] flex-1 mr-2">
+            <button id="tabParticipantsBtn" type="button" class="flex-1 py-1.5 rounded-full text-xs font-extrabold bg-[#FFCE38] text-[#1A1A1A] border border-[#1A1A1A] transition">
+              Mọi người (<span id="drawerPeopleCount">1</span>/10)
+            </button>
+            <button id="tabChatBtn" type="button" class="flex-1 py-1.5 rounded-full text-xs font-extrabold text-[#1A1A1A] transition">
+              Trò chuyện
+            </button>
+          </div>
+          <button id="closeDrawerBtn" type="button" class="neo-btn w-9 h-9 rounded-full bg-[#FFFDF0] text-[#1A1A1A] flex items-center justify-center font-extrabold">
+            ✕
+          </button>
+        </div>
+
+        <!-- TAB 1: PARTICIPANTS LIST -->
+        <div id="participantsPanel" class="flex-1 flex flex-col min-h-0">
+          <div class="p-3.5 border-b-2 border-[#1A1A1A] flex gap-2">
+            <button id="drawerCopyInviteLinkBtn" type="button" class="neo-btn flex-1 py-2.5 px-3 rounded-full bg-[#FFCE38] hover:bg-[#ffd859] text-xs font-extrabold text-[#1A1A1A] uppercase">
+              🔗 Sao chép Link mời bạn bè
+            </button>
+          </div>
+          <div id="participantsListEl" class="flex-1 overflow-y-auto p-3.5 space-y-2.5"></div>
+        </div>
+
+        <!-- TAB 2: IN-CALL CHAT -->
+        <div id="chatPanel" class="hidden flex-1 flex flex-col min-h-0">
+          <div class="px-3.5 py-2 bg-[#FFCE38]/30 border-b-2 border-[#1A1A1A] text-xs font-bold text-[#1A1A1A]">
+            ✦ Tin nhắn trực tiếp trong phòng họp
+          </div>
+          <div id="chatMessagesEl" class="flex-1 overflow-y-auto p-3.5 space-y-3"></div>
+          <form id="chatForm" class="p-3.5 border-t-[3px] border-[#1A1A1A] bg-white flex gap-2">
+            <input id="chatInput" type="text" placeholder="Nhập tin nhắn..." maxlength="300" class="neo-input flex-1 px-4 py-2 rounded-full bg-[#FFFDF0] text-xs sm:text-sm font-bold text-[#1A1A1A]" />
+            <button type="submit" class="neo-btn px-4 py-2 rounded-full bg-[#F26B1D] text-white text-xs font-extrabold uppercase">
+              Gửi →
+            </button>
+          </form>
+        </div>
+      </aside>
+    </div>
+
+    <!-- Bottom Control Bar (TID Deep Forest Green #1B3312 + Neo-Brutalist Pills) -->
+    <footer class="h-20 shrink-0 px-3 sm:px-6 bg-[#1B3312] border-t-[3px] border-[#1A1A1A] flex items-center justify-between gap-2 z-30">
+      <div class="hidden lg:flex items-center gap-2 min-w-[180px]">
+        <div class="text-xs">
+          <div id="p2pBrokerStatus" class="font-extrabold text-[#FFCE38] uppercase">Đang kết nối P2P...</div>
+          <div class="text-[11px] font-semibold text-gray-300">Opus HD • Wi-Fi & 4G/5G TURN</div>
+        </div>
+      </div>
+
+      <!-- Center Main Controls -->
+      <div class="flex items-center justify-center gap-2 sm:gap-3 mx-auto">
+        <!-- Mic Button -->
+        <button id="callToggleMicBtn" type="button" class="neo-btn w-11 h-11 sm:w-12 sm:h-12 rounded-full bg-[#FFFDF0] text-[#1A1A1A] flex items-center justify-center" title="Bật/Tắt Micro">
+          <svg id="callMicOnIcon" class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z"/>
+          </svg>
+          <svg id="callMicOffIcon" class="w-5 h-5 hidden" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z"/>
+            <path stroke-linecap="round" stroke-linejoin="round" d="M17 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2"/>
+          </svg>
+        </button>
+
+        <!-- Camera Button -->
+        <button id="callToggleCamBtn" type="button" class="neo-btn w-11 h-11 sm:w-12 sm:h-12 rounded-full bg-[#FFFDF0] text-[#1A1A1A] flex items-center justify-center" title="Bật/Tắt Camera">
+          <svg id="callCamOnIcon" class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/>
+          </svg>
+          <svg id="callCamOffIcon" class="w-5 h-5 hidden" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"/>
+          </svg>
+        </button>
+
+        <!-- Flip Camera Button -->
+        <button id="callFlipCamBtn" type="button" class="neo-btn w-11 h-11 sm:w-12 sm:h-12 rounded-full bg-[#FFCE38] text-[#1A1A1A] flex items-center justify-center text-base font-extrabold" title="Đổi Camera Trước / Sau">
+          🔄
+        </button>
+
+        <!-- Screen Share Button -->
+        <button id="callScreenShareBtn" type="button" class="neo-btn px-4 h-11 sm:h-12 rounded-full bg-[#3B66FF] text-white flex items-center gap-2 text-xs sm:text-sm font-extrabold" title="Chia sẻ màn hình">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+          </svg>
+          <span id="screenShareBtnLabel" class="hidden md:inline">Chia sẻ màn hình</span>
+        </button>
+
+        <!-- Raise Hand Button -->
+        <button id="callRaiseHandBtn" type="button" class="neo-btn w-11 h-11 sm:w-12 sm:h-12 rounded-full bg-[#FFFDF0] text-[#1A1A1A] flex items-center justify-center text-lg" title="Giơ tay phát biểu">
+          ✋
+        </button>
+
+        <!-- Emoji Reactions Bar -->
+        <div class="hidden md:flex items-center bg-[#FFFDF0] border-2 border-[#1A1A1A] shadow-[3px_3px_0px_#000000] rounded-full px-2 h-11 gap-1">
+          <button type="button" data-emoji="👍" class="reaction-btn w-8 h-8 rounded-full hover:bg-[#FFCE38] flex items-center justify-center text-base transition">👍</button>
+          <button type="button" data-emoji="❤️" class="reaction-btn w-8 h-8 rounded-full hover:bg-[#FFCE38] flex items-center justify-center text-base transition">❤️</button>
+          <button type="button" data-emoji="👏" class="reaction-btn w-8 h-8 rounded-full hover:bg-[#FFCE38] flex items-center justify-center text-base transition">👏</button>
+          <button type="button" data-emoji="🎉" class="reaction-btn w-8 h-8 rounded-full hover:bg-[#FFCE38] flex items-center justify-center text-base transition">🎉</button>
+        </div>
+
+        <!-- Leave Call Button -->
+        <button id="leaveCallBtn" type="button" class="neo-btn px-4 sm:px-5 h-11 sm:h-12 rounded-full bg-[#F26B1D] hover:bg-[#ff782b] text-white font-extrabold text-xs sm:text-sm uppercase flex items-center gap-1.5" title="Rời khỏi cuộc họp">
+          <span>Kết thúc →</span>
+        </button>
+      </div>
+
+      <!-- Right Drawer Toggle Buttons -->
+      <div class="flex items-center gap-2">
+        <button id="togglePeopleDrawerBtn" type="button" class="neo-btn px-3.5 h-11 rounded-full bg-[#FFCE38] text-xs font-extrabold text-[#1A1A1A] flex items-center gap-1.5">
+          <span>👥</span>
+          <span id="bottomPeopleCount">1</span>
+        </button>
+
+        <button id="toggleChatDrawerBtn" type="button" class="neo-btn relative p-2.5 h-11 w-11 rounded-full bg-[#FFFDF0] text-[#1A1A1A] flex items-center justify-center font-extrabold" title="Mở trò chuyện">
+          💬
+          <span id="unreadChatDot" class="hidden absolute -top-1 -right-1 w-3.5 h-3.5 rounded-full bg-[#F26B1D] border-2 border-[#1A1A1A]"></span>
+        </button>
+      </div>
+    </footer>
+  </div>
+
+  <!-- Hidden Audio Container for crystal-clear remote voice -->
+  <div id="remoteAudioContainer" class="hidden"></div>
+
+  <script>
+    // ==================== STATE & TID POP-ART PALETTE ====================
+    const MAX_PARTICIPANTS = 10;
+    const TID_SKILL_COLORS = [
+      '#4A72E6', // Listening Royal Blue
+      '#2E8B57', // Reading Emerald Green
+      '#D96B27', // Speaking Terracotta Orange
+      '#D95D6C', // Writing Coral Pink
+      '#5C45A0', // Self-study Deep Purple
+      '#3B8C88'  // Vocab Deep Teal
+    ];
+
+    const state = {
+      inCall: false,
+      isInvitedGuestView: false,
+      cameraFacingMode: 'user',
+      customPublicBaseUrl: '',
+      roomCode: 'leet-team-10',
+      localUser: {
+        id: 'local-user',
+        name: 'Bạn',
+        role: 'Thành viên',
+        bgHex: '#6B8E4E',
+        micOn: true,
+        camOn: true,
+        handRaised: false,
+        speaking: false,
+        isLocal: true
+      },
+      participants: [],
+      layoutMode: 'grid',
+      pinnedId: null,
+      isScreenSharing: false,
+      screenShareOwnerName: '',
+      callSeconds: 0,
+      callTimerInterval: null,
+      localStream: null,
+      screenStream: null,
+      usingSyntheticCam: false,
+      drawerOpen: false,
+      activeDrawerTab: 'participants',
+      chatMessages: []
+    };
+
+    try {
+      const savedBase = localStorage.getItem('leet_public_base_url');
+      if (savedBase) state.customPublicBaseUrl = savedBase;
+    } catch (e) {}
+
+    let roomChannel = null;
+    try {
+      if (typeof BroadcastChannel !== 'undefined') {
+        roomChannel = new BroadcastChannel('leet_10_channel');
+        roomChannel.onmessage = (ev) => handleBroadcastMessage(ev.data);
+      }
+    } catch (e) {}
+
+    // ==================== DETECT ZALO / MESSENGER IN-APP BROWSER ON MOBILE ====================
+    function checkMobileInAppBrowser() {
+      const ua = navigator.userAgent || navigator.vendor || '';
+      const isInApp = /Zalo|FBAN|FBAV|Instagram|Line|MicroMessenger|TikTok/i.test(ua);
+      if (isInApp) {
+        document.getElementById('inAppBrowserBanner').classList.remove('hidden');
+      }
+
+      const host = window.location.hostname || '';
+      const isPublicWeb = host.endsWith('.github.io') || host.endsWith('.netlify.app') || host.endsWith('.vercel.app') || host.endsWith('.pages.dev') || (host.includes('.') && !host.startsWith('127.') && !host.startsWith('192.'));
+      if (!isPublicWeb && !state.isInvitedGuestView) {
+        document.getElementById('localUrlWarningBanner').classList.remove('hidden');
+        if (state.customPublicBaseUrl) {
+          document.getElementById('customPublicUrlInput').value = state.customPublicBaseUrl;
+        }
+      }
+    }
+
+    // ==================== HELPER: NEO-BRUTALIST TOAST & INITIALS ====================
+    function showToast(message, type = 'info') {
+      const container = document.getElementById('toastContainer');
+      const el = document.createElement('div');
+      const bgMap = {
+        info: 'bg-[#FFFDF0] text-[#1A1A1A]',
+        success: 'bg-[#FFCE38] text-[#1A1A1A]',
+        warn: 'bg-[#F26B1D] text-white'
+      };
+      el.className = `px-4 py-3 rounded-2xl border-[2.5px] border-[#1A1A1A] shadow-[4px_4px_0px_#1A1A1A] text-xs sm:text-sm font-extrabold transition-all duration-300 flex items-center gap-2 ${bgMap[type] || bgMap.info}`;
+      el.textContent = `✦ ${message}`;
+      container.appendChild(el);
+      setTimeout(() => {
+        el.style.opacity = '0';
+        setTimeout(() => el.remove(), 250);
+      }, 3200);
+    }
+
+    function getInitials(name) {
+      const cleaned = (name || 'Bạn').replace(/\(.*\)/, '').trim();
+      const parts = cleaned.split(/\s+/);
+      if (parts.length >= 2) {
+        return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+      }
+      return cleaned.slice(0, 2).toUpperCase() || 'LT';
+    }
+
+    // ==================== GUEST VS HOST PRE-JOIN VIEW SWITCHER ====================
+    function applyLobbyModeUI(isGuestInvite) {
+      state.isInvitedGuestView = Boolean(isGuestInvite);
+      const guestHeader = document.getElementById('guestWelcomeHeader');
+      const hostHeader = document.getElementById('hostWelcomeHeader');
+      const hostRoomSection = document.getElementById('hostRoomConfigSection');
+      const headerInviteBadge = document.getElementById('headerInviteBadge');
+      const guestRoomBadgeText = document.getElementById('guestRoomBadgeText');
+
+      guestRoomBadgeText.textContent = state.roomCode;
+
+      if (state.isInvitedGuestView) {
+        guestHeader.classList.remove('hidden');
+        guestHeader.classList.add('flex');
+        hostHeader.classList.add('hidden');
+        hostRoomSection.classList.add('hidden');
+        headerInviteBadge.classList.remove('hidden');
+        document.getElementById('localUrlWarningBanner').classList.add('hidden');
+      } else {
+        guestHeader.classList.add('hidden');
+        guestHeader.classList.remove('flex');
+        hostHeader.classList.remove('hidden');
+        hostRoomSection.classList.remove('hidden');
+        headerInviteBadge.classList.add('hidden');
+      }
+    }
+
+    // ==================== SYNTHETIC FALLBACK STREAM (TID POP-ART CANVAS) ====================
+    let synthCamCanvas = null;
+    let synthCamAnimId = null;
+
+    function createSyntheticCameraStream(labelName) {
+      if (!synthCamCanvas) {
+        synthCamCanvas = document.createElement('canvas');
+        synthCamCanvas.width = 640;
+        synthCamCanvas.height = 360;
+      }
+      const ctx = synthCamCanvas.getContext('2d');
+      let tick = 0;
+      if (synthCamAnimId) cancelAnimationFrame(synthCamAnimId);
+
+      function draw() {
+        tick += 0.03;
+        ctx.fillStyle = '#3B66FF';
+        ctx.fillRect(0, 0, 640, 360);
+
+        // Graph paper grid lines
+        ctx.strokeStyle = 'rgba(255, 255, 255, 0.16)';
+        ctx.lineWidth = 1;
+        for (let x = 0; x < 640; x += 28) {
+          ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, 360); ctx.stroke();
+        }
+        for (let y = 0; y < 360; y += 28) {
+          ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(640, y); ctx.stroke();
+        }
+
+        // Neo-brutalist yellow stamp box
+        ctx.fillStyle = '#1A1A1A';
+        ctx.fillRect(276, 106, 96, 96);
+        ctx.fillStyle = '#FFCE38';
+        ctx.fillRect(270, 100, 96, 96);
+        ctx.strokeStyle = '#1A1A1A';
+        ctx.lineWidth = 4;
+        ctx.strokeRect(270, 100, 96, 96);
+
+        ctx.fillStyle = '#1A1A1A';
+        ctx.font = '800 32px Plus Jakarta Sans, sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillText(getInitials(labelName || state.localUser.name), 318, 160);
+
+        ctx.fillStyle = '#FFFDF0';
+        ctx.font = '700 15px Plus Jakarta Sans, sans-serif';
+        ctx.fillText('✦ Bấm "Bật Cam & Mic" để mở Camera trên thiết bị ✦', 320, 265);
+
+        synthCamAnimId = requestAnimationFrame(draw);
+      }
+      draw();
+      const stream = synthCamCanvas.captureStream ? synthCamCanvas.captureStream(30) : new MediaStream();
+
+      // Thêm silent audio track để SDP luôn có sẵn audio transceiver cho WebRTC
+      try {
+        const AudioCtx = window.AudioContext || window.webkitAudioContext;
+        if (AudioCtx) {
+          const silentCtx = new AudioCtx();
+          const osc = silentCtx.createOscillator();
+          const dst = silentCtx.createMediaStreamDestination();
+          const gain = silentCtx.createGain();
+          gain.gain.value = 0;
+          osc.connect(gain);
+          gain.connect(dst);
+          osc.start();
+          const track = dst.stream.getAudioTracks()[0];
+          if (track) stream.addTrack(track);
+        }
+      } catch (e) {}
+
+      return stream;
+    }
+
+    // ==================== INITIALIZE MOBILE & DESKTOP CAMERA & MICROPHONE ====================
+    let audioContext = null;
+    let audioAnalyser = null;
+    let audioMonitorInterval = null;
+
+    async function initLocalMedia(forceRealPrompt = false) {
+      const statusDot = document.getElementById('lobbyStreamModeDot');
+      const statusText = document.getElementById('lobbyStreamModeText');
+      const videoEl = document.getElementById('lobbyVideoPreview');
+
+      if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+        const mobileFriendlyAudio = {
+          echoCancellation: true,
+          noiseSuppression: true,
+          autoGainControl: true
+        };
+        const constraintsList = [
+          { video: { facingMode: state.cameraFacingMode, width: { ideal: 1280 }, height: { ideal: 720 } }, audio: mobileFriendlyAudio },
+          { video: { facingMode: state.cameraFacingMode }, audio: true },
+          { video: true, audio: true },
+          { video: false, audio: true },
+          { video: true, audio: false }
+        ];
+
+        for (const constraints of constraintsList) {
+          try {
+            const stream = await navigator.mediaDevices.getUserMedia(constraints);
+            if (state.localStream && !state.usingSyntheticCam) {
+              state.localStream.getTracks().forEach(t => t.stop());
+            }
+            state.localStream = stream;
+            state.usingSyntheticCam = false;
+            const hasVideo = stream.getVideoTracks().length > 0;
+            const hasAudio = stream.getAudioTracks().length > 0;
+
+            if (!hasVideo) {
+              state.localUser.camOn = false;
+            }
+            if (videoEl.srcObject !== stream) {
+              videoEl.srcObject = stream;
+              videoEl.play().catch(() => {});
+            }
+            videoEl.classList.toggle('video-mirror', state.cameraFacingMode === 'user');
+
+            statusDot.className = 'w-2.5 h-2.5 rounded-full bg-[#2E8B57] border border-[#1A1A1A] animate-pulse shrink-0';
+            statusText.textContent = hasVideo && hasAudio
+              ? 'Camera & Micro sẵn sàng'
+              : hasAudio ? 'Micro sẵn sàng' : 'Camera sẵn sàng';
+            if (forceRealPrompt) showToast('Đã kết nối Camera & Micro trên thiết bị!', 'success');
+            setupRealAudioMonitor(stream);
+            updateMediaUI();
+            if (state.inCall) replaceOutgoingMediaTracks(stream);
+            return;
+          } catch (err) {}
+        }
+        if (forceRealPrompt) {
+          showToast('Không thể bật Camera/Mic. Nếu đang mở bằng Zalo/Messenger, hãy chọn "Mở bằng Safari/Chrome".', 'warn');
+        }
+      }
+
+      if (!state.localStream) {
+        state.localStream = createSyntheticCameraStream(state.localUser.name);
+        state.usingSyntheticCam = true;
+        if (state.localStream && videoEl.srcObject !== state.localStream) {
+          videoEl.srcObject = state.localStream;
+        }
+      }
+      statusDot.className = 'w-2.5 h-2.5 rounded-full bg-[#F26B1D] border border-[#1A1A1A] animate-pulse shrink-0';
+      statusText.textContent = 'Bấm "Bật Cam & Mic" để cho phép';
+      updateMediaUI();
+    }
+
+    async function flipMobileCamera() {
+      state.cameraFacingMode = state.cameraFacingMode === 'user' ? 'environment' : 'user';
+      showToast(state.cameraFacingMode === 'user' ? 'Đang chuyển sang Camera trước...' : 'Đang chuyển sang Camera sau...', 'info');
+      await initLocalMedia(true);
+    }
+
+    function setupRealAudioMonitor(stream) {
+      try {
+        if (!stream || stream.getAudioTracks().length === 0) return;
+        const AudioCtx = window.AudioContext || window.webkitAudioContext;
+        if (!AudioCtx) return;
+        if (audioContext) { try { audioContext.close(); } catch (e) {} }
+        audioContext = new AudioCtx();
+        const source = audioContext.createMediaStreamSource(stream);
+        audioAnalyser = audioContext.createAnalyser();
+        audioAnalyser.fftSize = 256;
+        source.connect(audioAnalyser);
+        const dataArray = new Uint8Array(audioAnalyser.frequencyBinCount);
+
+        if (audioMonitorInterval) clearInterval(audioMonitorInterval);
+        audioMonitorInterval = setInterval(() => {
+          if (!audioAnalyser || !state.localUser.micOn) {
+            setPeerSpeakingDOM('local-user', false);
+            const meter = document.getElementById('lobbyAudioMeterBar');
+            if (meter) meter.style.width = '0%';
+            return;
+          }
+          audioAnalyser.getByteFrequencyData(dataArray);
+          let sum = 0;
+          for (let i = 0; i < dataArray.length; i++) sum += dataArray[i];
+          const avg = sum / dataArray.length;
+          const meter = document.getElementById('lobbyAudioMeterBar');
+          if (meter) meter.style.width = `${Math.min(100, Math.max(6, Math.round(avg * 1.9)))}%`;
+          setPeerSpeakingDOM('local-user', avg > 15);
+        }, 160);
+      } catch (e) {}
+    }
+
+    function setPeerSpeakingDOM(peerId, isSpeaking) {
+      const peer = state.participants.find(p => p.id === peerId);
+      if (peer) peer.speaking = isSpeaking;
+      document.querySelectorAll(`[data-tile-peer-id="${peerId}"]`).forEach(tile => {
+        tile.classList.toggle('speaking-ring', Boolean(isSpeaking && peer && peer.micOn));
+      });
+    }
+
+    // ==================== MEDIA UI SYNC ====================
+    function updateMediaUI() {
+      const { micOn, camOn } = state.localUser;
+
+      const lobbyMicBtn = document.getElementById('lobbyToggleMicBtn');
+      const lobbyCamBtn = document.getElementById('lobbyToggleCamBtn');
+      document.getElementById('lobbyMicOnIcon').classList.toggle('hidden', !micOn);
+      document.getElementById('lobbyMicOffIcon').classList.toggle('hidden', micOn);
+      lobbyMicBtn.className = `neo-btn w-11 h-11 sm:w-12 sm:h-12 rounded-full flex items-center justify-center ${
+        micOn ? 'bg-[#FFFDF0] text-[#1A1A1A]' : 'bg-[#F26B1D] text-white'
+      }`;
+
+      document.getElementById('lobbyCamOnIcon').classList.toggle('hidden', !camOn);
+      document.getElementById('lobbyCamOffIcon').classList.toggle('hidden', camOn);
+      lobbyCamBtn.className = `neo-btn w-11 h-11 sm:w-12 sm:h-12 rounded-full flex items-center justify-center ${
+        camOn ? 'bg-[#FFFDF0] text-[#1A1A1A]' : 'bg-[#F26B1D] text-white'
+      }`;
+
+      document.getElementById('cardMicStatusDot').className = `w-2.5 h-2.5 rounded-full border border-[#1A1A1A] ${micOn ? 'bg-[#2E8B57]' : 'bg-[#F26B1D]'}`;
+      document.getElementById('cardMicStatusText').textContent = micOn ? 'Micro: Bật' : 'Micro: Tắt';
+      document.getElementById('cardCamStatusDot').className = `w-2.5 h-2.5 rounded-full border border-[#1A1A1A] ${camOn ? 'bg-[#2E8B57]' : 'bg-[#F26B1D]'}`;
+      document.getElementById('cardCamStatusText').textContent = camOn ? 'Camera: Bật' : 'Camera: Tắt';
+
+      document.getElementById('lobbyCameraOffOverlay').classList.toggle('hidden', camOn);
+      document.getElementById('lobbyAvatarInitials').textContent = getInitials(state.localUser.name);
+
+      const callMicBtn = document.getElementById('callToggleMicBtn');
+      const callCamBtn = document.getElementById('callToggleCamBtn');
+      document.getElementById('callMicOnIcon').classList.toggle('hidden', !micOn);
+      document.getElementById('callMicOffIcon').classList.toggle('hidden', micOn);
+      callMicBtn.className = `neo-btn w-11 h-11 sm:w-12 sm:h-12 rounded-full flex items-center justify-center ${
+        micOn ? 'bg-[#FFFDF0] text-[#1A1A1A]' : 'bg-[#F26B1D] text-white'
+      }`;
+
+      document.getElementById('callCamOnIcon').classList.toggle('hidden', !camOn);
+      document.getElementById('callCamOffIcon').classList.toggle('hidden', camOn);
+      callCamBtn.className = `neo-btn w-11 h-11 sm:w-12 sm:h-12 rounded-full flex items-center justify-center ${
+        camOn ? 'bg-[#FFFDF0] text-[#1A1A1A]' : 'bg-[#F26B1D] text-white'
+      }`;
+
+      if (state.localStream && !state.usingSyntheticCam) {
+        state.localStream.getAudioTracks().forEach(t => { t.enabled = micOn; });
+        state.localStream.getVideoTracks().forEach(t => { t.enabled = camOn; });
+      }
+
+      if (state.inCall) {
+        broadcastRoomEvent({
+          type: 'peer-update',
+          name: state.localUser.name,
+          micOn: state.localUser.micOn,
+          camOn: state.localUser.camOn,
+          handRaised: state.localUser.handRaised
+        });
+        renderVideoStage();
+        renderParticipantsList();
+      }
+    }
+
+    // ==================== SCREEN SHARE LOGIC ====================
+    async function toggleScreenShare() {
+      if (state.isScreenSharing) {
+        stopScreenShare();
+        return;
+      }
+
+      if (!navigator.mediaDevices || !navigator.mediaDevices.getDisplayMedia) {
+        showToast('Trình duyệt trên điện thoại không hỗ trợ chia sẻ màn hình (Chỉ hỗ trợ trên Máy tính). Bạn có thể dùng nút 🔄 để đổi Camera Sau.', 'warn');
+        return;
+      }
+
+      try {
+        const acquiredStream = await navigator.mediaDevices.getDisplayMedia({
+          video: { cursor: 'always', frameRate: { ideal: 30 } },
+          audio: true
+        });
+        state.screenStream = acquiredStream;
+        state.isScreenSharing = true;
+        state.screenShareOwnerName = state.localUser.name;
+        state.layoutMode = 'spotlight';
+        updateLayoutButtonsUI();
+
+        acquiredStream.getVideoTracks()[0].onended = () => {
+          stopScreenShare();
+        };
+
+        document.getElementById('screenShareBanner').classList.remove('hidden');
+        document.getElementById('screenShareBtnLabel').textContent = 'Đang chia sẻ';
+        document.getElementById('callScreenShareBtn').className = 'neo-btn px-4 h-11 sm:h-12 rounded-full bg-[#FFCE38] text-[#1A1A1A] flex items-center gap-2 text-xs sm:text-sm font-extrabold';
+
+        replaceOutgoingMediaTracks(acquiredStream);
+        broadcastRoomEvent({ type: 'screen-share', active: true, owner: state.localUser.name });
+        renderVideoStage();
+        showToast('Đang chia sẻ màn hình!', 'success');
+      } catch (err) {
+        showToast('Đã hủy chọn chia sẻ màn hình.', 'info');
+      }
+    }
+
+    function stopScreenShare() {
+      if (state.screenStream) {
+        state.screenStream.getTracks().forEach(t => t.stop());
+      }
+      state.screenStream = null;
+      state.isScreenSharing = false;
+      document.getElementById('screenShareBanner').classList.add('hidden');
+      document.getElementById('screenShareBtnLabel').textContent = 'Chia sẻ màn hình';
+      document.getElementById('callScreenShareBtn').className = 'neo-btn px-4 h-11 sm:h-12 rounded-full bg-[#3B66FF] text-white flex items-center gap-2 text-xs sm:text-sm font-extrabold';
+      if (state.localStream) replaceOutgoingMediaTracks(state.localStream);
+      broadcastRoomEvent({ type: 'screen-share', active: false });
+      renderVideoStage();
+      showToast('Đã dừng chia sẻ màn hình.', 'info');
+    }
+
+    // ==================== DEDICATED REMOTE AUDIO PLAYER ====================
+    function attachRemoteAudioStream(peerId, stream) {
+      if (!stream) return;
+      const container = document.getElementById('remoteAudioContainer');
+      let audioEl = document.getElementById(`remote-audio-${peerId}`);
+      if (!audioEl) {
+        audioEl = document.createElement('audio');
+        audioEl.id = `remote-audio-${peerId}`;
+        audioEl.autoplay = true;
+        audioEl.playsInline = true;
+        audioEl.setAttribute('webkit-playsinline', 'true');
+        container.appendChild(audioEl);
+      }
+      if (audioEl.srcObject !== stream) {
+        audioEl.srcObject = stream;
+        audioEl.volume = 1.0;
+        audioEl.play().catch(() => {});
+      }
+    }
+
+    function removeRemoteAudioStream(peerId) {
+      const audioEl = document.getElementById(`remote-audio-${peerId}`);
+      if (audioEl) {
+        audioEl.srcObject = null;
+        audioEl.remove();
+      }
+    }
+
+    // ==================== PARTICIPANT COUNTERS ====================
+    function updateParticipantCounters() {
+      const count = state.participants.length;
+      document.getElementById('participantCounterBadge').textContent = `${count}/${MAX_PARTICIPANTS}`;
+      document.getElementById('drawerPeopleCount').textContent = String(count);
+      document.getElementById('bottomPeopleCount').textContent = String(count);
+    }
+
+    // ==================== RENDER VIDEO STAGE (NEO-BRUTALIST POP-ART TILES) ====================
+    function getGridClasses(count) {
+      if (count === 1) return 'grid-cols-1 max-w-4xl';
+      if (count === 2) return 'grid-cols-1 sm:grid-cols-2 max-w-5xl';
+      if (count <= 4) return 'grid-cols-2 max-w-5xl';
+      if (count <= 6) return 'grid-cols-2 sm:grid-cols-3 max-w-6xl';
+      if (count <= 9) return 'grid-cols-2 sm:grid-cols-3 max-w-6xl';
+      return 'grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 max-w-7xl';
+    }
+
+    function createOrUpdateTile(existingTile, peer, isCompact = false) {
+      const tile = existingTile || document.createElement('div');
+      tile.setAttribute('data-tile-peer-id', peer.id);
+      const isPinned = state.pinnedId === peer.id;
+      const ringClass = peer.speaking && peer.micOn ? 'speaking-ring' : isPinned ? 'pinned-ring' : '';
+      tile.className = `relative neo-card overflow-hidden bg-[#1B3312] ${ringClass} flex items-center justify-center group transition-all ${
+        isCompact ? 'w-40 sm:w-52 lg:w-full h-28 sm:h-32 shrink-0' : 'w-full h-full min-h-[170px] sm:min-h-[210px]'
+      }`;
+
+      let videoEl = tile.querySelector('video.peer-video-el');
+      let fallbackEl = tile.querySelector('div.peer-fallback-el');
+      let overlayEl = tile.querySelector('div.peer-overlay-el');
+
+      if (!videoEl) {
+        videoEl = document.createElement('video');
+        videoEl.autoplay = true;
+        videoEl.playsInline = true;
+        videoEl.setAttribute('autoplay', '');
+        videoEl.setAttribute('playsinline', '');
+        videoEl.setAttribute('webkit-playsinline', 'true');
+        videoEl.muted = true;
+        videoEl.defaultMuted = true;
+        videoEl.className = 'peer-video-el w-full h-full object-cover hidden';
+        tile.appendChild(videoEl);
+      }
+      if (!fallbackEl) {
+        fallbackEl = document.createElement('div');
+        fallbackEl.className = 'peer-fallback-el w-full h-full flex flex-col items-center justify-center p-3';
+        tile.appendChild(fallbackEl);
+      }
+      if (!overlayEl) {
+        overlayEl = document.createElement('div');
+        overlayEl.className = 'peer-overlay-el absolute inset-0 pointer-events-none';
+        tile.appendChild(overlayEl);
+      }
+
+      const activeStream = peer.isLocal ? state.localStream : peer.remoteStream;
+      const videoTracks = activeStream ? activeStream.getVideoTracks() : [];
+      const hasVideoTrack = videoTracks.length > 0 && videoTracks.some(t => t.readyState === 'live');
+      const showVideo = Boolean(peer.camOn && activeStream && hasVideoTrack);
+
+      if (showVideo) {
+        videoEl.classList.remove('hidden');
+        videoEl.classList.toggle('video-mirror', Boolean(peer.isLocal && state.cameraFacingMode === 'user'));
+        if (videoEl.srcObject !== activeStream) {
+          videoEl.srcObject = activeStream;
+        }
+        // Gọi play() mỗi khi hiển thị video để tránh trình duyệt tự động pause khi thẻ bị ẩn
+        const playProm = videoEl.play();
+        if (playProm !== undefined) playProm.catch(() => {});
+        fallbackEl.classList.add('hidden');
+      } else {
+        videoEl.classList.add('hidden');
+        fallbackEl.classList.remove('hidden');
+        fallbackEl.style.backgroundColor = peer.bgHex || '#6B8E4E';
+        fallbackEl.style.backgroundImage = 'linear-gradient(to right, rgba(255,255,255,0.14) 1px, transparent 1px), linear-gradient(to bottom, rgba(255,255,255,0.14) 1px, transparent 1px)';
+        fallbackEl.style.backgroundSize = '24px 24px';
+        fallbackEl.innerHTML = `
+          <div class="neo-stamp w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-[#FFCE38] flex items-center justify-center text-[#1A1A1A] font-extrabold text-xl sm:text-2xl">
+            ${getInitials(peer.name)}
+          </div>
+          <span class="mt-2.5 px-3 py-0.5 rounded-full bg-[#FFFDF0] border-2 border-[#1A1A1A] shadow-[2px_2px_0px_#1A1A1A] text-[11px] font-extrabold uppercase text-[#1A1A1A]">
+            ${peer.camOn ? 'Đang kết nối...' : 'Camera tắt'}
+          </span>
+        `;
+      }
+
+      overlayEl.innerHTML = `
+        <div class="absolute top-3 inset-x-3 flex items-center justify-between pointer-events-none">
+          <div>
+            ${peer.handRaised ? '<span class="px-3 py-1 rounded-full bg-[#FFCE38] border-2 border-[#1A1A1A] shadow-[3px_3px_0px_#1A1A1A] text-[#1A1A1A] font-extrabold text-xs">✋ GIƠ TAY</span>' : ''}
+          </div>
+          <div class="flex items-center gap-1 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity pointer-events-auto">
+            <button type="button" data-pin-id="${peer.id}" class="pin-peer-btn neo-btn px-2.5 py-1 rounded-full bg-[#FFFDF0] text-[#1A1A1A] text-xs font-extrabold" title="Ghim lên tiêu điểm">
+              📌 Ghim
+            </button>
+          </div>
+        </div>
+        <div class="absolute bottom-3 inset-x-3 flex items-center justify-between gap-2 pointer-events-none">
+          <div class="flex items-center gap-1.5 bg-[#FFFDF0] px-3 py-1 rounded-full border-2 border-[#1A1A1A] shadow-[3px_3px_0px_#1A1A1A] max-w-[82%]">
+            <span class="text-xs font-extrabold text-[#1A1A1A] truncate">${peer.name}</span>
+            ${isPinned ? '<span class="text-[10px] text-[#3B66FF] font-extrabold uppercase">(Ghim)</span>' : ''}
+          </div>
+          <div class="w-8 h-8 rounded-full border-2 border-[#1A1A1A] shadow-[2px_2px_0px_#1A1A1A] flex items-center justify-center ${peer.micOn ? 'bg-[#FFCE38] text-[#1A1A1A]' : 'bg-[#F26B1D] text-white'}">
+            ${peer.micOn ? '🎙️' : '🔇'}
+          </div>
+        </div>
+      `;
+
+      return tile;
+    }
+
+    function reconcileContainerTiles(container, peersList, isCompact) {
+      const wantedIds = new Set(peersList.map(p => p.id));
+      Array.from(container.children).forEach(child => {
+        const pid = child.getAttribute('data-tile-peer-id');
+        if (!pid || !wantedIds.has(pid)) {
+          child.remove();
+        }
+      });
+
+      peersList.forEach(peer => {
+        const existing = container.querySelector(`[data-tile-peer-id="${peer.id}"]`);
+        const tile = createOrUpdateTile(existing, peer, isCompact);
+        if (!existing) {
+          container.appendChild(tile);
+        }
+      });
+    }
+
+    function renderVideoStage() {
+      const gridContainer = document.getElementById('videoGridContainer');
+      const spotlightContainer = document.getElementById('spotlightContainer');
+      const primarySpotlightTile = document.getElementById('primarySpotlightTile');
+      const filmstripContainer = document.getElementById('filmstripContainer');
+
+      const useSpotlight = state.layoutMode === 'spotlight' || state.isScreenSharing || Boolean(state.pinnedId);
+
+      if (useSpotlight) {
+        gridContainer.classList.add('hidden');
+        spotlightContainer.classList.remove('hidden');
+        spotlightContainer.classList.add('flex');
+
+        if (state.isScreenSharing && state.screenStream) {
+          let screenVideo = primarySpotlightTile.querySelector('video.screen-share-video');
+          if (!screenVideo) {
+            primarySpotlightTile.innerHTML = '';
+            screenVideo = document.createElement('video');
+            screenVideo.autoplay = true;
+            screenVideo.playsInline = true;
+            screenVideo.setAttribute('webkit-playsinline', 'true');
+            screenVideo.muted = true;
+            screenVideo.className = 'screen-share-video w-full h-full object-contain bg-black';
+            primarySpotlightTile.appendChild(screenVideo);
+
+            const overlayLabel = document.createElement('div');
+            overlayLabel.className = 'screen-share-label absolute bottom-3 left-3 bg-[#FFCE38] border-2 border-[#1A1A1A] shadow-[3px_3px_0px_#1A1A1A] px-3.5 py-1.5 rounded-full text-xs font-extrabold text-[#1A1A1A] flex items-center gap-2';
+            primarySpotlightTile.appendChild(overlayLabel);
+          }
+          if (screenVideo.srcObject !== state.screenStream) {
+            screenVideo.srcObject = state.screenStream;
+            screenVideo.play().catch(() => {});
+          }
+          const lbl = primarySpotlightTile.querySelector('.screen-share-label');
+          if (lbl) lbl.innerHTML = `<span>🖥️ Màn hình chia sẻ của ${state.screenShareOwnerName}</span>`;
+
+          reconcileContainerTiles(filmstripContainer, state.participants, true);
+        } else {
+          const screenVideo = primarySpotlightTile.querySelector('video.screen-share-video');
+          if (screenVideo) primarySpotlightTile.innerHTML = '';
+
+          const targetPeer = state.participants.find(p => p.id === state.pinnedId) || state.participants[0];
+          reconcileContainerTiles(primarySpotlightTile, [targetPeer], false);
+          reconcileContainerTiles(filmstripContainer, state.participants.filter(p => p.id !== targetPeer.id), true);
+        }
+      } else {
+        spotlightContainer.classList.add('hidden');
+        spotlightContainer.classList.remove('flex');
+        gridContainer.classList.remove('hidden');
+        gridContainer.className = `grid gap-3.5 sm:gap-4 w-full h-full mx-auto items-stretch ${getGridClasses(state.participants.length)}`;
+
+        reconcileContainerTiles(gridContainer, state.participants, false);
+      }
+
+      document.querySelectorAll('.pin-peer-btn').forEach(btn => {
+        btn.onclick = (e) => {
+          e.stopPropagation();
+          const pid = btn.getAttribute('data-pin-id');
+          if (state.pinnedId === pid) {
+            state.pinnedId = null;
+            state.layoutMode = 'grid';
+            showToast('Đã bỏ ghim màn hình.', 'info');
+          } else {
+            state.pinnedId = pid;
+            state.layoutMode = 'spotlight';
+            showToast('Đã ghim người tham gia lên tiêu điểm.', 'info');
+          }
+          updateLayoutButtonsUI();
+          renderVideoStage();
+        };
+      });
+    }
+
+    function updateLayoutButtonsUI() {
+      const gridBtn = document.getElementById('layoutGridBtn');
+      const spotBtn = document.getElementById('layoutSpotlightBtn');
+      const isSpot = state.layoutMode === 'spotlight' || state.isScreenSharing || Boolean(state.pinnedId);
+      if (isSpot) {
+        spotBtn.className = 'px-3 py-1 rounded-full text-xs font-extrabold bg-[#FFCE38] text-[#1A1A1A] border border-[#1A1A1A] transition';
+        gridBtn.className = 'px-3 py-1 rounded-full text-xs font-extrabold text-[#1A1A1A] hover:bg-gray-100 transition';
+      } else {
+        gridBtn.className = 'px-3 py-1 rounded-full text-xs font-extrabold bg-[#FFCE38] text-[#1A1A1A] border border-[#1A1A1A] transition';
+        spotBtn.className = 'px-3 py-1 rounded-full text-xs font-extrabold text-[#1A1A1A] hover:bg-gray-100 transition';
+      }
+    }
+
+    // ==================== RENDER PARTICIPANTS DRAWER ====================
+    function renderParticipantsList() {
+      const container = document.getElementById('participantsListEl');
+      container.innerHTML = '';
+
+      state.participants.forEach(peer => {
+        const row = document.createElement('div');
+        row.className = 'neo-card-sm flex items-center justify-between p-3 bg-white';
+        row.innerHTML = `
+          <div class="flex items-center gap-2.5 min-w-0">
+            <div class="w-10 h-10 rounded-xl border-2 border-[#1A1A1A] shadow-[2px_2px_0px_#1A1A1A] flex items-center justify-center text-xs font-extrabold text-white shrink-0" style="background-color: ${peer.bgHex || '#6B8E4E'}">
+              ${getInitials(peer.name)}
+            </div>
+            <div class="min-w-0">
+              <div class="text-xs font-extrabold text-[#1A1A1A] truncate">${peer.name}</div>
+              <div class="text-[11px] font-bold text-gray-500 flex items-center gap-1.5">
+                <span>${peer.isLocal ? 'Bạn' : 'Đang kết nối'}</span>
+                ${peer.handRaised ? '<span class="text-[#F26B1D] font-extrabold">• ✋ Giơ tay</span>' : ''}
+              </div>
+            </div>
+          </div>
+          <div class="flex items-center gap-1.5 shrink-0">
+            <span class="px-2.5 py-1 rounded-full border-2 border-[#1A1A1A] ${peer.micOn ? 'bg-[#FFCE38]' : 'bg-[#F26B1D] text-white'} text-xs font-extrabold">
+              ${peer.micOn ? '🎙️' : '🔇'}
+            </span>
+          </div>
+        `;
+        container.appendChild(row);
+      });
+    }
+
+    // ==================== RENDER CHAT MESSAGES ====================
+    function renderChatMessages() {
+      const container = document.getElementById('chatMessagesEl');
+      container.innerHTML = '';
+      if (state.chatMessages.length === 0) {
+        container.innerHTML = '<div class="text-center text-xs font-bold text-gray-500 py-8">Chưa có tin nhắn nào trong phòng họp.</div>';
+        return;
+      }
+      state.chatMessages.forEach(msg => {
+        const item = document.createElement('div');
+        item.className = 'neo-card-sm bg-white p-3';
+        item.innerHTML = `
+          <div class="flex items-center justify-between text-[11px] font-extrabold text-[#6B8E4E] mb-1">
+            <span>${msg.sender}</span>
+            <span class="text-gray-500">${msg.time}</span>
+          </div>
+          <p class="text-xs font-semibold text-[#1A1A1A] break-words">${msg.text}</p>
+        `;
+        container.appendChild(item);
+      });
+      container.scrollTop = container.scrollHeight;
+    }
+
+    // ==================== REACTIONS ANIMATION ====================
+    function triggerFloatingReaction(emoji, senderName) {
+      const container = document.getElementById('reactionContainer');
+      const pill = document.createElement('div');
+      pill.className = 'reaction-float flex items-center gap-1.5 bg-[#FFFDF0] border-[2.5px] border-[#1A1A1A] shadow-[4px_4px_0px_#1A1A1A] px-3.5 py-1.5 rounded-full';
+      pill.innerHTML = `<span class="text-2xl">${emoji}</span><span class="text-xs font-extrabold text-[#1A1A1A]">${senderName}</span>`;
+      container.appendChild(pill);
+      setTimeout(() => pill.remove(), 2400);
+    }
+
+    // ==================== BROADCAST CHANNEL & PEERJS MESH ====================
+    function broadcastRoomEvent(payload) {
+      broadcastPeerJSData(payload);
+      if (!roomChannel) return;
+      try {
+        roomChannel.postMessage({ roomCode: state.roomCode, ...payload });
+      } catch (e) {}
+    }
+
+    function handleBroadcastMessage(data) {
+      if (!data || data.roomCode !== state.roomCode || !state.inCall) return;
+      if (data.type === 'chat') {
+        state.chatMessages.push({ sender: data.sender, time: data.time, text: data.text });
+        renderChatMessages();
+        if (!state.drawerOpen || state.activeDrawerTab !== 'chat') {
+          document.getElementById('unreadChatDot').classList.remove('hidden');
+        }
+      } else if (data.type === 'reaction') {
+        triggerFloatingReaction(data.emoji, data.sender);
+      }
+    }
+
+    function copyTextSafe(text, label = 'Đã sao chép!') {
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(() => {
+          showToast(label, 'success');
+        }).catch(() => fallbackCopy(text, label));
+      } else {
+        fallbackCopy(text, label);
+      }
+    }
+
+    function fallbackCopy(text, label) {
+      const ta = document.createElement('textarea');
+      ta.value = text;
+      ta.style.position = 'fixed';
+      ta.style.opacity = '0';
+      document.body.appendChild(ta);
+      ta.select();
+      try { document.execCommand('copy'); } catch (e) {}
+      ta.remove();
+      showToast(label, 'success');
+    }
+
+    // ==================== REAL INTERNET WEBRTC MESH WITH MOBILE 4G/5G TURN RELAY ====================
+    let activePeer = null;
+    let mySlotIndex = 1;
+    let meshSyncInterval = null;
+    const dataConns = new Map();
+    const mediaCalls = new Map();
+
+    function sanitizeRoomKey(code) {
+      return (code || 'default').toLowerCase().replace(/[^a-z0-9]/g, '').slice(0, 18) || 'leet';
+    }
+
+    function getSlotPeerId(roomCode, slot) {
+      return `leet10-${sanitizeRoomKey(roomCode)}-slot-${slot}`;
+    }
+
+    function getActiveOutgoingStream() {
+      if (state.isScreenSharing && state.screenStream) {
+        const combined = new MediaStream();
+        state.screenStream.getVideoTracks().forEach(t => combined.addTrack(t));
+        if (state.localStream && state.localStream.getAudioTracks().length > 0) {
+          state.localStream.getAudioTracks().forEach(t => combined.addTrack(t));
+        } else {
+          state.screenStream.getAudioTracks().forEach(t => combined.addTrack(t));
+        }
+        return combined;
+      }
+      return state.localStream;
+    }
+
+    function initPeerJSMesh(roomCode) {
+      if (typeof Peer === 'undefined') return;
+      cleanupPeerJSMesh();
+      tryClaimSlot(roomCode, 1);
+    }
+
+    function probeAllRoomSlots(roomCode) {
+      if (!activePeer || !state.inCall) return;
+      for (let s = 1; s <= MAX_PARTICIPANTS; s++) {
+        if (s !== mySlotIndex) {
+          const targetId = getSlotPeerId(roomCode, s);
+          const existingConn = dataConns.get(targetId);
+          if (!existingConn || !existingConn.open) {
+            connectToRemoteSlot(targetId);
+          } else {
+            try {
+              existingConn.send({
+                type: 'peer-update',
+                id: activePeer.id,
+                name: state.localUser.name,
+                micOn: state.localUser.micOn,
+                camOn: state.localUser.camOn,
+                handRaised: state.localUser.handRaised
+              });
+            } catch (e) {}
+
+            // Quy tắc WebRTC: Chỉ slot nhỏ hơn mới chủ động gọi để tránh xung đột hai chiều (glare)
+            // Và CHỈ gọi khi chưa có cuộc gọi nào đang hoạt động
+            if (mySlotIndex < s && !mediaCalls.has(targetId)) {
+              const streamToSend = getActiveOutgoingStream();
+              if (streamToSend) {
+                try {
+                  const call = activePeer.call(targetId, streamToSend);
+                  setupMediaCall(call);
+                } catch (e) {}
+              }
+            }
+          }
+        }
+      }
+    }
+
+    function tryClaimSlot(roomCode, slot) {
+      if (slot > MAX_PARTICIPANTS) {
+        showToast('Phòng họp đã đủ 10/10 người!', 'warn');
+        return;
+      }
+      const candidateId = getSlotPeerId(roomCode, slot);
+      try {
+        const peer = new Peer(candidateId, {
+          config: {
+            sdpSemantics: 'unified-plan',
+            iceServers: [
+              // ---- STUN (khám phá IP công khai) ----
+              { urls: 'stun:stun.l.google.com:19302' },
+              { urls: 'stun:stun1.l.google.com:19302' },
+              { urls: 'stun:stun2.l.google.com:19302' },
+              { urls: 'stun:stun3.l.google.com:19302' },
+              { urls: 'stun:stun4.l.google.com:19302' },
+              { urls: 'stun:stun.cloudflare.com:3478' },
+              // ---- TURN Relay (OpenRelay - Miễn phí, cần cho khác WiFi) ----
+              {
+                urls: [
+                  'turn:openrelay.metered.ca:80',
+                  'turn:openrelay.metered.ca:80?transport=tcp'
+                ],
+                username: 'openrelayproject',
+                credential: 'openrelayproject'
+              },
+              {
+                urls: [
+                  'turn:openrelay.metered.ca:443',
+                  'turn:openrelay.metered.ca:443?transport=tcp'
+                ],
+                username: 'openrelayproject',
+                credential: 'openrelayproject'
+              },
+              // ---- TURN Relay (Freestun - Backup) ----
+              {
+                urls: [
+                  'turn:freestun.net:3478',
+                  'turn:freestun.net:3479'
+                ],
+                username: 'free',
+                credential: 'free'
+              },
+              {
+                urls: 'turns:freestun.net:5443',
+                username: 'free',
+                credential: 'free'
+              }
+            ]
+          }
+        });
+
+        peer.on('open', () => {
+          activePeer = peer;
+          mySlotIndex = slot;
+          const statusEl = document.getElementById('p2pBrokerStatus');
+          if (statusEl) statusEl.textContent = `✦ Đã kết nối (Vị trí #${slot}/10)`;
+
+          probeAllRoomSlots(roomCode);
+          if (meshSyncInterval) clearInterval(meshSyncInterval);
+          meshSyncInterval = setInterval(() => probeAllRoomSlots(roomCode), 3000);
+        });
+
+        peer.on('connection', (conn) => {
+          setupDataConnection(conn);
+        });
+
+        peer.on('call', (call) => {
+          const streamToSend = getActiveOutgoingStream();
+          call.answer(streamToSend || undefined);
+          setupMediaCall(call);
+        });
+
+        peer.on('error', (err) => {
+          if (err && err.type === 'unavailable-id') {
+            try { peer.destroy(); } catch (e) {}
+            tryClaimSlot(roomCode, slot + 1);
+          } else if (err && err.type === 'peer-unavailable') {
+            // Bình thường khi quét tìm slot trống trong phòng
+          } else {
+            console.warn('PeerJS event:', err);
+          }
+        });
+      } catch (e) {}
+    }
+
+    function connectToRemoteSlot(remotePeerId) {
+      if (!activePeer || dataConns.has(remotePeerId)) return;
+      try {
+        const conn = activePeer.connect(remotePeerId, { reliable: true });
+        setupDataConnection(conn);
+      } catch (e) {}
+    }
+
+    function setupDataConnection(conn) {
+      conn.on('open', () => {
+        dataConns.set(conn.peer, conn);
+        conn.send({
+          type: 'peer-hello',
+          id: activePeer ? activePeer.id : 'remote',
+          name: state.localUser.name,
+          micOn: state.localUser.micOn,
+          camOn: state.localUser.camOn,
+          handRaised: state.localUser.handRaised
+        });
+
+        // Chỉ bên có slot nhỏ hơn mới thực hiện cuộc gọi media (Caller)
+        // Bên slot lớn hơn sẽ chờ sự kiện 'call' và answer (Callee)
+        const match = conn.peer.match(/-slot-(\d+)$/);
+        const remoteSlot = match ? parseInt(match[1], 10) : 999;
+        const isInitiator = mySlotIndex < remoteSlot;
+
+        const streamToSend = getActiveOutgoingStream();
+        if (isInitiator && activePeer && streamToSend && !mediaCalls.has(conn.peer)) {
+          try {
+            const call = activePeer.call(conn.peer, streamToSend);
+            setupMediaCall(call);
+          } catch (e) {}
+        }
+      });
+
+      conn.on('data', (msg) => {
+        if (!msg || typeof msg !== 'object') return;
+        if (msg.type === 'peer-hello' || msg.type === 'peer-update') {
+          upsertRemoteRealPeer(conn.peer, msg);
+        } else if (msg.type === 'chat') {
+          state.chatMessages.push({ sender: msg.sender, time: msg.time, text: msg.text });
+          renderChatMessages();
+          if (!state.drawerOpen || state.activeDrawerTab !== 'chat') {
+            document.getElementById('unreadChatDot').classList.remove('hidden');
+          }
+        } else if (msg.type === 'reaction') {
+          triggerFloatingReaction(msg.emoji, msg.sender);
+        }
+      });
+
+      conn.on('close', () => {
+        dataConns.delete(conn.peer);
+        removeRemoteRealPeer(conn.peer);
+      });
+    }
+
+    function setupMediaCall(call) {
+      if (!call) return;
+      mediaCalls.set(call.peer, call);
+      call.on('stream', (remoteStream) => {
+        attachRemoteAudioStream(call.peer, remoteStream);
+        upsertRemoteRealPeer(call.peer, { remoteStream });
+
+        // Lắng nghe khi track video đến sau track audio hoặc khi bật lại cam
+        remoteStream.onaddtrack = () => {
+          upsertRemoteRealPeer(call.peer, { remoteStream });
+        };
+        remoteStream.onremovetrack = () => {
+          renderVideoStage();
+        };
+      });
+
+      call.on('close', () => {
+        mediaCalls.delete(call.peer);
+        removeRemoteAudioStream(call.peer);
+        const peer = state.participants.find(p => p.id === call.peer);
+        if (peer) {
+          peer.remoteStream = null;
+          renderVideoStage();
+        }
+      });
+
+      call.on('error', (err) => {
+        mediaCalls.delete(call.peer);
+        console.warn('Media call error:', err);
+      });
+    }
+
+    function upsertRemoteRealPeer(peerKey, info) {
+      let existing = state.participants.find(p => p.id === peerKey);
+      if (!existing) {
+        if (state.participants.length >= MAX_PARTICIPANTS) return;
+        const colorHex = TID_SKILL_COLORS[state.participants.length % TID_SKILL_COLORS.length];
+        existing = {
+          id: peerKey,
+          name: info.name || `Thành viên (${peerKey.slice(-6)})`,
+          role: 'Thành viên',
+          bgHex: colorHex,
+          micOn: info.micOn !== undefined ? info.micOn : true,
+          camOn: info.camOn !== undefined ? info.camOn : true,
+          handRaised: Boolean(info.handRaised),
+          speaking: false,
+          remoteStream: info.remoteStream || null
+        };
+        state.participants.push(existing);
+        showToast(`${existing.name} đã tham gia phòng họp!`, 'success');
+      } else {
+        if (info.name) existing.name = info.name;
+        if (info.micOn !== undefined) existing.micOn = info.micOn;
+        if (info.camOn !== undefined) existing.camOn = info.camOn;
+        if (info.handRaised !== undefined) existing.handRaised = info.handRaised;
+        if (info.remoteStream) existing.remoteStream = info.remoteStream;
+      }
+      updateParticipantCounters();
+      renderVideoStage();
+      renderParticipantsList();
+    }
+
+    function removeRemoteRealPeer(peerKey) {
+      removeRemoteAudioStream(peerKey);
+      const idx = state.participants.findIndex(p => p.id === peerKey);
+      if (idx > -1) {
+        const peer = state.participants[idx];
+        state.participants.splice(idx, 1);
+        showToast(`${peer.name} đã rời phòng họp.`, 'info');
+        updateParticipantCounters();
+        renderVideoStage();
+        renderParticipantsList();
+      }
+    }
+
+    function broadcastPeerJSData(payload) {
+      dataConns.forEach((conn) => {
+        try {
+          if (conn && conn.open) conn.send(payload);
+        } catch (e) {}
+      });
+    }
+
+    function replaceOutgoingMediaTracks(newStream) {
+      if (!newStream) return;
+      const newVideoTrack = newStream.getVideoTracks()[0];
+      const newAudioTrack = newStream.getAudioTracks()[0];
+      mediaCalls.forEach((call) => {
+        try {
+          if (call && call.peerConnection) {
+            const senders = call.peerConnection.getSenders();
+            if (newVideoTrack) {
+              const vSender = senders.find(s => s.track && s.track.kind === 'video');
+              if (vSender) {
+                vSender.replaceTrack(newVideoTrack);
+              } else if (call.peerConnection.addTrack) {
+                call.peerConnection.addTrack(newVideoTrack, newStream);
+              }
+            }
+            if (newAudioTrack) {
+              const aSender = senders.find(s => s.track && s.track.kind === 'audio');
+              if (aSender) {
+                aSender.replaceTrack(newAudioTrack);
+              } else if (call.peerConnection.addTrack) {
+                call.peerConnection.addTrack(newAudioTrack, newStream);
+              }
+            }
+          }
+        } catch (e) {}
+      });
+    }
+
+    function buildInviteUrl(roomCode) {
+      const code = encodeURIComponent((roomCode || 'leet-team-10').trim());
+      if (state.customPublicBaseUrl) {
+        const cleanBase = state.customPublicBaseUrl.split('?')[0].split('#')[0];
+        return `${cleanBase}?room=${code}`;
+      }
+      try {
+        const host = window.location.hostname || '';
+        const isPublicWeb = host.endsWith('.github.io') || host.endsWith('.netlify.app') || host.endsWith('.vercel.app') || host.endsWith('.pages.dev') || (host.includes('.') && !host.startsWith('127.'));
+        if (isPublicWeb && window.location.origin && window.location.origin !== 'null') {
+          return `${window.location.origin}${window.location.pathname}?room=${code}`;
+        }
+      } catch (e) {}
+      showToast('Hãy dán địa chỉ GitHub Pages / Netlify của bạn vào thanh trên cùng để gửi cho điện thoại!', 'warn');
+      return `${window.location.href.split('?')[0]}?room=${code}`;
+    }
+
+    function cleanupPeerJSMesh() {
+      if (meshSyncInterval) {
+        clearInterval(meshSyncInterval);
+        meshSyncInterval = null;
+      }
+      mediaCalls.forEach(c => { try { c.close(); } catch (e) {} });
+      mediaCalls.clear();
+      dataConns.forEach(c => { try { c.close(); } catch (e) {} });
+      dataConns.clear();
+      document.getElementById('remoteAudioContainer').innerHTML = '';
+      if (activePeer) {
+        try { activePeer.destroy(); } catch (e) {}
+        activePeer = null;
+      }
+    }
+
+    // ==================== START / LEAVE MEETING ====================
+    async function startMeeting() {
+      if (state.usingSyntheticCam) {
+        await initLocalMedia(true);
+      }
+
+      const nameInput = document.getElementById('displayNameInput');
+      const nameVal = nameInput.value.trim() || (state.isInvitedGuestView ? 'Khách mời' : 'Chủ phòng');
+      const roomVal = (state.isInvitedGuestView ? state.roomCode : document.getElementById('roomCodeInput').value.trim()) || 'leet-team-10';
+
+      state.localUser.name = nameVal;
+      state.roomCode = roomVal;
+      state.inCall = true;
+      state.participants = [state.localUser];
+
+      if (audioContext && audioContext.state === 'suspended') {
+        audioContext.resume().catch(() => {});
+      }
+      document.querySelectorAll('#remoteAudioContainer audio').forEach(a => a.play().catch(() => {}));
+
+      document.getElementById('activeRoomCodeText').textContent = roomVal;
+      document.getElementById('lobbyView').classList.add('hidden');
+      document.getElementById('meetingView').classList.remove('hidden');
+
+      updateParticipantCounters();
+      renderVideoStage();
+      renderParticipantsList();
+      renderChatMessages();
+
+      state.callSeconds = 0;
+      if (state.callTimerInterval) clearInterval(state.callTimerInterval);
+      state.callTimerInterval = setInterval(() => {
+        state.callSeconds++;
+        const hrs = String(Math.floor(state.callSeconds / 3600)).padStart(2, '0');
+        const mins = String(Math.floor((state.callSeconds % 3600) / 60)).padStart(2, '0');
+        const secs = String(state.callSeconds % 60).padStart(2, '0');
+        document.getElementById('callTimerText').textContent = `${hrs}:${mins}:${secs}`;
+      }, 1000);
+
+      initPeerJSMesh(roomVal);
+      showToast(`Đã vào phòng "${roomVal}"`, 'success');
+    }
+
+    function leaveMeeting() {
+      if (state.isScreenSharing) stopScreenShare();
+      cleanupPeerJSMesh();
+      state.inCall = false;
+      if (state.callTimerInterval) clearInterval(state.callTimerInterval);
+      document.getElementById('meetingView').classList.add('hidden');
+      document.getElementById('lobbyView').classList.remove('hidden');
+      showToast('Bạn đã rời khỏi cuộc họp.', 'info');
+    }
+
+    // ==================== EVENT LISTENERS ====================
+    window.addEventListener('DOMContentLoaded', () => {
+      initLocalMedia(false);
+
+      try {
+        const urlParams = new URLSearchParams(window.location.search);
+        const hashParams = new URLSearchParams(window.location.hash.replace(/^#/, ''));
+        const roomFromUrl = urlParams.get('room') || hashParams.get('room');
+        if (roomFromUrl) {
+          const cleanRoom = roomFromUrl.trim().slice(0, 28);
+          document.getElementById('roomCodeInput').value = cleanRoom;
+          state.roomCode = cleanRoom;
+          applyLobbyModeUI(true);
+        } else {
+          applyLobbyModeUI(false);
+        }
+      } catch (e) {
+        applyLobbyModeUI(false);
+      }
+
+      checkMobileInAppBrowser();
+
+      document.getElementById('openExternalBrowserBtn').addEventListener('click', () => {
+        const currentUrl = window.location.href;
+        copyTextSafe(currentUrl, 'Đã sao chép Link! Hãy dán vào trình duyệt Safari hoặc Chrome trên điện thoại.');
+        if (/Android/i.test(navigator.userAgent || '')) {
+          const noProtocol = currentUrl.replace(/^https?:\/\//, '');
+          window.location.href = `intent://${noProtocol}#Intent;scheme=https;package=com.android.chrome;end`;
+        }
+      });
+
+      document.getElementById('savePublicUrlBtn').addEventListener('click', () => {
+        const val = document.getElementById('customPublicUrlInput').value.trim();
+        if (!val) return;
+        state.customPublicBaseUrl = val;
+        try { localStorage.setItem('leet_public_base_url', val); } catch (e) {}
+        showToast('Đã lưu địa chỉ Web công khai của bạn!', 'success');
+      });
+
+      document.getElementById('toggleGuestPreviewBtn').addEventListener('click', () => {
+        state.roomCode = document.getElementById('roomCodeInput').value.trim() || 'leet-team-10';
+        applyLobbyModeUI(!state.isInvitedGuestView);
+      });
+
+      document.getElementById('displayNameInput').addEventListener('input', (e) => {
+        state.localUser.name = e.target.value.trim() || 'Bạn';
+        document.getElementById('lobbyAvatarInitials').textContent = getInitials(state.localUser.name);
+      });
+
+      document.getElementById('roomCodeInput').addEventListener('input', (e) => {
+        state.roomCode = e.target.value.trim() || 'leet-team-10';
+        document.getElementById('guestRoomBadgeText').textContent = state.roomCode;
+      });
+
+      document.getElementById('randomRoomBtn').addEventListener('click', () => {
+        const rand = 'leet-' + Math.random().toString(36).substring(2, 6) + '-' + Math.floor(10 + Math.random() * 89);
+        document.getElementById('roomCodeInput').value = rand;
+        state.roomCode = rand;
+        document.getElementById('guestRoomBadgeText').textContent = rand;
+        showToast(`Đã tạo mã phòng mới: ${rand}`, 'info');
+      });
+
+      document.getElementById('copyRoomLobbyBtn').addEventListener('click', () => {
+        const code = document.getElementById('roomCodeInput').value.trim() || 'leet-team-10';
+        copyTextSafe(code, `Đã sao chép mã phòng: ${code}`);
+      });
+
+      document.getElementById('copyLinkLobbyBtn').addEventListener('click', () => {
+        const code = document.getElementById('roomCodeInput').value.trim() || 'leet-team-10';
+        const url = buildInviteUrl(code);
+        copyTextSafe(url, `Đã sao chép Link mời: ${url}`);
+      });
+
+      function toggleMic() {
+        state.localUser.micOn = !state.localUser.micOn;
+        updateMediaUI();
+      }
+      function toggleCam() {
+        state.localUser.camOn = !state.localUser.camOn;
+        updateMediaUI();
+      }
+
+      document.getElementById('lobbyToggleMicBtn').addEventListener('click', toggleMic);
+      document.getElementById('cardToggleMicBtn').addEventListener('click', toggleMic);
+      document.getElementById('lobbyToggleCamBtn').addEventListener('click', toggleCam);
+      document.getElementById('cardToggleCamBtn').addEventListener('click', toggleCam);
+
+      document.getElementById('lobbyFlipCamBtn').addEventListener('click', () => {
+        flipMobileCamera();
+      });
+
+      document.getElementById('callFlipCamBtn').addEventListener('click', () => {
+        flipMobileCamera();
+      });
+
+      document.getElementById('lobbyRetryRealDeviceBtn').addEventListener('click', () => {
+        initLocalMedia(true);
+      });
+
+      document.getElementById('joinMeetingBtn').addEventListener('click', () => {
+        startMeeting();
+      });
+
+      document.getElementById('copyRoomInCallBtn').addEventListener('click', () => {
+        copyTextSafe(state.roomCode, `Đã sao chép mã phòng: ${state.roomCode}`);
+      });
+
+      document.getElementById('copyLinkInCallBtn').addEventListener('click', () => {
+        const url = buildInviteUrl(state.roomCode);
+        copyTextSafe(url, `Đã sao chép Link mời: ${url}`);
+      });
+
+      document.getElementById('drawerCopyInviteLinkBtn').addEventListener('click', () => {
+        const url = buildInviteUrl(state.roomCode);
+        copyTextSafe(url, `Đã sao chép Link mời: ${url}`);
+      });
+
+      document.getElementById('layoutGridBtn').addEventListener('click', () => {
+        state.layoutMode = 'grid';
+        state.pinnedId = null;
+        updateLayoutButtonsUI();
+        renderVideoStage();
+      });
+
+      document.getElementById('layoutSpotlightBtn').addEventListener('click', () => {
+        state.layoutMode = 'spotlight';
+        updateLayoutButtonsUI();
+        renderVideoStage();
+      });
+
+      document.getElementById('callToggleMicBtn').addEventListener('click', () => {
+        toggleMic();
+        showToast(state.localUser.micOn ? 'Đã bật Micro' : 'Đã tắt Micro', 'info');
+      });
+
+      document.getElementById('callToggleCamBtn').addEventListener('click', () => {
+        toggleCam();
+        showToast(state.localUser.camOn ? 'Đã bật Camera' : 'Đã tắt Camera', 'info');
+      });
+
+      document.getElementById('callScreenShareBtn').addEventListener('click', () => {
+        toggleScreenShare();
+      });
+
+      document.getElementById('stopScreenShareBannerBtn').addEventListener('click', () => {
+        stopScreenShare();
+      });
+
+      document.getElementById('callRaiseHandBtn').addEventListener('click', () => {
+        state.localUser.handRaised = !state.localUser.handRaised;
+        const btn = document.getElementById('callRaiseHandBtn');
+        btn.className = state.localUser.handRaised
+          ? 'neo-btn w-11 h-11 sm:w-12 sm:h-12 rounded-full bg-[#FFCE38] text-[#1A1A1A] flex items-center justify-center text-lg'
+          : 'neo-btn w-11 h-11 sm:w-12 sm:h-12 rounded-full bg-[#FFFDF0] text-[#1A1A1A] flex items-center justify-center text-lg';
+        broadcastRoomEvent({
+          type: 'peer-update',
+          name: state.localUser.name,
+          micOn: state.localUser.micOn,
+          camOn: state.localUser.camOn,
+          handRaised: state.localUser.handRaised
+        });
+        renderVideoStage();
+        renderParticipantsList();
+      });
+
+      document.querySelectorAll('.reaction-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const emoji = btn.getAttribute('data-emoji');
+          triggerFloatingReaction(emoji, state.localUser.name);
+          broadcastRoomEvent({ type: 'reaction', emoji, sender: state.localUser.name });
+        });
+      });
+
+      document.getElementById('leaveCallBtn').addEventListener('click', () => {
+        leaveMeeting();
+      });
+
+      function openDrawer(tab) {
+        const drawer = document.getElementById('sideDrawer');
+        if (state.drawerOpen && state.activeDrawerTab === tab) {
+          state.drawerOpen = false;
+          drawer.classList.add('hidden');
+          return;
+        }
+        state.drawerOpen = true;
+        state.activeDrawerTab = tab;
+        drawer.classList.remove('hidden');
+
+        const isPeople = tab === 'participants';
+        document.getElementById('participantsPanel').classList.toggle('hidden', !isPeople);
+        document.getElementById('chatPanel').classList.toggle('hidden', isPeople);
+
+        document.getElementById('tabParticipantsBtn').className = isPeople
+          ? 'flex-1 py-1.5 rounded-full text-xs font-extrabold bg-[#FFCE38] text-[#1A1A1A] border border-[#1A1A1A] transition'
+          : 'flex-1 py-1.5 rounded-full text-xs font-extrabold text-[#1A1A1A] transition';
+        document.getElementById('tabChatBtn').className = !isPeople
+          ? 'flex-1 py-1.5 rounded-full text-xs font-extrabold bg-[#FFCE38] text-[#1A1A1A] border border-[#1A1A1A] transition'
+          : 'flex-1 py-1.5 rounded-full text-xs font-extrabold text-[#1A1A1A] transition';
+
+        if (!isPeople) {
+          document.getElementById('unreadChatDot').classList.add('hidden');
+          renderChatMessages();
+        }
+      }
+
+      document.getElementById('togglePeopleDrawerBtn').addEventListener('click', () => openDrawer('participants'));
+      document.getElementById('toggleChatDrawerBtn').addEventListener('click', () => openDrawer('chat'));
+      document.getElementById('tabParticipantsBtn').addEventListener('click', () => openDrawer('participants'));
+      document.getElementById('tabChatBtn').addEventListener('click', () => openDrawer('chat'));
+      document.getElementById('closeDrawerBtn').addEventListener('click', () => {
+        state.drawerOpen = false;
+        document.getElementById('sideDrawer').classList.add('hidden');
+      });
+
+      document.getElementById('chatForm').addEventListener('submit', (e) => {
+        e.preventDefault();
+        const input = document.getElementById('chatInput');
+        const text = input.value.trim();
+        if (!text) return;
+        const now = new Date();
+        const time = String(now.getHours()).padStart(2, '0') + ':' + String(now.getMinutes()).padStart(2, '0');
+        state.chatMessages.push({ sender: state.localUser.name, time, text });
+        input.value = '';
+        renderChatMessages();
+        broadcastRoomEvent({ type: 'chat', sender: state.localUser.name, time, text });
+      });
+    });
+  </script>
+</body>
+</html>
