@@ -131,6 +131,73 @@
     </div>
   </div>
 
+  <!-- TURN RELAY SETTINGS MODAL (NEO-BRUTALIST STYLE) -->
+  <div id="turnModal" class="hidden fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-[#FFFDF0] neo-card w-full max-w-lg p-5 sm:p-6 flex flex-col gap-4 text-[#1A1A1A]">
+      <div class="flex items-center justify-between border-b-2 border-[#1A1A1A] pb-3">
+        <div class="flex items-center gap-2">
+          <span class="text-xl">⚙️</span>
+          <h2 class="text-base sm:text-lg font-extrabold uppercase">Cấu hình TURN Relay (Khác WiFi / 4G)</h2>
+        </div>
+        <button id="closeTurnModalBtn" type="button" class="neo-btn w-8 h-8 rounded-full bg-white font-extrabold text-sm flex items-center justify-center">✕</button>
+      </div>
+
+      <div class="text-xs space-y-2">
+        <p class="font-bold text-gray-700">
+          Khi 2 người ở <strong>khác mạng WiFi</strong> (hoặc 1 máy dùng 4G, 1 máy dùng WiFi), nhà mạng sẽ chặn kết nối P2P trực tiếp do tường lửa NAT đối xứng. Bạn cần <strong>TURN Relay</strong> để làm cầu nối trung gian chuyển tiếp video.
+        </p>
+        <div class="bg-[#FFCE38]/40 border-2 border-[#1A1A1A] rounded-xl p-3 text-[11px] font-bold">
+          💡 <strong>Cách lấy TURN miễn phí 100% (50GB/tháng, chỉ mất 1 phút):</strong><br/>
+          1. Đăng ký tài khoản miễn phí tại <a href="https://www.metered.ca/" target="_blank" class="text-[#3B66FF] underline">metered.ca</a> (không cần thẻ).<br/>
+          2. Vào <strong>TURN Server Dashboard</strong> → Copy <strong>App Name</strong> & <strong>API Key</strong> (hoặc Username & Password) dán vào dưới:
+        </div>
+      </div>
+
+      <div class="flex flex-col gap-3">
+        <div>
+          <label class="block text-xs font-extrabold uppercase mb-1">Metered App Name</label>
+          <input id="turnAppNameInput" type="text" placeholder="vd: myapp (trong myapp.metered.live)" class="neo-input w-full px-3.5 py-2 rounded-xl text-xs font-bold" />
+        </div>
+        <div>
+          <label class="block text-xs font-extrabold uppercase mb-1">Metered API Key</label>
+          <input id="turnApiKeyInput" type="text" placeholder="vd: a1b2c3d4e5f6..." class="neo-input w-full px-3.5 py-2 rounded-xl text-xs font-bold" />
+        </div>
+
+        <div class="text-center text-[11px] font-extrabold text-gray-500">— HOẶC DÙNG MÁY CHỦ TURN TÙY CHỌN —</div>
+
+        <div>
+          <label class="block text-[11px] font-extrabold uppercase mb-1">TURN URL (Tùy chọn)</label>
+          <input id="turnUrlInput" type="text" placeholder="vd: turn:standard.relay.metered.ca:443" class="neo-input w-full px-3 py-1.5 rounded-xl text-xs font-bold" />
+        </div>
+
+        <div class="grid grid-cols-2 gap-2">
+          <div>
+            <label class="block text-[11px] font-extrabold uppercase mb-1">TURN Username</label>
+            <input id="turnUserInput" type="text" placeholder="Username" class="neo-input w-full px-3 py-1.5 rounded-xl text-xs font-bold" />
+          </div>
+          <div>
+            <label class="block text-[11px] font-extrabold uppercase mb-1">TURN Password / Credential</label>
+            <input id="turnPassInput" type="password" placeholder="Password" class="neo-input w-full px-3 py-1.5 rounded-xl text-xs font-bold" />
+          </div>
+        </div>
+
+        <div id="turnTestResultBox" class="hidden p-3 rounded-xl border-2 border-[#1A1A1A] text-xs font-bold"></div>
+      </div>
+
+      <div class="flex flex-wrap gap-2 pt-2 border-t-2 border-[#1A1A1A]">
+        <button id="testTurnConfigBtn" type="button" class="neo-btn px-4 py-2.5 rounded-full bg-[#FFCE38] hover:bg-[#ffd859] text-[#1A1A1A] text-xs font-extrabold uppercase">
+          ⚡ Thử nghiệm TURN
+        </button>
+        <button id="saveTurnConfigBtn" type="button" class="neo-btn flex-1 py-2.5 rounded-full bg-[#2E8B57] hover:bg-[#257347] text-white text-xs font-extrabold uppercase">
+          Lưu cấu hình
+        </button>
+        <button id="clearTurnConfigBtn" type="button" class="neo-btn px-3 py-2.5 rounded-full bg-white text-xs font-extrabold text-gray-700">
+          Xóa
+        </button>
+      </div>
+    </div>
+  </div>
+
   <!-- TOAST NOTIFICATION CONTAINER -->
   <div id="toastContainer" class="fixed top-4 right-4 z-50 flex flex-col gap-2.5 max-w-sm w-full pointer-events-none px-3 sm:px-0"></div>
 
@@ -159,10 +226,13 @@
         </div>
       </div>
 
-      <!-- Mode Switcher Pill -->
+      <!-- Mode Switcher Pill & TURN Settings -->
       <div class="flex items-center gap-2">
+        <button id="openTurnSettingsBtn" type="button" class="neo-btn px-3 py-1.5 rounded-full bg-[#3B66FF] hover:bg-[#2d52d9] text-[11px] sm:text-xs font-extrabold text-white uppercase tracking-wide flex items-center gap-1.5">
+          <span>⚙️</span> Cấu hình TURN (Khác WiFi / 4G)
+        </button>
         <button id="toggleGuestPreviewBtn" type="button" class="neo-btn px-3.5 py-1.5 rounded-full bg-[#FFCE38] hover:bg-[#ffd859] text-[11px] sm:text-xs font-extrabold text-[#1A1A1A] uppercase tracking-wide">
-          Đổi chế độ: Khách mời / Chủ phòng
+          Đổi chế độ
         </button>
       </div>
     </header>
@@ -343,8 +413,11 @@
         <span class="text-xs font-extrabold uppercase">Trong phòng: <strong id="participantCounterBadge" class="text-[#FFCE38]">1/10</strong></span>
       </div>
 
-      <!-- Right: Layout Switcher -->
+      <!-- Right: Layout Switcher & TURN Relay -->
       <div class="flex items-center gap-2">
+        <button id="openTurnSettingsInCallBtn" type="button" class="neo-btn px-2.5 py-1 rounded-full bg-[#3B66FF] hover:bg-[#2e52d4] text-white text-xs font-extrabold flex items-center gap-1 shadow-[2px_2px_0px_#1A1A1A]" title="Cấu hình TURN Relay (Khác WiFi / 4G)">
+          <span>⚙️</span><span class="hidden md:inline">TURN</span>
+        </button>
         <div class="flex items-center bg-white p-1 rounded-full border-2 border-[#1A1A1A] shadow-[3px_3px_0px_#1A1A1A]">
           <button id="layoutGridBtn" type="button" class="px-3 py-1 rounded-full text-xs font-extrabold bg-[#FFCE38] text-[#1A1A1A] border border-[#1A1A1A] transition">
             Lưới
@@ -1322,23 +1395,42 @@
 
     const pendingConns = new Set();
 
-    function getIceServers() {
+    async function getIceServersAsync() {
       const servers = [
         { urls: 'stun:stun.l.google.com:19302' },
         { urls: 'stun:stun1.l.google.com:19302' },
         { urls: 'stun:stun2.l.google.com:19302' },
-        { urls: 'stun:stun3.l.google.com:19302' },
-        { urls: 'stun:stun4.l.google.com:19302' },
         { urls: 'stun:stun.cloudflare.com:3478' }
       ];
 
-      // Tự động load TURN Relay tùy chỉnh nếu người dùng cấu hình
       try {
-        const savedTurn = localStorage.getItem('leet_custom_turn');
+        const savedTurn = localStorage.getItem('leet_turn_config');
         if (savedTurn) {
           const parsed = JSON.parse(savedTurn);
-          if (Array.isArray(parsed)) servers.push(...parsed);
-          else if (parsed && parsed.urls) servers.push(parsed);
+          // Case 1: Metered App Name & API Key
+          if (parsed.appName && parsed.apiKey) {
+            try {
+              const res = await fetch(`https://${parsed.appName}.metered.live/api/v1/turn/credentials?apiKey=${parsed.apiKey}`);
+              if (res.ok) {
+                const data = await res.json();
+                if (Array.isArray(data)) {
+                  servers.push(...data);
+                  return servers;
+                }
+              }
+            } catch (e) {
+              console.warn('Không thể nạp Metered TURN credentials tự động:', e);
+            }
+          }
+          // Case 2: Static TURN URL, username, password
+          if (parsed.username && parsed.credential) {
+            const turnUrl = parsed.turnUrl || 'turn:standard.relay.metered.ca:443';
+            servers.push({
+              urls: [turnUrl, `${turnUrl}?transport=tcp`],
+              username: parsed.username,
+              credential: parsed.credential
+            });
+          }
         }
       } catch (e) {}
 
@@ -1348,10 +1440,10 @@
     function probeAllRoomSlots(roomCode) {
       if (!activePeer || !state.inCall) return;
       // QUAN TRỌNG: Chỉ kết nối tới các slot < mySlotIndex (những người đã vào phòng trước mình)
-      // Những người vào sau (slot > mySlotIndex) sẽ tự động chủ động kết nối tới mình!
-      // Việc này triệt tiêu hoàn toàn lỗi spam 8 slot rỗng lên 0.peerjs.com gây rớt mạng!
       for (let s = 1; s < mySlotIndex; s++) {
         const targetId = getSlotPeerId(roomCode, s);
+        
+        // 1. Data Connection (trao đổi tên, trạng thái mic/cam, chat, emoji)
         const existingConn = dataConns.get(targetId);
         if (!existingConn || !existingConn.open) {
           connectToRemoteSlot(targetId);
@@ -1367,20 +1459,40 @@
             });
           } catch (e) {}
         }
+
+        // 2. Media Call (Khởi tạo trực tiếp song song, không phụ thuộc DataChannel!)
+        if (!mediaCalls.has(targetId)) {
+          callRemoteSlot(targetId);
+        }
       }
     }
 
-    function tryClaimSlot(roomCode, slot) {
+    function callRemoteSlot(targetId) {
+      if (!activePeer || mediaCalls.has(targetId) || !state.inCall) return;
+      const streamToSend = getActiveOutgoingStream();
+      if (streamToSend) {
+        console.log(`[Call] Chủ động gọi video/audio tới ${targetId}...`);
+        try {
+          const call = activePeer.call(targetId, streamToSend);
+          setupMediaCall(call);
+        } catch (e) {
+          console.warn(`[Call] Lỗi gọi media tới ${targetId}:`, e);
+        }
+      }
+    }
+
+    async function tryClaimSlot(roomCode, slot) {
       if (slot > MAX_PARTICIPANTS) {
         showToast('Phòng họp đã đủ 10/10 người!', 'warn');
         return;
       }
       const candidateId = getSlotPeerId(roomCode, slot);
       try {
+        const iceServers = await getIceServersAsync();
         const peer = new Peer(candidateId, {
           config: {
             sdpSemantics: 'unified-plan',
-            iceServers: getIceServers()
+            iceServers: iceServers
           }
         });
 
@@ -1388,7 +1500,7 @@
           activePeer = peer;
           mySlotIndex = slot;
           const statusEl = document.getElementById('p2pBrokerStatus');
-          if (statusEl) statusEl.textContent = `✦ Đã kết nối (Vị trí #${slot}/10)`;
+          if (statusEl) statusEl.textContent = `✦ Đã vào phòng (Vị trí #${slot}/10)`;
 
           probeAllRoomSlots(roomCode);
           if (meshSyncInterval) clearInterval(meshSyncInterval);
@@ -1400,6 +1512,7 @@
         });
 
         peer.on('call', (call) => {
+          console.log(`[Call] Nhận cuộc gọi video/audio từ ${call.peer}, đang trả lời...`);
           const streamToSend = getActiveOutgoingStream();
           call.answer(streamToSend || undefined);
           setupMediaCall(call);
@@ -1413,14 +1526,18 @@
         peer.on('error', (err) => {
           if (err && err.type === 'unavailable-id') {
             try { peer.destroy(); } catch (e) {}
-            tryClaimSlot(roomCode, slot + 1);
+            setTimeout(() => {
+              if (state.inCall) tryClaimSlot(roomCode, slot + 1);
+            }, 120);
           } else if (err && err.type === 'peer-unavailable') {
-            // Peer chưa online, bình thường
+            // Slot chưa có người online, bình thường
           } else {
             console.warn('PeerJS event:', err);
           }
         });
-      } catch (e) {}
+      } catch (e) {
+        console.warn('Lỗi khởi tạo PeerJS:', e);
+      }
     }
 
     function connectToRemoteSlot(remotePeerId) {
@@ -1435,32 +1552,29 @@
     }
 
     function setupDataConnection(conn) {
-      conn.on('open', () => {
+      if (!conn) return;
+
+      function onConnOpen() {
         pendingConns.delete(conn.peer);
         dataConns.set(conn.peer, conn);
-        conn.send({
-          type: 'peer-hello',
-          id: activePeer ? activePeer.id : 'remote',
-          name: state.localUser.name,
-          micOn: state.localUser.micOn,
-          camOn: state.localUser.camOn,
-          handRaised: state.localUser.handRaised
-        });
+        console.log(`[DataChannel] Đã mở kết nối với ${conn.peer}`);
+        try {
+          conn.send({
+            type: 'peer-hello',
+            id: activePeer ? activePeer.id : 'remote',
+            name: state.localUser.name,
+            micOn: state.localUser.micOn,
+            camOn: state.localUser.camOn,
+            handRaised: state.localUser.handRaised
+          });
+        } catch (e) {}
+      }
 
-        // Chỉ bên có slot nhỏ hơn mới thực hiện cuộc gọi media (Caller)
-        // Bên slot lớn hơn sẽ chờ sự kiện 'call' và answer (Callee)
-        const match = conn.peer.match(/-slot-(\d+)$/);
-        const remoteSlot = match ? parseInt(match[1], 10) : 999;
-        const isInitiator = mySlotIndex < remoteSlot;
-
-        const streamToSend = getActiveOutgoingStream();
-        if (isInitiator && activePeer && streamToSend && !mediaCalls.has(conn.peer)) {
-          try {
-            const call = activePeer.call(conn.peer, streamToSend);
-            setupMediaCall(call);
-          } catch (e) {}
-        }
-      });
+      if (conn.open) {
+        onConnOpen();
+      } else {
+        conn.on('open', onConnOpen);
+      }
 
       conn.on('data', (msg) => {
         if (!msg || typeof msg !== 'object') return;
@@ -1491,7 +1605,23 @@
     function setupMediaCall(call) {
       if (!call) return;
       mediaCalls.set(call.peer, call);
+
+      if (call.peerConnection) {
+        call.peerConnection.oniceconnectionstatechange = () => {
+          const iceState = call.peerConnection.iceConnectionState;
+          console.log(`[ICE] ${call.peer} state: ${iceState}`);
+          const brokerEl = document.getElementById('p2pBrokerStatus');
+          if (iceState === 'connected' || iceState === 'completed') {
+            if (brokerEl) brokerEl.textContent = `✦ Đã kết nối P2P · HD Voice`;
+          } else if (iceState === 'failed') {
+            if (brokerEl) brokerEl.textContent = `⚠️ Cần TURN Relay (Khác mạng)`;
+            showToast('Không thể kết nối video do tường lửa khác WiFi/4G. Bấm nút ⚙️ Cấu hình TURN ở trên để thông mạng!', 'warn');
+          }
+        };
+      }
+
       call.on('stream', (remoteStream) => {
+        console.log(`[Stream] Nhận luồng media từ ${call.peer}`);
         attachRemoteAudioStream(call.peer, remoteStream);
         upsertRemoteRealPeer(call.peer, { remoteStream });
 
@@ -1699,10 +1829,150 @@
           state.roomCode = cleanRoom;
           applyLobbyModeUI(true);
         } else {
+          const autoCode = 'leet-' + Math.random().toString(36).substring(2, 6) + '-' + Math.floor(10 + Math.random() * 89);
+          document.getElementById('roomCodeInput').value = autoCode;
+          state.roomCode = autoCode;
           applyLobbyModeUI(false);
         }
       } catch (e) {
         applyLobbyModeUI(false);
+      }
+
+      window.addEventListener('beforeunload', () => {
+        cleanupPeerJSMesh();
+      });
+
+      // ==================== TURN CONFIGURATION MODAL LISTENERS ====================
+      const turnModal = document.getElementById('turnModal');
+      const openTurnBtn = document.getElementById('openTurnSettingsBtn');
+      const openTurnInCallBtn = document.getElementById('openTurnSettingsInCallBtn');
+      const closeTurnBtn = document.getElementById('closeTurnModalBtn');
+      const saveTurnBtn = document.getElementById('saveTurnConfigBtn');
+      const clearTurnBtn = document.getElementById('clearTurnConfigBtn');
+      const testTurnBtn = document.getElementById('testTurnConfigBtn');
+      const testResultBox = document.getElementById('turnTestResultBox');
+
+      function loadSavedTurnInputs() {
+        try {
+          const saved = localStorage.getItem('leet_turn_config');
+          if (saved) {
+            const parsed = JSON.parse(saved);
+            if (parsed.appName) document.getElementById('turnAppNameInput').value = parsed.appName;
+            if (parsed.apiKey) document.getElementById('turnApiKeyInput').value = parsed.apiKey;
+            if (parsed.turnUrl && document.getElementById('turnUrlInput')) document.getElementById('turnUrlInput').value = parsed.turnUrl;
+            if (parsed.username) document.getElementById('turnUserInput').value = parsed.username;
+            if (parsed.credential) document.getElementById('turnPassInput').value = parsed.credential;
+          }
+        } catch (e) {}
+      }
+      loadSavedTurnInputs();
+
+      if (openTurnBtn) {
+        openTurnBtn.addEventListener('click', () => {
+          loadSavedTurnInputs();
+          turnModal.classList.remove('hidden');
+        });
+      }
+
+      if (openTurnInCallBtn) {
+        openTurnInCallBtn.addEventListener('click', () => {
+          loadSavedTurnInputs();
+          turnModal.classList.remove('hidden');
+        });
+      }
+
+      if (closeTurnBtn) {
+        closeTurnBtn.addEventListener('click', () => {
+          turnModal.classList.add('hidden');
+        });
+      }
+
+      if (saveTurnBtn) {
+        saveTurnBtn.addEventListener('click', () => {
+          const appName = document.getElementById('turnAppNameInput').value.trim();
+          const apiKey = document.getElementById('turnApiKeyInput').value.trim();
+          const turnUrl = document.getElementById('turnUrlInput') ? document.getElementById('turnUrlInput').value.trim() : '';
+          const username = document.getElementById('turnUserInput').value.trim();
+          const credential = document.getElementById('turnPassInput').value.trim();
+
+          if (!appName && !apiKey && !username) {
+            showToast('Vui lòng nhập App Name & API Key từ metered.ca hoặc Username/Password', 'warn');
+            return;
+          }
+
+          const configObj = { appName, apiKey, turnUrl, username, credential };
+          localStorage.setItem('leet_turn_config', JSON.stringify(configObj));
+          showToast('Đã lưu cấu hình TURN Relay thành công!', 'success');
+          turnModal.classList.add('hidden');
+
+          if (state.inCall) {
+            showToast('Đang áp dụng TURN mới cho cuộc họp...', 'info');
+            cleanupPeerJSMesh();
+            initPeerJSMesh(state.roomCode);
+          }
+        });
+      }
+
+      if (clearTurnBtn) {
+        clearTurnBtn.addEventListener('click', () => {
+          localStorage.removeItem('leet_turn_config');
+          document.getElementById('turnAppNameInput').value = '';
+          document.getElementById('turnApiKeyInput').value = '';
+          if (document.getElementById('turnUrlInput')) document.getElementById('turnUrlInput').value = '';
+          document.getElementById('turnUserInput').value = '';
+          document.getElementById('turnPassInput').value = '';
+          if (testResultBox) testResultBox.classList.add('hidden');
+          showToast('Đã xóa cấu hình TURN.', 'info');
+        });
+      }
+
+      if (testTurnBtn) {
+        testTurnBtn.addEventListener('click', async () => {
+          testResultBox.classList.remove('hidden');
+          testResultBox.className = 'p-3 rounded-xl border-2 border-[#1A1A1A] bg-[#FFCE38]/30 text-xs font-bold text-[#1A1A1A]';
+          testResultBox.textContent = '⏳ Đang gửi gói tin kiểm tra tới TURN Relay...';
+
+          try {
+            const servers = await getIceServersAsync();
+            const turnServers = servers.filter(s => {
+              const u = Array.isArray(s.urls) ? s.urls : [s.urls];
+              return u.some(url => url && url.startsWith('turn:'));
+            });
+
+            if (turnServers.length === 0) {
+              testResultBox.className = 'p-3 rounded-xl border-2 border-[#1A1A1A] bg-[#F26B1D]/20 text-[#D92D20] text-xs font-bold';
+              testResultBox.textContent = '⚠️ Chưa tìm thấy máy chủ TURN nào. Vui lòng nhập App Name & API Key từ metered.ca hoặc Username/Password!';
+              return;
+            }
+
+            const pc = new RTCPeerConnection({ iceServers: servers });
+            let relayFound = false;
+
+            pc.onicecandidate = (event) => {
+              if (event.candidate && event.candidate.type === 'relay') {
+                relayFound = true;
+                testResultBox.className = 'p-3 rounded-xl border-2 border-[#1A1A1A] bg-[#2E8B57]/20 text-[#1B3312] text-xs font-bold';
+                testResultBox.innerHTML = `✅ <strong>KẾT NỐI THÀNH CÔNG!</strong> Đã nhận được gói TURN Relay (${event.candidate.protocol.toUpperCase()}). Thiết bị đã sẵn sàng kết nối xuyên mạng 4G và WiFi!`;
+                try { pc.close(); } catch (e) {}
+              }
+            };
+
+            pc.createDataChannel('turn-test');
+            const offer = await pc.createOffer();
+            await pc.setLocalDescription(offer);
+
+            setTimeout(() => {
+              if (!relayFound) {
+                testResultBox.className = 'p-3 rounded-xl border-2 border-[#1A1A1A] bg-[#F26B1D]/20 text-[#D92D20] text-xs font-bold';
+                testResultBox.innerHTML = '❌ <strong>KHÔNG NHẬN ĐƯỢC PHẢN HỒI TURN!</strong> Kiểm tra lại App Name & API Key xem có gõ sai hoặc bị quá hạn ngạch không.';
+                try { pc.close(); } catch (e) {}
+              }
+            }, 6000);
+          } catch (err) {
+            testResultBox.className = 'p-3 rounded-xl border-2 border-[#1A1A1A] bg-[#F26B1D]/20 text-[#D92D20] text-xs font-bold';
+            testResultBox.textContent = '❌ Lỗi: ' + (err.message || err);
+          }
+        });
       }
 
       checkMobileInAppBrowser();
