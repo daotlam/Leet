@@ -80,23 +80,125 @@
       transform: rotate(-2deg);
     }
     .video-mirror { transform: scaleX(-1); }
+    @keyframes speakGlow {
+      0% {
+        box-shadow: 0 0 0 3px #1A1A1A, 0 0 0 4px #FFCE38, 5px 5px 0px #1A1A1A;
+      }
+      50% {
+        box-shadow: 0 0 0 3px #1A1A1A, 0 0 0 9px rgba(255, 206, 56, 0.75), 7px 7px 0px #1A1A1A;
+      }
+      100% {
+        box-shadow: 0 0 0 3px #1A1A1A, 0 0 0 4px #FFCE38, 5px 5px 0px #1A1A1A;
+      }
+    }
     .speaking-ring {
       border-color: #FFCE38 !important;
-      box-shadow: 0 0 0 3px #1A1A1A, 6px 6px 0px #FFCE38 !important;
+      animation: speakGlow 1.4s ease-in-out infinite !important;
     }
     .pinned-ring {
       border-color: #3B66FF !important;
-      box-shadow: 6px 6px 0px #3B66FF !important;
+      box-shadow: 0 0 0 3px #1A1A1A, 6px 6px 0px #3B66FF !important;
     }
-    @keyframes floatUp {
-      0% { transform: translateY(0) scale(0.8); opacity: 1; }
-      70% { transform: translateY(-140px) scale(1.25); opacity: 0.95; }
-      100% { transform: translateY(-210px) scale(1); opacity: 0; }
+
+    /* Live Equalizer Sound Wave Animation */
+    .sound-wave-bar {
+      width: 3px;
+      height: 12px;
+      background-color: #1A1A1A;
+      border-radius: 9999px;
+      display: inline-block;
+      animation: waveHeight 0.7s ease-in-out infinite alternate;
+    }
+    .sound-wave-bar:nth-child(2) {
+      animation-delay: 0.22s;
+    }
+    .sound-wave-bar:nth-child(3) {
+      animation-delay: 0.44s;
+    }
+    @keyframes waveHeight {
+      0% { height: 4px; }
+      100% { height: 13px; }
+    }
+
+    /* Floating Reactions with Bounce, Rotation and Physics */
+    @keyframes floatUpWiggle {
+      0% {
+        transform: translateY(0) scale(0.65) rotate(-6deg);
+        opacity: 0;
+      }
+      18% {
+        transform: translateY(-24px) scale(1.18) rotate(5deg);
+        opacity: 1;
+      }
+      45% {
+        transform: translateY(-75px) scale(1) rotate(-5deg);
+      }
+      75% {
+        transform: translateY(-145px) scale(1.06) rotate(4deg);
+        opacity: 0.95;
+      }
+      100% {
+        transform: translateY(-230px) scale(0.85) rotate(-2deg);
+        opacity: 0;
+      }
     }
     .reaction-float {
-      animation: floatUp 2.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+      animation: floatUpWiggle 2.5s cubic-bezier(0.2, 0.9, 0.3, 1) forwards;
       pointer-events: none;
+      filter: drop-shadow(3px 3px 0px #1A1A1A);
     }
+
+    /* Pop-Art Confetti Explosion */
+    @keyframes confettiFall {
+      0% {
+        transform: translate3d(0, 0, 0) rotate(0deg) scale(1);
+        opacity: 1;
+      }
+      100% {
+        transform: translate3d(var(--tx), var(--ty), 0) rotate(var(--rot)) scale(0.6);
+        opacity: 0;
+      }
+    }
+    .confetti-piece {
+      position: fixed;
+      width: 10px;
+      height: 10px;
+      border: 1.5px solid #1A1A1A;
+      box-shadow: 2px 2px 0px #1A1A1A;
+      pointer-events: none;
+      z-index: 9999;
+      animation: confettiFall 1.8s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+    }
+
+    /* Toast Spring Animation */
+    @keyframes toastPop {
+      0% {
+        transform: translateX(110%) scale(0.8);
+        opacity: 0;
+      }
+      70% {
+        transform: translateX(-8px) scale(1.03);
+        opacity: 1;
+      }
+      100% {
+        transform: translateX(0) scale(1);
+        opacity: 1;
+      }
+    }
+    .toast-animate {
+      animation: toastPop 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+    }
+
+    /* View Fade & Scale Transition */
+    @keyframes viewFadeIn {
+      0% { opacity: 0; transform: scale(0.985); }
+      100% { opacity: 1; transform: scale(1); }
+    }
+    .animate-view-in {
+      animation: viewFadeIn 0.32s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+
+    /* Mascot Spin & Wink */
     @keyframes sunSpin {
       0% { transform: rotate(0deg); }
       50% { transform: rotate(8deg) scale(1.05); }
@@ -104,10 +206,26 @@
     }
     .sun-mascot {
       animation: sunSpin 4s ease-in-out infinite;
+      cursor: pointer;
+      transition: transform 0.2s ease;
     }
+    .sun-mascot:hover {
+      animation: sunWink 0.6s ease-in-out;
+    }
+    @keyframes sunWink {
+      0% { transform: scale(1) rotate(0deg); }
+      35% { transform: scale(1.25) rotate(-15deg); }
+      70% { transform: scale(1.15) rotate(10deg); }
+      100% { transform: scale(1) rotate(0deg); }
+    }
+
+    /* Custom Scrollbars */
     ::-webkit-scrollbar { width: 8px; height: 8px; }
     ::-webkit-scrollbar-track { background: #FFFDF0; border-left: 2px solid #1A1A1A; }
     ::-webkit-scrollbar-thumb { background: #6B8E4E; border: 2px solid #1A1A1A; border-radius: 9999px; }
+
+    .no-scrollbar::-webkit-scrollbar { display: none; }
+    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
   </style>
 </head>
 <body class="min-h-screen flex flex-col tid-page-grid text-[#1A1A1A] select-none">
@@ -226,8 +344,11 @@
         </div>
       </div>
 
-      <!-- Mode Switcher Pill & TURN Settings -->
+      <!-- Mode Switcher Pill, SFX & TURN Settings -->
       <div class="flex items-center gap-2">
+        <button id="lobbySfxToggleBtn" type="button" class="sfx-toggle-btn neo-btn px-3 py-1.5 rounded-full bg-[#FFCE38] text-[#1A1A1A] text-xs font-extrabold flex items-center gap-1.5 shadow-[2px_2px_0px_#1A1A1A]" title="Bật/Tắt hiệu ứng âm thanh (SFX)">
+          <span>🔊</span><span class="hidden sm:inline">SFX: Bật</span>
+        </button>
         <button id="openTurnSettingsBtn" type="button" class="neo-btn px-3 py-1.5 rounded-full bg-[#3B66FF] hover:bg-[#2d52d9] text-[11px] sm:text-xs font-extrabold text-white uppercase tracking-wide flex items-center gap-1.5">
           <span>⚙️</span> Cấu hình TURN (Khác WiFi / 4G)
         </button>
@@ -413,8 +534,11 @@
         <span class="text-xs font-extrabold uppercase">Trong phòng: <strong id="participantCounterBadge" class="text-[#FFCE38]">1/10</strong></span>
       </div>
 
-      <!-- Right: Layout Switcher & TURN Relay -->
-      <div class="flex items-center gap-2">
+      <!-- Right: Layout Switcher & TURN Relay & SFX -->
+      <div class="flex items-center gap-1.5 sm:gap-2">
+        <button id="callSfxToggleBtn" type="button" class="sfx-toggle-btn neo-btn px-2.5 py-1 rounded-full bg-[#FFCE38] text-[#1A1A1A] text-xs font-extrabold flex items-center gap-1 shadow-[2px_2px_0px_#1A1A1A]" title="Bật/Tắt hiệu ứng âm thanh">
+          <span>🔊</span>
+        </button>
         <button id="openTurnSettingsInCallBtn" type="button" class="neo-btn px-2.5 py-1 rounded-full bg-[#3B66FF] hover:bg-[#2e52d4] text-white text-xs font-extrabold flex items-center gap-1 shadow-[2px_2px_0px_#1A1A1A]" title="Cấu hình TURN Relay (Khác WiFi / 4G)">
           <span>⚙️</span><span class="hidden md:inline">TURN</span>
         </button>
@@ -545,11 +669,11 @@
         </button>
 
         <!-- Emoji Reactions Bar -->
-        <div class="hidden md:flex items-center bg-[#FFFDF0] border-2 border-[#1A1A1A] shadow-[3px_3px_0px_#000000] rounded-full px-2 h-11 gap-1">
-          <button type="button" data-emoji="👍" class="reaction-btn w-8 h-8 rounded-full hover:bg-[#FFCE38] flex items-center justify-center text-base transition">👍</button>
-          <button type="button" data-emoji="❤️" class="reaction-btn w-8 h-8 rounded-full hover:bg-[#FFCE38] flex items-center justify-center text-base transition">❤️</button>
-          <button type="button" data-emoji="👏" class="reaction-btn w-8 h-8 rounded-full hover:bg-[#FFCE38] flex items-center justify-center text-base transition">👏</button>
-          <button type="button" data-emoji="🎉" class="reaction-btn w-8 h-8 rounded-full hover:bg-[#FFCE38] flex items-center justify-center text-base transition">🎉</button>
+        <div class="flex items-center bg-[#FFFDF0] border-2 border-[#1A1A1A] shadow-[3px_3px_0px_#1A1A1A] rounded-full px-1 sm:px-2 h-10 sm:h-11 gap-0.5 sm:gap-1">
+          <button type="button" data-emoji="👍" class="reaction-btn w-7 h-7 sm:w-8 sm:h-8 rounded-full hover:bg-[#FFCE38] flex items-center justify-center text-sm sm:text-base transition-transform hover:scale-125 active:scale-90" title="Thích">👍</button>
+          <button type="button" data-emoji="❤️" class="reaction-btn w-7 h-7 sm:w-8 sm:h-8 rounded-full hover:bg-[#FFCE38] flex items-center justify-center text-sm sm:text-base transition-transform hover:scale-125 active:scale-90" title="Thả tim">❤️</button>
+          <button type="button" data-emoji="🎉" class="reaction-btn w-7 h-7 sm:w-8 sm:h-8 rounded-full hover:bg-[#FFCE38] flex items-center justify-center text-sm sm:text-base transition-transform hover:scale-125 active:scale-90" title="Ăn mừng">🎉</button>
+          <button type="button" data-emoji="🔥" class="reaction-btn w-7 h-7 sm:w-8 sm:h-8 rounded-full hover:bg-[#FFCE38] flex items-center justify-center text-sm sm:text-base transition-transform hover:scale-125 active:scale-90" title="Tuyệt vời">🔥</button>
         </div>
 
         <!-- Leave Call Button -->
@@ -651,22 +775,288 @@
       }
     }
 
+    // ==================== PURE WEB AUDIO SYNTHESIZER (SFX ENGINE) ====================
+    const SoundFX = {
+      enabled: true,
+      ctx: null,
+
+      init() {
+        try {
+          const saved = localStorage.getItem('leet_sfx_enabled');
+          if (saved !== null) {
+            this.enabled = saved === 'true';
+          }
+        } catch (e) {}
+        this.updateButtonsUI();
+      },
+
+      getCtx() {
+        if (!this.ctx) {
+          const AudioCtx = window.AudioContext || window.webkitAudioContext;
+          if (AudioCtx) this.ctx = new AudioCtx();
+        }
+        if (this.ctx && this.ctx.state === 'suspended') {
+          this.ctx.resume().catch(() => {});
+        }
+        return this.ctx;
+      },
+
+      toggle() {
+        this.enabled = !this.enabled;
+        try { localStorage.setItem('leet_sfx_enabled', String(this.enabled)); } catch (e) {}
+        this.updateButtonsUI();
+        if (this.enabled) this.playPop();
+        showToast(this.enabled ? 'Đã bật hiệu ứng âm thanh 🔊' : 'Đã tắt hiệu ứng âm thanh 🔇', 'info');
+        return this.enabled;
+      },
+
+      updateButtonsUI() {
+        const btns = document.querySelectorAll('.sfx-toggle-btn');
+        btns.forEach(btn => {
+          btn.innerHTML = this.enabled
+            ? '<span>🔊</span><span class="hidden sm:inline">SFX: Bật</span>'
+            : '<span>🔇</span><span class="hidden sm:inline">SFX: Tắt</span>';
+          btn.classList.toggle('bg-[#FFCE38]', this.enabled);
+          btn.classList.toggle('bg-[#CBD5E1]', !this.enabled);
+        });
+      },
+
+      // 1. Chime when entering meeting or peer joins (C5 -> E5 -> G5 -> C6)
+      playJoin() {
+        if (!this.enabled) return;
+        const ctx = this.getCtx();
+        if (!ctx) return;
+        const now = ctx.currentTime;
+        [
+          { f: 523.25, t: 0 },
+          { f: 659.25, t: 0.08 },
+          { f: 783.99, t: 0.16 },
+          { f: 1046.50, t: 0.24 }
+        ].forEach(note => {
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.type = 'triangle';
+          osc.frequency.setValueAtTime(note.f, now + note.t);
+          gain.gain.setValueAtTime(0.001, now + note.t);
+          gain.gain.exponentialRampToValueAtTime(0.18, now + note.t + 0.02);
+          gain.gain.exponentialRampToValueAtTime(0.0001, now + note.t + 0.28);
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.start(now + note.t);
+          osc.stop(now + note.t + 0.3);
+        });
+      },
+
+      // 2. Chime when leaving (G5 -> E5 -> C5)
+      playLeave() {
+        if (!this.enabled) return;
+        const ctx = this.getCtx();
+        if (!ctx) return;
+        const now = ctx.currentTime;
+        [
+          { f: 783.99, t: 0 },
+          { f: 659.25, t: 0.08 },
+          { f: 523.25, t: 0.16 }
+        ].forEach(note => {
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(note.f, now + note.t);
+          gain.gain.setValueAtTime(0.001, now + note.t);
+          gain.gain.exponentialRampToValueAtTime(0.14, now + note.t + 0.02);
+          gain.gain.exponentialRampToValueAtTime(0.0001, now + note.t + 0.25);
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.start(now + note.t);
+          osc.stop(now + note.t + 0.28);
+        });
+      },
+
+      // 3. Tactile pop/click for button presses & mic/cam toggles
+      playPop() {
+        if (!this.enabled) return;
+        const ctx = this.getCtx();
+        if (!ctx) return;
+        const now = ctx.currentTime;
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(520, now);
+        osc.frequency.exponentialRampToValueAtTime(140, now + 0.04);
+        gain.gain.setValueAtTime(0.18, now);
+        gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.045);
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start(now);
+        osc.stop(now + 0.05);
+      },
+
+      // 4. Cheerful boing/upward pitch bend for reaction emoji
+      playReaction() {
+        if (!this.enabled) return;
+        const ctx = this.getCtx();
+        if (!ctx) return;
+        const now = ctx.currentTime;
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(280, now);
+        osc.frequency.exponentialRampToValueAtTime(940, now + 0.16);
+        gain.gain.setValueAtTime(0.001, now);
+        gain.gain.exponentialRampToValueAtTime(0.22, now + 0.03);
+        gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.22);
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start(now);
+        osc.stop(now + 0.24);
+      },
+
+      // 5. Friendly bubble 'bloop' for chat messages
+      playChat() {
+        if (!this.enabled) return;
+        const ctx = this.getCtx();
+        if (!ctx) return;
+        const now = ctx.currentTime;
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(440, now);
+        osc.frequency.exponentialRampToValueAtTime(880, now + 0.07);
+        gain.gain.setValueAtTime(0.001, now);
+        gain.gain.exponentialRampToValueAtTime(0.2, now + 0.02);
+        gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.18);
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start(now);
+        osc.stop(now + 0.2);
+      },
+
+      // 6. Ding / Bell for raising hand
+      playDing() {
+        if (!this.enabled) return;
+        const ctx = this.getCtx();
+        if (!ctx) return;
+        const now = ctx.currentTime;
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(880, now);
+        gain.gain.setValueAtTime(0.001, now);
+        gain.gain.exponentialRampToValueAtTime(0.24, now + 0.015);
+        gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.45);
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start(now);
+        osc.stop(now + 0.48);
+      },
+
+      // 7. Double-beep success chime for copying links
+      playCopy() {
+        if (!this.enabled) return;
+        const ctx = this.getCtx();
+        if (!ctx) return;
+        const now = ctx.currentTime;
+        [
+          { f: 659.25, t: 0 },
+          { f: 880, t: 0.08 }
+        ].forEach(note => {
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(note.f, now + note.t);
+          gain.gain.setValueAtTime(0.001, now + note.t);
+          gain.gain.exponentialRampToValueAtTime(0.18, now + note.t + 0.01);
+          gain.gain.exponentialRampToValueAtTime(0.0001, now + note.t + 0.1);
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.start(now + note.t);
+          osc.stop(now + note.t + 0.12);
+        });
+      }
+    };
+
+    // ==================== POP-ART CONFETTI BURST ====================
+    function triggerConfettiBurst(originX, originY) {
+      const colors = ['#FFCE38', '#F26B1D', '#6B8E4E', '#3B66FF', '#D95D6C', '#FFFDF0'];
+      const count = 30;
+      const x = originX !== undefined ? originX : window.innerWidth / 2;
+      const y = originY !== undefined ? originY : window.innerHeight / 2;
+
+      for (let i = 0; i < count; i++) {
+        const piece = document.createElement('div');
+        piece.className = 'confetti-piece';
+        const color = colors[Math.floor(Math.random() * colors.length)];
+        piece.style.backgroundColor = color;
+        piece.style.left = `${x}px`;
+        piece.style.top = `${y}px`;
+
+        const angle = Math.random() * Math.PI * 2;
+        const velocity = 70 + Math.random() * 160;
+        const tx = Math.cos(angle) * velocity;
+        const ty = Math.sin(angle) * velocity + 45;
+        const rot = (Math.random() - 0.5) * 720;
+        const size = 6 + Math.random() * 8;
+
+        piece.style.width = `${size}px`;
+        piece.style.height = `${size}px`;
+        piece.style.borderRadius = Math.random() > 0.5 ? '2px' : '9999px';
+        piece.style.setProperty('--tx', `${tx}px`);
+        piece.style.setProperty('--ty', `${ty}px`);
+        piece.style.setProperty('--rot', `${rot}deg`);
+
+        document.body.appendChild(piece);
+        setTimeout(() => piece.remove(), 1800);
+      }
+    }
+
     // ==================== HELPER: NEO-BRUTALIST TOAST & INITIALS ====================
     function showToast(message, type = 'info') {
       const container = document.getElementById('toastContainer');
       const el = document.createElement('div');
       const bgMap = {
-        info: 'bg-[#FFFDF0] text-[#1A1A1A]',
-        success: 'bg-[#FFCE38] text-[#1A1A1A]',
-        warn: 'bg-[#F26B1D] text-white'
+        info: 'bg-[#FFFDF0] text-[#1A1A1A] border-[#1A1A1A]',
+        success: 'bg-[#FFCE38] text-[#1A1A1A] border-[#1A1A1A]',
+        warn: 'bg-[#F26B1D] text-white border-[#1A1A1A]'
       };
-      el.className = `px-4 py-3 rounded-2xl border-[2.5px] border-[#1A1A1A] shadow-[4px_4px_0px_#1A1A1A] text-xs sm:text-sm font-extrabold transition-all duration-300 flex items-center gap-2 ${bgMap[type] || bgMap.info}`;
-      el.textContent = `✦ ${message}`;
-      container.appendChild(el);
-      setTimeout(() => {
+      const iconMap = {
+        info: '✦',
+        success: '✅',
+        warn: '⚠️'
+      };
+      el.className = `toast-animate px-4 py-3 rounded-2xl border-[2.5px] shadow-[4px_4px_0px_#1A1A1A] text-xs sm:text-sm font-extrabold flex items-center justify-between gap-3 cursor-pointer pointer-events-auto select-none ${bgMap[type] || bgMap.info}`;
+      el.innerHTML = `
+        <div class="flex items-center gap-2">
+          <span class="text-base">${iconMap[type] || '✦'}</span>
+          <span>${message}</span>
+        </div>
+        <span class="text-xs opacity-60 hover:opacity-100 font-bold ml-2">✕</span>
+      `;
+      el.onclick = () => {
         el.style.opacity = '0';
-        setTimeout(() => el.remove(), 250);
-      }, 3200);
+        el.style.transform = 'translateX(100%)';
+        setTimeout(() => el.remove(), 200);
+      };
+      container.appendChild(el);
+      if (type === 'success') SoundFX.playPop();
+      setTimeout(() => {
+        el.style.transition = 'all 0.3s ease';
+        el.style.opacity = '0';
+        el.style.transform = 'translateX(80%)';
+        setTimeout(() => el.remove(), 320);
+      }, 3400);
+    }
+
+    function animateCopyButton(btn, successMsg = 'ĐÃ CHÉP! ✓') {
+      if (!btn) return;
+      SoundFX.playCopy();
+      const oldHtml = btn.dataset.originalHtml || btn.innerHTML;
+      btn.dataset.originalHtml = oldHtml;
+      btn.innerHTML = `<span class="text-[#2E8B57] font-black">${successMsg}</span>`;
+      btn.style.transform = 'scale(0.95)';
+      setTimeout(() => { btn.style.transform = ''; }, 120);
+      setTimeout(() => {
+        btn.innerHTML = btn.dataset.originalHtml;
+      }, 1600);
     }
 
     function getInitials(name) {
@@ -1124,10 +1514,10 @@
       overlayEl.innerHTML = `
         <div class="absolute top-3 inset-x-3 flex items-center justify-between pointer-events-none">
           <div>
-            ${peer.handRaised ? '<span class="px-3 py-1 rounded-full bg-[#FFCE38] border-2 border-[#1A1A1A] shadow-[3px_3px_0px_#1A1A1A] text-[#1A1A1A] font-extrabold text-xs">✋ GIƠ TAY</span>' : ''}
+            ${peer.handRaised ? '<span class="px-3 py-1 rounded-full bg-[#FFCE38] border-2 border-[#1A1A1A] shadow-[3px_3px_0px_#1A1A1A] text-[#1A1A1A] font-extrabold text-xs animate-bounce flex items-center gap-1">✋ <span>GIƠ TAY</span></span>' : ''}
           </div>
           <div class="flex items-center gap-1 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity pointer-events-auto">
-            <button type="button" data-pin-id="${peer.id}" class="pin-peer-btn neo-btn px-2.5 py-1 rounded-full bg-[#FFFDF0] text-[#1A1A1A] text-xs font-extrabold" title="Ghim lên tiêu điểm">
+            <button type="button" data-pin-id="${peer.id}" class="pin-peer-btn neo-btn px-2.5 py-1 rounded-full bg-[#FFFDF0] hover:bg-[#FFCE38] text-[#1A1A1A] text-xs font-extrabold" title="Ghim lên tiêu điểm">
               📌 Ghim
             </button>
           </div>
@@ -1137,8 +1527,11 @@
             <span class="text-xs font-extrabold text-[#1A1A1A] truncate">${peer.name}</span>
             ${isPinned ? '<span class="text-[10px] text-[#3B66FF] font-extrabold uppercase">(Ghim)</span>' : ''}
           </div>
-          <div class="w-8 h-8 rounded-full border-2 border-[#1A1A1A] shadow-[2px_2px_0px_#1A1A1A] flex items-center justify-center ${peer.micOn ? 'bg-[#FFCE38] text-[#1A1A1A]' : 'bg-[#F26B1D] text-white'}">
-            ${peer.micOn ? '🎙️' : '🔇'}
+          <div class="h-8 px-2 sm:px-2.5 rounded-full border-2 border-[#1A1A1A] shadow-[2px_2px_0px_#1A1A1A] flex items-center gap-1 ${
+            peer.micOn ? (peer.speaking ? 'bg-[#FFCE38]' : 'bg-[#FFFDF0]') : 'bg-[#F26B1D] text-white'
+          }">
+            <span class="text-xs">${peer.micOn ? '🎙️' : '🔇'}</span>
+            ${peer.micOn && peer.speaking ? '<span class="flex items-center gap-0.5"><span class="sound-wave-bar"></span><span class="sound-wave-bar"></span><span class="sound-wave-bar"></span></span>' : ''}
           </div>
         </div>
       `;
@@ -1304,14 +1697,23 @@
       container.scrollTop = container.scrollHeight;
     }
 
-    // ==================== REACTIONS ANIMATION ====================
+    // ==================== REACTIONS ANIMATION WITH SFX & CONFETTI ====================
     function triggerFloatingReaction(emoji, senderName) {
+      SoundFX.playReaction();
       const container = document.getElementById('reactionContainer');
       const pill = document.createElement('div');
-      pill.className = 'reaction-float flex items-center gap-1.5 bg-[#FFFDF0] border-[2.5px] border-[#1A1A1A] shadow-[4px_4px_0px_#1A1A1A] px-3.5 py-1.5 rounded-full';
-      pill.innerHTML = `<span class="text-2xl">${emoji}</span><span class="text-xs font-extrabold text-[#1A1A1A]">${senderName}</span>`;
+      const randOffset = Math.floor(Math.random() * 80) - 40;
+      pill.className = 'reaction-float flex items-center gap-2 bg-[#FFFDF0] border-[2.5px] border-[#1A1A1A] shadow-[4px_4px_0px_#1A1A1A] px-4 py-2 rounded-full select-none';
+      pill.style.transform = `translateX(${randOffset}px)`;
+      pill.innerHTML = `<span class="text-3xl">${emoji}</span><span class="text-xs font-extrabold text-[#1A1A1A]">${senderName}</span>`;
       container.appendChild(pill);
-      setTimeout(() => pill.remove(), 2400);
+
+      if (emoji === '🎉' || emoji === '❤️' || emoji === '🔥') {
+        const rect = pill.getBoundingClientRect();
+        triggerConfettiBurst(rect.left + 35, rect.top);
+      }
+
+      setTimeout(() => pill.remove(), 2500);
     }
 
     // ==================== BROADCAST CHANNEL & PEERJS MESH ====================
@@ -1326,6 +1728,7 @@
     function handleBroadcastMessage(data) {
       if (!data || data.roomCode !== state.roomCode || !state.inCall) return;
       if (data.type === 'chat') {
+        SoundFX.playChat();
         state.chatMessages.push({ sender: data.sender, time: data.time, text: data.text });
         renderChatMessages();
         if (!state.drawerOpen || state.activeDrawerTab !== 'chat') {
@@ -1581,6 +1984,7 @@
         if (msg.type === 'peer-hello' || msg.type === 'peer-update') {
           upsertRemoteRealPeer(conn.peer, msg);
         } else if (msg.type === 'chat') {
+          SoundFX.playChat();
           state.chatMessages.push({ sender: msg.sender, time: msg.time, text: msg.text });
           renderChatMessages();
           if (!state.drawerOpen || state.activeDrawerTab !== 'chat') {
@@ -1668,6 +2072,8 @@
         };
         state.participants.push(existing);
         showToast(`${existing.name} đã tham gia phòng họp!`, 'success');
+        SoundFX.playJoin();
+        triggerConfettiBurst(window.innerWidth * 0.75, window.innerHeight * 0.35);
       } else {
         if (info.name) existing.name = info.name;
         if (info.micOn !== undefined) existing.micOn = info.micOn;
@@ -1687,6 +2093,7 @@
         const peer = state.participants[idx];
         state.participants.splice(idx, 1);
         showToast(`${peer.name} đã rời phòng họp.`, 'info');
+        SoundFX.playLeave();
         updateParticipantCounters();
         renderVideoStage();
         renderParticipantsList();
@@ -1785,6 +2192,11 @@
       document.getElementById('activeRoomCodeText').textContent = roomVal;
       document.getElementById('lobbyView').classList.add('hidden');
       document.getElementById('meetingView').classList.remove('hidden');
+      document.getElementById('meetingView').classList.add('animate-view-in');
+      setTimeout(() => { document.getElementById('meetingView').classList.remove('animate-view-in'); }, 400);
+
+      SoundFX.playJoin();
+      triggerConfettiBurst(window.innerWidth / 2, window.innerHeight * 0.35);
 
       updateParticipantCounters();
       renderVideoStage();
@@ -1806,12 +2218,15 @@
     }
 
     function leaveMeeting() {
+      SoundFX.playLeave();
       if (state.isScreenSharing) stopScreenShare();
       cleanupPeerJSMesh();
       state.inCall = false;
       if (state.callTimerInterval) clearInterval(state.callTimerInterval);
       document.getElementById('meetingView').classList.add('hidden');
       document.getElementById('lobbyView').classList.remove('hidden');
+      document.getElementById('lobbyView').classList.add('animate-view-in');
+      setTimeout(() => { document.getElementById('lobbyView').classList.remove('animate-view-in'); }, 400);
       showToast('Bạn đã rời khỏi cuộc họp.', 'info');
     }
 
@@ -2009,7 +2424,22 @@
         document.getElementById('guestRoomBadgeText').textContent = state.roomCode;
       });
 
+      SoundFX.init();
+
+      document.querySelectorAll('.sfx-toggle-btn').forEach(btn => {
+        btn.addEventListener('click', () => SoundFX.toggle());
+      });
+
+      document.querySelectorAll('.sun-mascot').forEach(m => {
+        m.addEventListener('click', (e) => {
+          SoundFX.playDing();
+          triggerConfettiBurst(e.clientX, e.clientY);
+          showToast('☀️ Leet Meet — Trò chuyện và kết nối bất tận!', 'info');
+        });
+      });
+
       document.getElementById('randomRoomBtn').addEventListener('click', () => {
+        SoundFX.playPop();
         const rand = 'leet-' + Math.random().toString(36).substring(2, 6) + '-' + Math.floor(10 + Math.random() * 89);
         document.getElementById('roomCodeInput').value = rand;
         state.roomCode = rand;
@@ -2017,23 +2447,27 @@
         showToast(`Đã tạo mã phòng mới: ${rand}`, 'info');
       });
 
-      document.getElementById('copyRoomLobbyBtn').addEventListener('click', () => {
+      document.getElementById('copyRoomLobbyBtn').addEventListener('click', function() {
         const code = document.getElementById('roomCodeInput').value.trim() || 'leet-team-10';
         copyTextSafe(code, `Đã sao chép mã phòng: ${code}`);
+        animateCopyButton(this, 'ĐÃ CHÉP! ✓');
       });
 
-      document.getElementById('copyLinkLobbyBtn').addEventListener('click', () => {
+      document.getElementById('copyLinkLobbyBtn').addEventListener('click', function() {
         const code = document.getElementById('roomCodeInput').value.trim() || 'leet-team-10';
         const url = buildInviteUrl(code);
         copyTextSafe(url, `Đã sao chép Link mời: ${url}`);
+        animateCopyButton(this, 'ĐÃ CHÉP LINK! ✓');
       });
 
       function toggleMic() {
         state.localUser.micOn = !state.localUser.micOn;
+        SoundFX.playPop();
         updateMediaUI();
       }
       function toggleCam() {
         state.localUser.camOn = !state.localUser.camOn;
+        SoundFX.playPop();
         updateMediaUI();
       }
 
@@ -2043,10 +2477,12 @@
       document.getElementById('cardToggleCamBtn').addEventListener('click', toggleCam);
 
       document.getElementById('lobbyFlipCamBtn').addEventListener('click', () => {
+        SoundFX.playPop();
         flipMobileCamera();
       });
 
       document.getElementById('callFlipCamBtn').addEventListener('click', () => {
+        SoundFX.playPop();
         flipMobileCamera();
       });
 
@@ -2058,21 +2494,25 @@
         startMeeting();
       });
 
-      document.getElementById('copyRoomInCallBtn').addEventListener('click', () => {
+      document.getElementById('copyRoomInCallBtn').addEventListener('click', function() {
         copyTextSafe(state.roomCode, `Đã sao chép mã phòng: ${state.roomCode}`);
+        animateCopyButton(this, '✓');
       });
 
-      document.getElementById('copyLinkInCallBtn').addEventListener('click', () => {
+      document.getElementById('copyLinkInCallBtn').addEventListener('click', function() {
         const url = buildInviteUrl(state.roomCode);
         copyTextSafe(url, `Đã sao chép Link mời: ${url}`);
+        animateCopyButton(this, 'ĐÃ CHÉP! ✓');
       });
 
-      document.getElementById('drawerCopyInviteLinkBtn').addEventListener('click', () => {
+      document.getElementById('drawerCopyInviteLinkBtn').addEventListener('click', function() {
         const url = buildInviteUrl(state.roomCode);
         copyTextSafe(url, `Đã sao chép Link mời: ${url}`);
+        animateCopyButton(this, 'ĐÃ SAO CHÉP LINK! ✓');
       });
 
       document.getElementById('layoutGridBtn').addEventListener('click', () => {
+        SoundFX.playPop();
         state.layoutMode = 'grid';
         state.pinnedId = null;
         updateLayoutButtonsUI();
@@ -2080,6 +2520,7 @@
       });
 
       document.getElementById('layoutSpotlightBtn').addEventListener('click', () => {
+        SoundFX.playPop();
         state.layoutMode = 'spotlight';
         updateLayoutButtonsUI();
         renderVideoStage();
@@ -2096,18 +2537,27 @@
       });
 
       document.getElementById('callScreenShareBtn').addEventListener('click', () => {
+        SoundFX.playPop();
         toggleScreenShare();
       });
 
       document.getElementById('stopScreenShareBannerBtn').addEventListener('click', () => {
+        SoundFX.playPop();
         stopScreenShare();
       });
 
       document.getElementById('callRaiseHandBtn').addEventListener('click', () => {
         state.localUser.handRaised = !state.localUser.handRaised;
+        if (state.localUser.handRaised) {
+          SoundFX.playDing();
+          showToast('Bạn đã giơ tay phát biểu ✋', 'info');
+        } else {
+          SoundFX.playPop();
+          showToast('Bạn đã hạ tay xuống', 'info');
+        }
         const btn = document.getElementById('callRaiseHandBtn');
         btn.className = state.localUser.handRaised
-          ? 'neo-btn w-11 h-11 sm:w-12 sm:h-12 rounded-full bg-[#FFCE38] text-[#1A1A1A] flex items-center justify-center text-lg'
+          ? 'neo-btn w-11 h-11 sm:w-12 sm:h-12 rounded-full bg-[#FFCE38] text-[#1A1A1A] flex items-center justify-center text-lg animate-bounce'
           : 'neo-btn w-11 h-11 sm:w-12 sm:h-12 rounded-full bg-[#FFFDF0] text-[#1A1A1A] flex items-center justify-center text-lg';
         broadcastRoomEvent({
           type: 'peer-update',
@@ -2135,13 +2585,17 @@
       function openDrawer(tab) {
         const drawer = document.getElementById('sideDrawer');
         if (state.drawerOpen && state.activeDrawerTab === tab) {
+          SoundFX.playPop();
           state.drawerOpen = false;
           drawer.classList.add('hidden');
+          drawer.classList.remove('animate-drawer-in');
           return;
         }
+        SoundFX.playPop();
         state.drawerOpen = true;
         state.activeDrawerTab = tab;
         drawer.classList.remove('hidden');
+        drawer.classList.add('animate-drawer-in');
 
         const isPeople = tab === 'participants';
         document.getElementById('participantsPanel').classList.toggle('hidden', !isPeople);
@@ -2165,8 +2619,10 @@
       document.getElementById('tabParticipantsBtn').addEventListener('click', () => openDrawer('participants'));
       document.getElementById('tabChatBtn').addEventListener('click', () => openDrawer('chat'));
       document.getElementById('closeDrawerBtn').addEventListener('click', () => {
+        SoundFX.playPop();
         state.drawerOpen = false;
         document.getElementById('sideDrawer').classList.add('hidden');
+        document.getElementById('sideDrawer').classList.remove('animate-drawer-in');
       });
 
       document.getElementById('chatForm').addEventListener('submit', (e) => {
@@ -2174,6 +2630,7 @@
         const input = document.getElementById('chatInput');
         const text = input.value.trim();
         if (!text) return;
+        SoundFX.playChat();
         const now = new Date();
         const time = String(now.getHours()).padStart(2, '0') + ':' + String(now.getMinutes()).padStart(2, '0');
         state.chatMessages.push({ sender: state.localUser.name, time, text });
