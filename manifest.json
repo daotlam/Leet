@@ -1,6 +1,6 @@
 {
-  "name": "Leet — Họp Trực Tuyến Không Giới Hạn",
-  "short_name": "Leet Meet",
+  "name": "Zugo Leet — Họp Trực Tuyến Không Giới Hạn",
+  "short_name": "Zugo Leet",
   "description": "Ứng dụng họp trực tuyến P2P phong cách Neo-Brutalist Pop-Art không giới hạn thời gian",
   "start_url": "./index.html",
   "display": "standalone",

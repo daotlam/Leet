@@ -3,14 +3,14 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>Leet — Họp Trực Tuyến Không Giới Hạn</title>
+  <title>Zugo Leet — Họp Trực Tuyến Không Giới Hạn</title>
   <script src="https://cdn.tailwindcss.com/3.4.17"></script>
   <script src="https://unpkg.com/mqtt@5.3.5/dist/mqtt.min.js"></script>
   <link rel="manifest" href="./manifest.json">
   <meta name="theme-color" content="#6B8E4E">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="Leet Meet">
+  <meta name="apple-mobile-web-app-title" content="Zugo Leet">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -272,7 +272,7 @@
   <div id="localUrlWarningBanner" class="hidden bg-[#FFFDF0] border-b-[3px] border-[#1A1A1A] text-[#1A1A1A] px-4 py-2 text-xs font-semibold flex flex-wrap items-center justify-between gap-2 z-40">
     <span>✦ <strong>Mẹo gửi link cho điện thoại:</strong> Dán địa chỉ GitHub Pages / Netlify của bạn vào đây để nút Copy Link luôn tạo link mở được trên mọi điện thoại:</span>
     <div class="flex items-center gap-2">
-      <input id="customPublicUrlInput" type="text" placeholder="vd: https://ten-ban.github.io/leet/" class="neo-input px-3 py-1 rounded-full bg-white text-[#1A1A1A] text-xs w-64 font-semibold" />
+      <input id="customPublicUrlInput" type="text" placeholder="vd: https://ten-ban.github.io/zugo-leet/" class="neo-input px-3 py-1 rounded-full bg-white text-[#1A1A1A] text-xs w-64 font-semibold" />
       <button id="savePublicUrlBtn" type="button" class="neo-btn px-3.5 py-1 rounded-full bg-[#FFCE38] hover:bg-[#eab820] text-[#1A1A1A] font-extrabold text-xs">Lưu Link</button>
     </div>
   </div>
@@ -555,7 +555,7 @@
           </svg>
         </div>
         <div class="flex items-center gap-2.5 flex-wrap">
-          <span class="font-extrabold text-xl sm:text-2xl tracking-tight text-[#1A1A1A] uppercase">THE <span class="bg-[#FFCE38] px-2 py-0.5 rounded-lg border-2 border-[#1A1A1A]">LEET</span> MEET</span>
+          <span class="font-extrabold text-xl sm:text-2xl tracking-tight text-[#1A1A1A] uppercase">ZUGO <span class="bg-[#FFCE38] px-2 py-0.5 rounded-lg border-2 border-[#1A1A1A]">LEET</span></span>
           <span class="hidden sm:inline-flex items-center gap-1 text-[11px] font-extrabold uppercase tracking-wider px-3 py-1 rounded-full bg-white text-[#1A1A1A] border-2 border-[#1A1A1A] shadow-[2px_2px_0px_#1A1A1A]">
             ✦ UNLIMITED · HD VOICE
           </span>
@@ -585,7 +585,7 @@
         <div class="inline-flex items-center gap-2.5 bg-[#FFFDF0] border-[2.5px] border-[#1A1A1A] shadow-[4px_4px_0px_#1A1A1A] rounded-full px-4 py-1.5">
           <!-- Cute Sun Mascot SVG -->
           <span class="sun-mascot inline-flex items-center justify-center w-7 h-7 rounded-full bg-[#FFCE38] border-2 border-[#1A1A1A] text-sm">☀️</span>
-          <span class="text-xs sm:text-sm font-bold text-[#1A1A1A]">Hi bạn, <strong class="text-[#6B8E4E]">Leet on mic</strong>, sẵn sàng kết nối không giới hạn!</span>
+          <span class="text-xs sm:text-sm font-bold text-[#1A1A1A]">Hi bạn, <strong class="text-[#6B8E4E]">Zugo Leet on mic</strong>, sẵn sàng kết nối không giới hạn!</span>
         </div>
 
         <div class="hidden md:inline-flex items-center gap-2 bg-[#1B3312] text-[#FFFDF0] border-[2.5px] border-[#1A1A1A] shadow-[3px_3px_0px_#1A1A1A] rounded-full px-3.5 py-1 text-xs font-bold uppercase tracking-wider">
@@ -663,7 +663,7 @@
           <!-- Guest Invite Header (Shown when ?room= is in URL) -->
           <div id="guestWelcomeHeader" class="hidden flex-col gap-1.5">
             <div class="inline-flex items-center gap-2 self-start px-3.5 py-1 rounded-full bg-[#FFCE38] border-2 border-[#1A1A1A] shadow-[2px_2px_0px_#1A1A1A] text-[#1A1A1A] text-xs font-extrabold uppercase">
-              <span>✦ PHÒNG HỌP: <strong id="guestRoomBadgeText">leet-team-10</strong></span>
+              <span>✦ PHÒNG HỌP: <strong id="guestRoomBadgeText">zugo-team-10</strong></span>
             </div>
             <h1 class="text-2xl sm:text-3xl font-extrabold text-[#1A1A1A] mt-1 tracking-tight">Tham gia phòng họp</h1>
             <p class="text-xs sm:text-sm font-medium text-gray-600">Chỉnh tên hiển thị, kiểm tra micro và camera rồi bấm Tham gia ngay.</p>
@@ -672,7 +672,7 @@
           <!-- Host Header (Shown when opening main URL without ?room=) -->
           <div id="hostWelcomeHeader" class="flex flex-col gap-1">
             <div class="inline-flex items-center gap-1.5 self-start px-3 py-0.5 rounded-full bg-[#6B8E4E] text-white border-2 border-[#1A1A1A] shadow-[2px_2px_0px_#1A1A1A] text-[11px] font-extrabold uppercase">
-              ✦ LEET COMMUNITY ROOM
+              ✦ ZUGO LEET COMMUNITY ROOM
             </div>
             <h1 class="text-2xl sm:text-3xl font-extrabold text-[#1A1A1A] mt-1 tracking-tight">Bắt đầu cuộc họp</h1>
             <p class="text-xs sm:text-sm font-medium text-gray-600">Nhập tên của bạn, lấy link phòng và gửi cho bạn bè cùng tham gia.</p>
@@ -692,7 +692,7 @@
                 <button id="randomRoomBtn" type="button" class="text-xs text-[#F26B1D] hover:underline font-extrabold uppercase">+ Đổi mã ngẫu nhiên</button>
               </div>
               <div class="flex flex-wrap sm:flex-nowrap gap-2">
-                <input id="roomCodeInput" type="text" value="leet-team-10" maxlength="28" placeholder="Nhập mã phòng..." class="neo-input flex-1 min-w-[120px] px-4 py-2.5 rounded-full bg-white text-[#1A1A1A] text-sm font-extrabold" />
+                <input id="roomCodeInput" type="text" value="zugo-team-10" maxlength="28" placeholder="Nhập mã phòng..." class="neo-input flex-1 min-w-[120px] px-4 py-2.5 rounded-full bg-white text-[#1A1A1A] text-sm font-extrabold" />
                 <button id="copyRoomLobbyBtn" type="button" class="neo-btn px-3.5 py-2.5 rounded-full bg-white hover:bg-gray-100 text-xs font-extrabold text-[#1A1A1A] whitespace-nowrap">
                   Sao chép mã
                 </button>
@@ -728,11 +728,14 @@
   <div id="meetingView" class="hidden flex-1 flex flex-col h-screen max-h-screen overflow-hidden tid-page-grid">
     <!-- Top Meeting Bar -->
     <header class="h-16 shrink-0 px-3 sm:px-6 border-b-[3px] border-[#1A1A1A] bg-[#FFFDF0] flex items-center justify-between gap-2">
-      <!-- Left: Room Code Pill + Copy Link + Timer -->
+      <!-- Left: Brand + Room Code Pill + Copy Link + Timer -->
       <div class="flex items-center gap-2 min-w-0">
+        <span class="hidden md:inline-flex items-center gap-1 text-[11px] font-black uppercase tracking-tight px-2.5 py-1 rounded-full bg-[#FFCE38] text-[#1A1A1A] border-2 border-[#1A1A1A] shadow-[1.5px_1.5px_0px_#1A1A1A] shrink-0">
+          ZUGO LEET
+        </span>
         <div class="neo-btn flex items-center gap-2 bg-white rounded-full px-3 py-1">
           <span class="w-2.5 h-2.5 rounded-full bg-[#2E8B57] border border-[#1A1A1A] animate-pulse shrink-0"></span>
-          <span id="activeRoomCodeText" class="text-xs sm:text-sm font-extrabold text-[#1A1A1A] truncate max-w-[95px] sm:max-w-[170px]">leet-team-10</span>
+          <span id="activeRoomCodeText" class="text-xs sm:text-sm font-extrabold text-[#1A1A1A] truncate max-w-[95px] sm:max-w-[170px]">zugo-team-10</span>
           <button id="copyRoomInCallBtn" type="button" class="text-[#1A1A1A] hover:text-[#F26B1D] transition" title="Sao chép mã phòng">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/>
@@ -882,7 +885,7 @@
           </div>
         </div>
 
-        <!-- TAB 4: POP-ART LEET DJ MUSIC BOT -->
+        <!-- TAB 4: POP-ART ZUGO LEET DJ MUSIC BOT -->
         <div id="musicPanel" class="hidden flex-1 flex flex-col min-h-0 bg-[#FFFDF0] overflow-y-auto">
           <!-- Bot Header / Cassette Card -->
           <div class="p-3.5 bg-[#FFCE38] border-b-[3px] border-[#1A1A1A] flex flex-col gap-2.5 shrink-0">
@@ -890,7 +893,7 @@
               <div class="flex items-center gap-2">
                 <span class="text-2xl animate-bounce-slow">🎧</span>
                 <div>
-                  <h3 class="font-black text-xs sm:text-sm uppercase tracking-tight text-[#1A1A1A]">LEET STUDY DJ BOT</h3>
+                  <h3 class="font-black text-xs sm:text-sm uppercase tracking-tight text-[#1A1A1A]">ZUGO LEET STUDY DJ BOT</h3>
                   <div class="text-[10px] font-bold text-gray-800">Âm nhạc & Soundscape tập trung học tập</div>
                 </div>
               </div>
@@ -1164,7 +1167,7 @@
       isInvitedGuestView: false,
       cameraFacingMode: 'user',
       customPublicBaseUrl: '',
-      roomCode: 'leet-team-10',
+      roomCode: 'zugo-team-10',
       localUser: {
         id: 'local-user',
         name: 'Bạn',
@@ -2833,7 +2836,7 @@
           </div>
           <div class="min-w-0">
             <div class="text-xs font-black text-[#1A1A1A] truncate flex items-center gap-1.5">
-              <span>LEET DJ BOT</span>
+              <span>ZUGO LEET DJ BOT</span>
               <span class="px-1.5 py-0.5 bg-[#6B8E4E] text-white text-[9px] font-black rounded border border-[#1A1A1A]">AI BOT</span>
             </div>
             <div class="text-[11px] font-bold text-gray-600 truncate flex items-center gap-1">
@@ -3006,7 +3009,7 @@
 
       // Priority 1: User's own saved TURN config in localStorage
       try {
-        const savedTurn = localStorage.getItem('leet_turn_config');
+        const savedTurn = localStorage.getItem('zugo_turn_config') || localStorage.getItem('leet_turn_config');
         if (savedTurn) {
           const parsed = JSON.parse(savedTurn);
           // Case 1: Metered App Name & API Key
@@ -3759,7 +3762,7 @@
     }
 
     function buildInviteUrl(roomCode) {
-      const code = encodeURIComponent((roomCode || 'leet-team-10').trim());
+      const code = encodeURIComponent((roomCode || 'zugo-team-10').trim());
       if (state.customPublicBaseUrl) {
         const cleanBase = state.customPublicBaseUrl.split('?')[0].split('#')[0];
         return `${cleanBase}?room=${code}`;
@@ -3812,7 +3815,7 @@
 
       const nameInput = document.getElementById('displayNameInput');
       const nameVal = nameInput.value.trim() || (state.isInvitedGuestView ? 'Khách mời' : 'Chủ phòng');
-      const roomVal = (state.isInvitedGuestView ? state.roomCode : document.getElementById('roomCodeInput').value.trim()) || 'leet-team-10';
+      const roomVal = (state.isInvitedGuestView ? state.roomCode : document.getElementById('roomCodeInput').value.trim()) || 'zugo-team-10';
 
       state.localUser.id = myPeerId;
       state.localUser.name = nameVal;
@@ -4136,7 +4139,7 @@
           a.href = url;
           const now = new Date();
           const dateStr = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}_${String(now.getHours()).padStart(2,'0')}-${String(now.getMinutes()).padStart(2,'0')}`;
-          a.download = `Leet-Meeting-${state.roomCode}-${dateStr}.webm`;
+          a.download = `Zugo-Leet-Meeting-${state.roomCode}-${dateStr}.webm`;
           document.body.appendChild(a);
           a.click();
           setTimeout(() => {
@@ -4350,7 +4353,7 @@
           const dataUrl = wbCanvas.toDataURL('image/png');
           const a = document.createElement('a');
           a.href = dataUrl;
-          a.download = `Leet-Whiteboard-${Date.now()}.png`;
+          a.download = `Zugo-Leet-Whiteboard-${Date.now()}.png`;
           a.click();
           showToast('Đã lưu ảnh bảng vẽ!', 'success');
         });
@@ -4600,7 +4603,7 @@
           state.roomCode = cleanRoom;
           applyLobbyModeUI(true);
         } else {
-          const autoCode = 'leet-' + Math.random().toString(36).substring(2, 6) + '-' + Math.floor(10 + Math.random() * 89);
+          const autoCode = 'zugo-' + Math.random().toString(36).substring(2, 6) + '-' + Math.floor(10 + Math.random() * 89);
           document.getElementById('roomCodeInput').value = autoCode;
           state.roomCode = autoCode;
           applyLobbyModeUI(false);
@@ -4664,7 +4667,7 @@
 
       function loadSavedTurnInputs() {
         try {
-          const saved = localStorage.getItem('leet_turn_config');
+          const saved = localStorage.getItem('zugo_turn_config') || localStorage.getItem('leet_turn_config');
           if (saved) {
             const parsed = JSON.parse(saved);
             if (parsed.appName) document.getElementById('turnAppNameInput').value = parsed.appName;
@@ -4712,6 +4715,7 @@
           }
 
           const configObj = { appName, apiKey, turnUrl, username, credential };
+          localStorage.setItem('zugo_turn_config', JSON.stringify(configObj));
           localStorage.setItem('leet_turn_config', JSON.stringify(configObj));
           cachedResolvedIceServers = null; // force reload
           showToast('Đang kiểm tra và kích hoạt cấu hình TURN...', 'info');
@@ -4747,6 +4751,7 @@
 
       if (clearTurnBtn) {
         clearTurnBtn.addEventListener('click', () => {
+          localStorage.removeItem('zugo_turn_config');
           localStorage.removeItem('leet_turn_config');
           cachedResolvedIceServers = null;
           document.getElementById('turnAppNameInput').value = '';
@@ -4878,7 +4883,7 @@
       });
 
       document.getElementById('toggleGuestPreviewBtn').addEventListener('click', () => {
-        state.roomCode = document.getElementById('roomCodeInput').value.trim() || 'leet-team-10';
+        state.roomCode = document.getElementById('roomCodeInput').value.trim() || 'zugo-team-10';
         applyLobbyModeUI(!state.isInvitedGuestView);
       });
 
@@ -4888,7 +4893,7 @@
       });
 
       document.getElementById('roomCodeInput').addEventListener('input', (e) => {
-        state.roomCode = e.target.value.trim() || 'leet-team-10';
+        state.roomCode = e.target.value.trim() || 'zugo-team-10';
         document.getElementById('guestRoomBadgeText').textContent = state.roomCode;
       });
 
@@ -4902,13 +4907,13 @@
         m.addEventListener('click', (e) => {
           SoundFX.playDing();
           triggerConfettiBurst(e.clientX, e.clientY);
-          showToast('☀️ Leet Meet — Trò chuyện và kết nối bất tận!', 'info');
+          showToast('☀️ Zugo Leet — Trò chuyện và kết nối bất tận!', 'info');
         });
       });
 
       document.getElementById('randomRoomBtn').addEventListener('click', () => {
         SoundFX.playPop();
-        const rand = 'leet-' + Math.random().toString(36).substring(2, 6) + '-' + Math.floor(10 + Math.random() * 89);
+        const rand = 'zugo-' + Math.random().toString(36).substring(2, 6) + '-' + Math.floor(10 + Math.random() * 89);
         document.getElementById('roomCodeInput').value = rand;
         state.roomCode = rand;
         document.getElementById('guestRoomBadgeText').textContent = rand;
@@ -4916,13 +4921,13 @@
       });
 
       document.getElementById('copyRoomLobbyBtn').addEventListener('click', function() {
-        const code = document.getElementById('roomCodeInput').value.trim() || 'leet-team-10';
+        const code = document.getElementById('roomCodeInput').value.trim() || 'zugo-team-10';
         copyTextSafe(code, `Đã sao chép mã phòng: ${code}`);
         animateCopyButton(this, 'ĐÃ CHÉP! ✓');
       });
 
       document.getElementById('copyLinkLobbyBtn').addEventListener('click', function() {
-        const code = document.getElementById('roomCodeInput').value.trim() || 'leet-team-10';
+        const code = document.getElementById('roomCodeInput').value.trim() || 'zugo-team-10';
         const url = buildInviteUrl(code);
         copyTextSafe(url, `Đã sao chép Link mời: ${url}`);
         animateCopyButton(this, 'ĐÃ CHÉP LINK! ✓');

@@ -1,5 +1,5 @@
-// Leet Meet - Ultra-Lightweight PWA Service Worker
-const CACHE_NAME = 'leet-meet-cache-v1';
+// Zugo Leet - Ultra-Lightweight PWA Service Worker
+const CACHE_NAME = 'zugo-leet-cache-v2';
 const ASSETS_TO_CACHE = [
   './',
   './index.html',
