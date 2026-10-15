@@ -254,150 +254,181 @@
     </div>
   </div>
 
-  <!-- TURN RELAY SETTINGS MODAL (NEO-BRUTALIST STYLE) -->
-  <div id="turnModal" class="hidden fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
-    <div class="bg-[#FFFDF0] neo-card w-full max-w-lg p-5 sm:p-6 flex flex-col gap-4 text-[#1A1A1A]">
-      <div class="flex items-center justify-between border-b-2 border-[#1A1A1A] pb-3">
-        <div class="flex items-center gap-2">
+  <!-- UNIFIED SETTINGS MODAL (POP-ART NEO-BRUTALIST TABBED MODAL) -->
+  <div id="unifiedSettingsModal" class="hidden fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4">
+    <div class="bg-[#FFFDF0] neo-card w-full max-w-xl max-h-[90vh] flex flex-col text-[#1A1A1A] border-[3px] border-[#1A1A1A] shadow-[8px_8px_0px_#1A1A1A] rounded-2xl overflow-hidden">
+      <!-- Modal Header -->
+      <div class="flex items-center justify-between border-b-[3px] border-[#1A1A1A] p-4 bg-[#FFCE38] shrink-0">
+        <div class="flex items-center gap-2.5">
           <span class="text-xl">⚙️</span>
-          <h2 class="text-base sm:text-lg font-extrabold uppercase">Cấu hình TURN Relay (Khác WiFi / 4G)</h2>
+          <h2 class="text-base sm:text-lg font-black uppercase tracking-tight">Cài đặt & Tiện ích</h2>
         </div>
-        <button id="closeTurnModalBtn" type="button" class="neo-btn w-8 h-8 rounded-full bg-white font-extrabold text-sm flex items-center justify-center">✕</button>
+        <button id="closeSettingsModalBtn" type="button" class="neo-btn w-8 h-8 rounded-full bg-white font-black text-sm flex items-center justify-center hover:bg-gray-100" title="Đóng cài đặt (Esc)">✕</button>
       </div>
 
-      <div class="text-xs space-y-2">
-        <p class="font-bold text-gray-700">
-          Khi 2 người ở <strong>khác mạng WiFi</strong> (hoặc 1 máy dùng 4G, 1 máy dùng WiFi), nhà mạng sẽ chặn kết nối P2P trực tiếp do tường lửa NAT đối xứng. Bạn cần <strong>TURN Relay</strong> để làm cầu nối trung gian chuyển tiếp video.
-        </p>
-        <div class="bg-[#FFCE38]/40 border-2 border-[#1A1A1A] rounded-xl p-3 text-[11px] font-bold">
-          💡 <strong>Cách lấy TURN miễn phí 100% (50GB/tháng, chỉ mất 1 phút):</strong><br/>
-          1. Đăng ký tài khoản miễn phí tại <a href="https://www.metered.ca/" target="_blank" class="text-[#3B66FF] underline">metered.ca</a> (không cần thẻ).<br/>
-          2. Vào <strong>TURN Server Dashboard</strong> → Copy <strong>App Name</strong> & <strong>API Key</strong> (hoặc Username & Password) dán vào dưới:
-        </div>
+      <!-- Tab Buttons Navigation Bar -->
+      <div class="flex border-b-2 border-[#1A1A1A] bg-[#FFFDF0] p-2 gap-1.5 shrink-0 overflow-x-auto">
+        <button id="tabSettingsDeviceBtn" type="button" class="settings-tab-btn flex-1 min-w-[130px] py-2 px-3 rounded-xl border-2 border-[#1A1A1A] font-extrabold text-xs flex items-center justify-center gap-1.5 transition-all bg-[#FFCE38] shadow-[2px_2px_0px_#1A1A1A]">
+          <span>🎙️</span><span>Thiết bị & Âm thanh</span>
+        </button>
+        <button id="tabSettingsTurnBtn" type="button" class="settings-tab-btn flex-1 min-w-[130px] py-2 px-3 rounded-xl border-2 border-[#1A1A1A] font-extrabold text-xs flex items-center justify-center gap-1.5 transition-all bg-white hover:bg-gray-100">
+          <span>🌐</span><span>Mạng & TURN Relay</span>
+        </button>
+        <button id="tabSettingsShortcutsBtn" type="button" class="settings-tab-btn flex-1 min-w-[130px] py-2 px-3 rounded-xl border-2 border-[#1A1A1A] font-extrabold text-xs flex items-center justify-center gap-1.5 transition-all bg-white hover:bg-gray-100">
+          <span>⌨️</span><span>Phím tắt & Tiện ích</span>
+        </button>
       </div>
 
-      <div class="flex flex-col gap-3">
-        <div>
-          <label class="block text-xs font-extrabold uppercase mb-1">Metered App Name</label>
-          <input id="turnAppNameInput" type="text" placeholder="vd: myapp (trong myapp.metered.live)" class="neo-input w-full px-3.5 py-2 rounded-xl text-xs font-bold" />
-        </div>
-        <div>
-          <label class="block text-xs font-extrabold uppercase mb-1">Metered API Key</label>
-          <input id="turnApiKeyInput" type="text" placeholder="vd: a1b2c3d4e5f6..." class="neo-input w-full px-3.5 py-2 rounded-xl text-xs font-bold" />
-        </div>
-
-        <div class="text-center text-[11px] font-extrabold text-gray-500">— HOẶC DÙNG MÁY CHỦ TURN TÙY CHỌN —</div>
-
-        <div>
-          <label class="block text-[11px] font-extrabold uppercase mb-1">TURN URL (Tùy chọn)</label>
-          <input id="turnUrlInput" type="text" placeholder="vd: turn:standard.relay.metered.ca:443" class="neo-input w-full px-3 py-1.5 rounded-xl text-xs font-bold" />
-        </div>
-
-        <div class="grid grid-cols-2 gap-2">
-          <div>
-            <label class="block text-[11px] font-extrabold uppercase mb-1">TURN Username</label>
-            <input id="turnUserInput" type="text" placeholder="Username" class="neo-input w-full px-3 py-1.5 rounded-xl text-xs font-bold" />
+      <!-- Tab Panes Container (Scrollable) -->
+      <div class="p-4 sm:p-5 overflow-y-auto flex-1 flex flex-col gap-4 text-xs">
+        
+        <!-- TAB 1: DEVICE & AUDIO SETTINGS (Also keeps #deviceModal ID for compatibility) -->
+        <div id="deviceModal" class="settings-tab-pane flex flex-col gap-4">
+          <div class="bg-white border-2 border-[#1A1A1A] rounded-xl p-3.5 shadow-[2px_2px_0px_#1A1A1A] flex flex-col gap-3">
+            <span class="font-extrabold text-[11px] uppercase tracking-wider text-gray-500">Phần cứng đầu vào / đầu ra</span>
+            <div>
+              <label class="block font-black uppercase mb-1">Microphone</label>
+              <select id="audioSourceSelect" class="neo-input w-full px-3 py-2 rounded-xl bg-white font-bold"></select>
+            </div>
+            <div>
+              <label class="block font-black uppercase mb-1">Camera</label>
+              <select id="videoSourceSelect" class="neo-input w-full px-3 py-2 rounded-xl bg-white font-bold"></select>
+            </div>
+            <div>
+              <label class="block font-black uppercase mb-1">Loa / Tai nghe (Audio Output)</label>
+              <select id="audioOutputSelect" class="neo-input w-full px-3 py-2 rounded-xl bg-white font-bold"></select>
+            </div>
           </div>
-          <div>
-            <label class="block text-[11px] font-extrabold uppercase mb-1">TURN Password / Credential</label>
-            <input id="turnPassInput" type="password" placeholder="Password" class="neo-input w-full px-3 py-1.5 rounded-xl text-xs font-bold" />
+
+          <div class="bg-white border-2 border-[#1A1A1A] rounded-xl p-3.5 shadow-[2px_2px_0px_#1A1A1A] flex flex-col gap-3">
+            <span class="font-extrabold text-[11px] uppercase tracking-wider text-gray-500">Thao tác nhanh Camera & Âm thanh</span>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+              <button id="settingsFlipCamBtn" type="button" class="neo-btn py-2 px-3 rounded-xl bg-[#FFFDF0] hover:bg-[#FFCE38] border-2 border-[#1A1A1A] text-xs font-black flex items-center justify-center gap-2">
+                <span>🔄</span><span>Đổi camera trước / sau</span>
+              </button>
+              <button id="settingsSfxToggleBtn" type="button" class="sfx-toggle-btn neo-btn py-2 px-3 rounded-xl bg-[#FFCE38] border-2 border-[#1A1A1A] text-xs font-black flex items-center justify-center gap-2" title="Bật/Tắt hiệu ứng âm thanh">
+                <span>🔊</span><span>SFX: Bật</span>
+              </button>
+            </div>
           </div>
+
+          <div class="pt-2">
+            <button id="applyDeviceBtn" type="button" class="neo-btn w-full py-2.5 rounded-full bg-[#FFCE38] hover:bg-[#ffd859] text-xs font-black uppercase text-[#1A1A1A] border-2 border-[#1A1A1A] shadow-[2px_2px_0px_#1A1A1A]">
+              Áp dụng thiết bị
+            </button>
+          </div>
+          <button id="closeDeviceModalBtn" type="button" class="hidden"></button>
         </div>
 
-        <div id="turnTestResultBox" class="hidden p-3 rounded-xl border-2 border-[#1A1A1A] text-xs font-bold"></div>
-      </div>
+        <!-- TAB 2: NETWORK & TURN RELAY (Also keeps #turnModal ID for compatibility) -->
+        <div id="turnModal" class="settings-tab-pane hidden flex flex-col gap-3">
+          <div class="text-xs space-y-2">
+            <p class="font-bold text-gray-700">
+              Khi 2 người ở <strong>khác mạng WiFi</strong> (hoặc 1 máy dùng 4G, 1 máy dùng WiFi), nhà mạng sẽ chặn kết nối P2P trực tiếp do tường lửa NAT đối xứng. Bạn cần <strong>TURN Relay</strong> để làm cầu nối trung gian chuyển tiếp video.
+            </p>
+            <div class="bg-[#FFCE38]/40 border-2 border-[#1A1A1A] rounded-xl p-3 text-[11px] font-bold">
+              💡 <strong>Cách lấy TURN miễn phí 100% (50GB/tháng, chỉ mất 1 phút):</strong><br/>
+              1. Đăng ký tài khoản miễn phí tại <a href="https://www.metered.ca/" target="_blank" class="text-[#3B66FF] underline">metered.ca</a> (không cần thẻ).<br/>
+              2. Vào <strong>TURN Server Dashboard</strong> → Copy <strong>App Name</strong> & <strong>API Key</strong> (hoặc Username & Password) dán vào dưới:
+            </div>
+          </div>
 
-      <div class="flex flex-wrap gap-2 pt-2 border-t-2 border-[#1A1A1A]">
-        <button id="testTurnConfigBtn" type="button" class="neo-btn px-4 py-2.5 rounded-full bg-[#FFCE38] hover:bg-[#ffd859] text-[#1A1A1A] text-xs font-extrabold uppercase">
-          ⚡ Thử nghiệm TURN
-        </button>
-        <button id="saveTurnConfigBtn" type="button" class="neo-btn flex-1 py-2.5 rounded-full bg-[#2E8B57] hover:bg-[#257347] text-white text-xs font-extrabold uppercase">
-          Lưu cấu hình
-        </button>
-        <button id="clearTurnConfigBtn" type="button" class="neo-btn px-3 py-2.5 rounded-full bg-white text-xs font-extrabold text-gray-700">
-          Xóa
-        </button>
-      </div>
-    </div>
-  </div>
+          <div class="flex flex-col gap-3">
+            <div>
+              <label class="block text-xs font-extrabold uppercase mb-1">Metered App Name</label>
+              <input id="turnAppNameInput" type="text" placeholder="vd: myapp (trong myapp.metered.live)" class="neo-input w-full px-3.5 py-2 rounded-xl text-xs font-bold" />
+            </div>
+            <div>
+              <label class="block text-xs font-extrabold uppercase mb-1">Metered API Key</label>
+              <input id="turnApiKeyInput" type="text" placeholder="vd: a1b2c3d4e5f6..." class="neo-input w-full px-3.5 py-2 rounded-xl text-xs font-bold" />
+            </div>
 
-  <!-- DEVICE SELECTION MODAL (POP-ART STYLE) -->
-  <div id="deviceModal" class="hidden fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
-    <div class="bg-[#FFFDF0] neo-card w-full max-w-md p-5 sm:p-6 flex flex-col gap-4 text-[#1A1A1A]">
-      <div class="flex items-center justify-between border-b-2 border-[#1A1A1A] pb-3">
-        <div class="flex items-center gap-2">
-          <span class="text-xl">🎙️</span>
-          <h2 class="text-base sm:text-lg font-extrabold uppercase">Cài đặt Thiết bị Mic / Cam / Loa</h2>
-        </div>
-        <button id="closeDeviceModalBtn" type="button" class="neo-btn w-8 h-8 rounded-full bg-white font-extrabold text-sm flex items-center justify-center">✕</button>
-      </div>
+            <div class="text-center text-[11px] font-extrabold text-gray-500">— HOẶC DÙNG MÁY CHỦ TURN TÙY CHỌN —</div>
 
-      <div class="flex flex-col gap-3 text-xs">
-        <div>
-          <label class="block font-extrabold uppercase mb-1">Microphone</label>
-          <select id="audioSourceSelect" class="neo-input w-full px-3 py-2 rounded-xl bg-white font-bold"></select>
-        </div>
-        <div>
-          <label class="block font-extrabold uppercase mb-1">Camera</label>
-          <select id="videoSourceSelect" class="neo-input w-full px-3 py-2 rounded-xl bg-white font-bold"></select>
-        </div>
-        <div>
-          <label class="block font-extrabold uppercase mb-1">Loa / Tai nghe (Audio Output)</label>
-          <select id="audioOutputSelect" class="neo-input w-full px-3 py-2 rounded-xl bg-white font-bold"></select>
-        </div>
-      </div>
+            <div>
+              <label class="block text-[11px] font-extrabold uppercase mb-1">TURN URL (Tùy chọn)</label>
+              <input id="turnUrlInput" type="text" placeholder="vd: turn:standard.relay.metered.ca:443" class="neo-input w-full px-3 py-1.5 rounded-xl text-xs font-bold" />
+            </div>
 
-      <div class="flex gap-2 pt-2 border-t-2 border-[#1A1A1A]">
-        <button id="applyDeviceBtn" type="button" class="neo-btn flex-1 py-2.5 rounded-full bg-[#FFCE38] hover:bg-[#ffd859] text-xs font-extrabold uppercase text-[#1A1A1A]">
-          Áp dụng thiết bị
-        </button>
-      </div>
-    </div>
-  </div>
+            <div class="grid grid-cols-2 gap-2">
+              <div>
+                <label class="block text-[11px] font-extrabold uppercase mb-1">TURN Username</label>
+                <input id="turnUserInput" type="text" placeholder="Username" class="neo-input w-full px-3 py-1.5 rounded-xl text-xs font-bold" />
+              </div>
+              <div>
+                <label class="block text-[11px] font-extrabold uppercase mb-1">TURN Password / Credential</label>
+                <input id="turnPassInput" type="password" placeholder="Password" class="neo-input w-full px-3 py-1.5 rounded-xl text-xs font-bold" />
+              </div>
+            </div>
 
-  <!-- KEYBOARD SHORTCUTS MODAL -->
-  <div id="shortcutsModal" class="hidden fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
-    <div class="bg-[#FFFDF0] neo-card w-full max-w-md p-5 sm:p-6 flex flex-col gap-4 text-[#1A1A1A]">
-      <div class="flex items-center justify-between border-b-2 border-[#1A1A1A] pb-3">
-        <div class="flex items-center gap-2">
-          <span class="text-xl">⌨️</span>
-          <h2 class="text-base sm:text-lg font-extrabold uppercase">Phím tắt bàn phím</h2>
+            <div id="turnTestResultBox" class="hidden p-3 rounded-xl border-2 border-[#1A1A1A] text-xs font-bold"></div>
+          </div>
+
+          <div class="flex flex-wrap gap-2 pt-2 border-t-2 border-[#1A1A1A]">
+            <button id="testTurnConfigBtn" type="button" class="neo-btn px-4 py-2 rounded-full bg-[#FFCE38] hover:bg-[#ffd859] text-[#1A1A1A] text-xs font-extrabold uppercase">
+              ⚡ Thử nghiệm TURN
+            </button>
+            <button id="saveTurnConfigBtn" type="button" class="neo-btn flex-1 py-2 rounded-full bg-[#2E8B57] hover:bg-[#257347] text-white text-xs font-extrabold uppercase">
+              Lưu cấu hình
+            </button>
+            <button id="clearTurnConfigBtn" type="button" class="neo-btn px-3 py-2 rounded-full bg-white text-xs font-extrabold text-gray-700">
+              Xóa
+            </button>
+          </div>
+          <button id="closeTurnModalBtn" type="button" class="hidden"></button>
         </div>
-        <button id="closeShortcutsModalBtn" type="button" class="neo-btn w-8 h-8 rounded-full bg-white font-extrabold text-sm flex items-center justify-center">✕</button>
-      </div>
-      <div class="grid grid-cols-2 gap-2 text-xs font-bold">
-        <div class="flex items-center justify-between p-2 bg-white rounded-xl border-2 border-[#1A1A1A]">
-          <span>Push-to-Talk</span>
-          <kbd class="px-2 py-0.5 bg-[#FFCE38] rounded border border-[#1A1A1A]">Giữ Space</kbd>
+
+        <!-- TAB 3: KEYBOARD SHORTCUTS & UTILITIES (Also keeps #shortcutsModal ID for compatibility) -->
+        <div id="shortcutsModal" class="settings-tab-pane hidden flex flex-col gap-3">
+          <!-- Quick Utility: PiP -->
+          <div class="bg-white border-2 border-[#1A1A1A] rounded-xl p-3.5 shadow-[2px_2px_0px_#1A1A1A] flex items-center justify-between gap-3">
+            <div>
+              <div class="font-black text-xs text-[#1A1A1A] uppercase">Cửa sổ nổi Picture-in-Picture</div>
+              <div class="text-[11px] font-semibold text-gray-500">Xem video người nói khi lướt tab hoặc ứng dụng khác</div>
+            </div>
+            <button id="settingsPipBtn" type="button" class="neo-btn px-3.5 py-1.5 rounded-full bg-[#3B66FF] hover:bg-[#2e52d4] text-white text-xs font-black flex items-center gap-1.5">
+              <span>🪟</span><span>Bật PiP</span>
+            </button>
+          </div>
+
+          <div class="font-black text-xs uppercase text-gray-700 mt-1">Danh sách phím tắt thao tác nhanh:</div>
+          <div class="grid grid-cols-2 gap-2 text-xs font-bold">
+            <div class="flex items-center justify-between p-2.5 bg-white rounded-xl border-2 border-[#1A1A1A] shadow-[1.5px_1.5px_0px_#1A1A1A]">
+              <span>Push-to-Talk</span>
+              <kbd class="px-2 py-0.5 bg-[#FFCE38] rounded border border-[#1A1A1A]">Giữ Space</kbd>
+            </div>
+            <div class="flex items-center justify-between p-2.5 bg-white rounded-xl border-2 border-[#1A1A1A] shadow-[1.5px_1.5px_0px_#1A1A1A]">
+              <span>Bật/Tắt Micro</span>
+              <kbd class="px-2 py-0.5 bg-[#FFFDF0] rounded border border-[#1A1A1A]">M</kbd>
+            </div>
+            <div class="flex items-center justify-between p-2.5 bg-white rounded-xl border-2 border-[#1A1A1A] shadow-[1.5px_1.5px_0px_#1A1A1A]">
+              <span>Bật/Tắt Camera</span>
+              <kbd class="px-2 py-0.5 bg-[#FFFDF0] rounded border border-[#1A1A1A]">V</kbd>
+            </div>
+            <div class="flex items-center justify-between p-2.5 bg-white rounded-xl border-2 border-[#1A1A1A] shadow-[1.5px_1.5px_0px_#1A1A1A]">
+              <span>Chia sẻ màn hình</span>
+              <kbd class="px-2 py-0.5 bg-[#FFFDF0] rounded border border-[#1A1A1A]">S</kbd>
+            </div>
+            <div class="flex items-center justify-between p-2.5 bg-white rounded-xl border-2 border-[#1A1A1A] shadow-[1.5px_1.5px_0px_#1A1A1A]">
+              <span>Giơ tay phát biểu</span>
+              <kbd class="px-2 py-0.5 bg-[#FFFDF0] rounded border border-[#1A1A1A]">H</kbd>
+            </div>
+            <div class="flex items-center justify-between p-2.5 bg-white rounded-xl border-2 border-[#1A1A1A] shadow-[1.5px_1.5px_0px_#1A1A1A]">
+              <span>Mở/Đóng Chat</span>
+              <kbd class="px-2 py-0.5 bg-[#FFFDF0] rounded border border-[#1A1A1A]">C</kbd>
+            </div>
+            <div class="flex items-center justify-between p-2.5 bg-white rounded-xl border-2 border-[#1A1A1A] shadow-[1.5px_1.5px_0px_#1A1A1A]">
+              <span>Cửa sổ nổi PiP</span>
+              <kbd class="px-2 py-0.5 bg-[#FFFDF0] rounded border border-[#1A1A1A]">P</kbd>
+            </div>
+            <div class="flex items-center justify-between p-2.5 bg-white rounded-xl border-2 border-[#1A1A1A] shadow-[1.5px_1.5px_0px_#1A1A1A]">
+              <span>Xem cài đặt</span>
+              <kbd class="px-2 py-0.5 bg-[#FFFDF0] rounded border border-[#1A1A1A]">?</kbd>
+            </div>
+          </div>
+          <button id="closeShortcutsModalBtn" type="button" class="hidden"></button>
         </div>
-        <div class="flex items-center justify-between p-2 bg-white rounded-xl border-2 border-[#1A1A1A]">
-          <span>Bật/Tắt Micro</span>
-          <kbd class="px-2 py-0.5 bg-[#FFFDF0] rounded border border-[#1A1A1A]">M</kbd>
-        </div>
-        <div class="flex items-center justify-between p-2 bg-white rounded-xl border-2 border-[#1A1A1A]">
-          <span>Bật/Tắt Camera</span>
-          <kbd class="px-2 py-0.5 bg-[#FFFDF0] rounded border border-[#1A1A1A]">V</kbd>
-        </div>
-        <div class="flex items-center justify-between p-2 bg-white rounded-xl border-2 border-[#1A1A1A]">
-          <span>Chia sẻ màn hình</span>
-          <kbd class="px-2 py-0.5 bg-[#FFFDF0] rounded border border-[#1A1A1A]">S</kbd>
-        </div>
-        <div class="flex items-center justify-between p-2 bg-white rounded-xl border-2 border-[#1A1A1A]">
-          <span>Giơ tay phát biểu</span>
-          <kbd class="px-2 py-0.5 bg-[#FFFDF0] rounded border border-[#1A1A1A]">H</kbd>
-        </div>
-        <div class="flex items-center justify-between p-2 bg-white rounded-xl border-2 border-[#1A1A1A]">
-          <span>Mở/Đóng Chat</span>
-          <kbd class="px-2 py-0.5 bg-[#FFFDF0] rounded border border-[#1A1A1A]">C</kbd>
-        </div>
-        <div class="flex items-center justify-between p-2 bg-white rounded-xl border-2 border-[#1A1A1A]">
-          <span>Cửa sổ nổi PiP</span>
-          <kbd class="px-2 py-0.5 bg-[#FFFDF0] rounded border border-[#1A1A1A]">P</kbd>
-        </div>
-        <div class="flex items-center justify-between p-2 bg-white rounded-xl border-2 border-[#1A1A1A]">
-          <span>Xem phím tắt</span>
-          <kbd class="px-2 py-0.5 bg-[#FFFDF0] rounded border border-[#1A1A1A]">?</kbd>
-        </div>
+
       </div>
     </div>
   </div>
@@ -470,7 +501,7 @@
   </div>
 
   <!-- TOAST NOTIFICATION CONTAINER -->
-  <div id="toastContainer" class="fixed top-4 right-4 z-50 flex flex-col gap-2.5 max-w-sm w-full pointer-events-none px-3 sm:px-0"></div>
+  <div id="toastContainer" class="fixed top-20 right-4 z-50 flex flex-col gap-2.5 max-w-sm w-full pointer-events-none px-3 sm:px-0"></div>
 
   <!-- FLOATING REACTIONS CONTAINER -->
   <div id="reactionContainer" class="fixed bottom-24 left-6 z-40 pointer-events-none flex gap-3"></div>
@@ -497,17 +528,16 @@
         </div>
       </div>
 
-      <!-- Mode Switcher Pill, SFX & TURN Settings -->
+      <!-- Lobby Header Actions: Unified Settings & Mode Switcher -->
       <div class="flex items-center gap-2">
-        <button id="lobbySfxToggleBtn" type="button" class="sfx-toggle-btn neo-btn px-3 py-1.5 rounded-full bg-[#FFCE38] text-[#1A1A1A] text-xs font-extrabold flex items-center gap-1.5 shadow-[2px_2px_0px_#1A1A1A]" title="Bật/Tắt hiệu ứng âm thanh (SFX)">
-          <span>🔊</span><span class="hidden sm:inline">SFX: Bật</span>
-        </button>
-        <button id="openTurnSettingsBtn" type="button" class="neo-btn px-3 py-1.5 rounded-full bg-[#3B66FF] hover:bg-[#2d52d9] text-[11px] sm:text-xs font-extrabold text-white uppercase tracking-wide flex items-center gap-1.5">
-          <span>⚙️</span> Cấu hình TURN (Khác WiFi / 4G)
+        <button id="lobbySettingsBtn" type="button" class="neo-btn px-3.5 py-1.5 rounded-full bg-white hover:bg-[#FFCE38] text-[11px] sm:text-xs font-extrabold text-[#1A1A1A] uppercase tracking-wide flex items-center gap-1.5 shadow-[2px_2px_0px_#1A1A1A]" title="Cài đặt Hệ thống">
+          <span>⚙️</span><span>Cài đặt</span>
         </button>
         <button id="toggleGuestPreviewBtn" type="button" class="neo-btn px-3.5 py-1.5 rounded-full bg-[#FFCE38] hover:bg-[#ffd859] text-[11px] sm:text-xs font-extrabold text-[#1A1A1A] uppercase tracking-wide">
           Đổi chế độ
         </button>
+        <button id="openTurnSettingsBtn" type="button" class="hidden"></button>
+        <button id="lobbySfxToggleBtn" type="button" class="hidden"></button>
       </div>
     </header>
 
@@ -635,15 +665,15 @@
               </div>
             </div>
 
-            <!-- Quick Mic & Cam Status Toggles inside Join Card -->
-            <div class="grid grid-cols-2 gap-3 pt-1">
-              <button id="cardToggleMicBtn" type="button" class="neo-btn py-2.5 px-3 rounded-full bg-white flex items-center justify-center gap-2 text-xs font-extrabold text-[#1A1A1A]">
-                <span id="cardMicStatusDot" class="w-2.5 h-2.5 rounded-full bg-[#2E8B57] border border-[#1A1A1A]"></span>
-                <span id="cardMicStatusText">Micro: Bật</span>
+            <!-- Hidden aliases for card toggle elements -->
+            <div class="hidden">
+              <button id="cardToggleMicBtn" type="button">
+                <span id="cardMicStatusDot"></span>
+                <span id="cardMicStatusText"></span>
               </button>
-              <button id="cardToggleCamBtn" type="button" class="neo-btn py-2.5 px-3 rounded-full bg-white flex items-center justify-center gap-2 text-xs font-extrabold text-[#1A1A1A]">
-                <span id="cardCamStatusDot" class="w-2.5 h-2.5 rounded-full bg-[#2E8B57] border border-[#1A1A1A]"></span>
-                <span id="cardCamStatusText">Camera: Bật</span>
+              <button id="cardToggleCamBtn" type="button">
+                <span id="cardCamStatusDot"></span>
+                <span id="cardCamStatusText"></span>
               </button>
             </div>
           </div>
@@ -693,17 +723,8 @@
         </div>
       </div>
 
-      <!-- Right: Layout Switcher & TURN Relay & Shortcuts & SFX -->
+      <!-- Right: Layout Switcher & Unified Settings Button -->
       <div class="flex items-center gap-1.5 sm:gap-2">
-        <button id="shortcutsHeaderBtn" type="button" class="neo-btn px-2.5 py-1 rounded-full bg-white hover:bg-[#FFCE38] text-[#1A1A1A] text-xs font-extrabold flex items-center gap-1 shadow-[2px_2px_0px_#1A1A1A]" title="Phím tắt bàn phím (?)">
-          <span>⌨️</span><span class="hidden lg:inline">Phím tắt</span>
-        </button>
-        <button id="callSfxToggleBtn" type="button" class="sfx-toggle-btn neo-btn px-2.5 py-1 rounded-full bg-[#FFCE38] text-[#1A1A1A] text-xs font-extrabold flex items-center gap-1 shadow-[2px_2px_0px_#1A1A1A]" title="Bật/Tắt hiệu ứng âm thanh">
-          <span>🔊</span>
-        </button>
-        <button id="openTurnSettingsInCallBtn" type="button" class="neo-btn px-2.5 py-1 rounded-full bg-[#3B66FF] hover:bg-[#2e52d4] text-white text-xs font-extrabold flex items-center gap-1 shadow-[2px_2px_0px_#1A1A1A]" title="Cấu hình TURN Relay (Khác WiFi / 4G)">
-          <span>⚙️</span><span class="hidden md:inline">TURN</span>
-        </button>
         <div class="flex items-center bg-white p-1 rounded-full border-2 border-[#1A1A1A] shadow-[3px_3px_0px_#1A1A1A]">
           <button id="layoutGridBtn" type="button" class="px-3 py-1 rounded-full text-xs font-extrabold bg-[#FFCE38] text-[#1A1A1A] border border-[#1A1A1A] transition">
             Lưới
@@ -712,6 +733,13 @@
             Tiêu điểm
           </button>
         </div>
+        <button id="meetingSettingsBtn" type="button" class="neo-btn px-3 py-1.5 rounded-full bg-white hover:bg-[#FFCE38] text-[#1A1A1A] text-xs font-extrabold flex items-center gap-1.5 shadow-[2px_2px_0px_#1A1A1A]" title="Cài đặt hệ thống (Thiết bị, Mạng, Phím tắt)">
+          <span>⚙️</span><span class="hidden sm:inline">Cài đặt</span>
+        </button>
+        <!-- Hidden compatibility aliases -->
+        <button id="shortcutsHeaderBtn" type="button" class="hidden"></button>
+        <button id="callSfxToggleBtn" type="button" class="hidden"></button>
+        <button id="openTurnSettingsInCallBtn" type="button" class="hidden"></button>
       </div>
     </header>
 
@@ -819,12 +847,10 @@
           <div id="p2pBrokerStatus" class="font-extrabold text-[#FFCE38] uppercase text-[11px]">Đang kết nối P2P...</div>
           <div class="text-[10px] font-semibold text-gray-300">Opus HD • P2P Mesh</div>
         </div>
-        <button id="openDeviceSettingsBtn" type="button" class="neo-btn px-2.5 sm:px-3 h-11 rounded-full bg-[#FFFDF0] hover:bg-[#FFCE38] text-xs font-extrabold text-[#1A1A1A] flex items-center gap-1" title="Cài đặt Mic/Cam/Loa">
-          <span>⚙️</span><span class="hidden md:inline">Thiết bị</span>
+        <button id="openDeviceSettingsBtn" type="button" class="neo-btn px-3 sm:px-3.5 h-11 rounded-full bg-[#FFFDF0] hover:bg-[#FFCE38] text-xs font-extrabold text-[#1A1A1A] flex items-center gap-1.5 shadow-[2px_2px_0px_#1A1A1A]" title="Cài đặt hệ thống">
+          <span>⚙️</span><span class="hidden md:inline">Cài đặt</span>
         </button>
-        <button id="togglePipBtn" type="button" class="neo-btn px-2.5 sm:px-3 h-11 rounded-full bg-[#FFFDF0] hover:bg-[#FFCE38] text-xs font-extrabold text-[#1A1A1A] flex items-center gap-1" title="Cửa sổ nổi PiP (Picture-in-Picture)">
-          <span>🪟</span><span class="hidden md:inline">PiP</span>
-        </button>
+        <button id="togglePipBtn" type="button" class="hidden"></button>
       </div>
 
       <!-- Center Main Controls -->
@@ -850,10 +876,8 @@
           </svg>
         </button>
 
-        <!-- Flip Camera Button -->
-        <button id="callFlipCamBtn" type="button" class="neo-btn w-11 h-11 sm:w-12 sm:h-12 rounded-full bg-[#FFCE38] text-[#1A1A1A] flex items-center justify-center text-base font-extrabold" title="Đổi Camera Trước / Sau">
-          🔄
-        </button>
+        <!-- Hidden Flip Camera alias -->
+        <button id="callFlipCamBtn" type="button" class="hidden"></button>
 
         <!-- Screen Share Button -->
         <button id="callScreenShareBtn" type="button" class="neo-btn px-3 sm:px-4 h-11 sm:h-12 rounded-full bg-[#3B66FF] text-white flex items-center gap-1.5 text-xs sm:text-sm font-extrabold" title="Chia sẻ màn hình (S)">
@@ -2737,6 +2761,72 @@
       }
     }
 
+    // ==================== UNIFIED SETTINGS MODAL CONTROLLER ====================
+    function openSettingsModal(tab = 'devices') {
+      const modal = document.getElementById('unifiedSettingsModal');
+      if (!modal) return;
+      modal.classList.remove('hidden');
+      switchSettingsTab(tab);
+    }
+
+    function closeSettingsModal() {
+      const modal = document.getElementById('unifiedSettingsModal');
+      if (modal) modal.classList.add('hidden');
+      document.getElementById('deviceModal')?.classList.add('hidden');
+      document.getElementById('turnModal')?.classList.add('hidden');
+      document.getElementById('shortcutsModal')?.classList.add('hidden');
+    }
+
+    function switchSettingsTab(tab) {
+      const tabDeviceBtn = document.getElementById('tabSettingsDeviceBtn');
+      const tabTurnBtn = document.getElementById('tabSettingsTurnBtn');
+      const tabShortcutsBtn = document.getElementById('tabSettingsShortcutsBtn');
+
+      const paneDevice = document.getElementById('deviceModal');
+      const paneTurn = document.getElementById('turnModal');
+      const paneShortcuts = document.getElementById('shortcutsModal');
+
+      [tabDeviceBtn, tabTurnBtn, tabShortcutsBtn].forEach(btn => {
+        if (!btn) return;
+        btn.classList.remove('bg-[#FFCE38]', 'shadow-[2px_2px_0px_#1A1A1A]');
+        btn.classList.add('bg-white');
+      });
+
+      [paneDevice, paneTurn, paneShortcuts].forEach(pane => {
+        if (!pane) return;
+        pane.classList.add('hidden');
+      });
+
+      if (tab === 'devices') {
+        if (tabDeviceBtn) {
+          tabDeviceBtn.classList.remove('bg-white');
+          tabDeviceBtn.classList.add('bg-[#FFCE38]', 'shadow-[2px_2px_0px_#1A1A1A]');
+        }
+        if (paneDevice) paneDevice.classList.remove('hidden');
+        if (typeof populateDeviceLists === 'function') {
+          populateDeviceLists();
+        }
+      } else if (tab === 'turn') {
+        if (tabTurnBtn) {
+          tabTurnBtn.classList.remove('bg-white');
+          tabTurnBtn.classList.add('bg-[#FFCE38]', 'shadow-[2px_2px_0px_#1A1A1A]');
+        }
+        if (paneTurn) paneTurn.classList.remove('hidden');
+        if (typeof loadSavedTurnInputs === 'function') {
+          loadSavedTurnInputs();
+        }
+      } else if (tab === 'shortcuts') {
+        if (tabShortcutsBtn) {
+          tabShortcutsBtn.classList.remove('bg-white');
+          tabShortcutsBtn.classList.add('bg-[#FFCE38]', 'shadow-[2px_2px_0px_#1A1A1A]');
+        }
+        if (paneShortcuts) paneShortcuts.classList.remove('hidden');
+      }
+    }
+    window.openSettingsModal = openSettingsModal;
+    window.closeSettingsModal = closeSettingsModal;
+    window.switchSettingsTab = switchSettingsTab;
+
     async function applyDeviceSelection() {
       const audioIn = document.getElementById('audioSourceSelect')?.value;
       const videoIn = document.getElementById('videoSourceSelect')?.value;
@@ -2781,7 +2871,7 @@
         console.warn('Lỗi chuyển thiết bị:', err);
         showToast('Không thể kích hoạt thiết bị đã chọn: ' + (err.message || ''), 'warn');
       } finally {
-        document.getElementById('deviceModal')?.classList.add('hidden');
+        closeSettingsModal();
       }
     }
 
@@ -3368,6 +3458,45 @@
         cleanupPeerJSMesh();
       });
 
+      // Unified Settings Event Listeners
+      document.getElementById('tabSettingsDeviceBtn')?.addEventListener('click', () => {
+        SoundFX.playPop();
+        switchSettingsTab('devices');
+      });
+      document.getElementById('tabSettingsTurnBtn')?.addEventListener('click', () => {
+        SoundFX.playPop();
+        switchSettingsTab('turn');
+      });
+      document.getElementById('tabSettingsShortcutsBtn')?.addEventListener('click', () => {
+        SoundFX.playPop();
+        switchSettingsTab('shortcuts');
+      });
+
+      // Modal close buttons
+      document.getElementById('closeSettingsModalBtn')?.addEventListener('click', () => {
+        SoundFX.playPop();
+        closeSettingsModal();
+      });
+      document.getElementById('closeDeviceModalBtn')?.addEventListener('click', () => {
+        SoundFX.playPop();
+        closeSettingsModal();
+      });
+      document.getElementById('closeTurnModalBtn')?.addEventListener('click', () => {
+        SoundFX.playPop();
+        closeSettingsModal();
+      });
+      document.getElementById('closeShortcutsModalBtn')?.addEventListener('click', () => {
+        SoundFX.playPop();
+        closeSettingsModal();
+      });
+
+      // Backdrop click closes modal
+      document.getElementById('unifiedSettingsModal')?.addEventListener('click', (e) => {
+        if (e.target === document.getElementById('unifiedSettingsModal')) {
+          closeSettingsModal();
+        }
+      });
+
       // ==================== TURN CONFIGURATION MODAL LISTENERS ====================
       const turnModal = document.getElementById('turnModal');
       const openTurnBtn = document.getElementById('openTurnSettingsBtn');
@@ -3395,21 +3524,22 @@
 
       if (openTurnBtn) {
         openTurnBtn.addEventListener('click', () => {
-          loadSavedTurnInputs();
-          turnModal.classList.remove('hidden');
+          SoundFX.playPop();
+          openSettingsModal('turn');
         });
       }
 
       if (openTurnInCallBtn) {
         openTurnInCallBtn.addEventListener('click', () => {
-          loadSavedTurnInputs();
-          turnModal.classList.remove('hidden');
+          SoundFX.playPop();
+          openSettingsModal('turn');
         });
       }
 
       if (closeTurnBtn) {
         closeTurnBtn.addEventListener('click', () => {
-          turnModal.classList.add('hidden');
+          SoundFX.playPop();
+          closeSettingsModal();
         });
       }
 
@@ -3429,7 +3559,7 @@
           const configObj = { appName, apiKey, turnUrl, username, credential };
           localStorage.setItem('leet_turn_config', JSON.stringify(configObj));
           showToast('Đã lưu cấu hình TURN Relay thành công!', 'success');
-          turnModal.classList.add('hidden');
+          closeSettingsModal();
 
           if (state.inCall) {
             showToast('Đang áp dụng TURN mới cho cuộc họp...', 'info');
@@ -3769,15 +3899,18 @@
         });
       }
 
-      // Device Modal
-      document.getElementById('openDeviceSettingsBtn')?.addEventListener('click', async () => {
+      // Unified Settings Triggers
+      document.getElementById('openDeviceSettingsBtn')?.addEventListener('click', () => {
         SoundFX.playPop();
-        await populateDeviceLists();
-        document.getElementById('deviceModal').classList.remove('hidden');
+        openSettingsModal('devices');
       });
-      document.getElementById('closeDeviceModalBtn')?.addEventListener('click', () => {
+      document.getElementById('lobbySettingsBtn')?.addEventListener('click', () => {
         SoundFX.playPop();
-        document.getElementById('deviceModal').classList.add('hidden');
+        openSettingsModal('devices');
+      });
+      document.getElementById('meetingSettingsBtn')?.addEventListener('click', () => {
+        SoundFX.playPop();
+        openSettingsModal('devices');
       });
       document.getElementById('applyDeviceBtn')?.addEventListener('click', () => {
         SoundFX.playPop();
@@ -3789,6 +3922,16 @@
         SoundFX.playPop();
         togglePictureInPicture();
       });
+      document.getElementById('settingsPipBtn')?.addEventListener('click', () => {
+        SoundFX.playPop();
+        togglePictureInPicture();
+      });
+
+      // Quick Flip Camera inside Settings
+      document.getElementById('settingsFlipCamBtn')?.addEventListener('click', () => {
+        SoundFX.playPop();
+        flipMobileCamera();
+      });
 
       // Meeting Recording
       document.getElementById('callRecordMeetingBtn')?.addEventListener('click', () => {
@@ -3799,14 +3942,10 @@
         }
       });
 
-      // Shortcuts Modal
+      // Shortcuts Modal Alias
       document.getElementById('shortcutsHeaderBtn')?.addEventListener('click', () => {
         SoundFX.playPop();
-        document.getElementById('shortcutsModal')?.classList.remove('hidden');
-      });
-      document.getElementById('closeShortcutsModalBtn')?.addEventListener('click', () => {
-        SoundFX.playPop();
-        document.getElementById('shortcutsModal')?.classList.add('hidden');
+        openSettingsModal('shortcuts');
       });
 
       // Collaborative Whiteboard
@@ -3861,8 +4000,14 @@
           togglePictureInPicture();
         } else if (key === '?' || (e.shiftKey && e.code === 'Slash')) {
           e.preventDefault();
-          const modal = document.getElementById('shortcutsModal');
-          if (modal) modal.classList.toggle('hidden');
+          const modal = document.getElementById('unifiedSettingsModal');
+          if (modal && !modal.classList.contains('hidden')) {
+            closeSettingsModal();
+          } else {
+            openSettingsModal('shortcuts');
+          }
+        } else if (e.key === 'Escape') {
+          closeSettingsModal();
         }
       });
 
