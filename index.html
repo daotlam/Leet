@@ -402,6 +402,67 @@
     </div>
   </div>
 
+  <!-- VOTE KICK DIALOG / BANNER (POP-ART NEO-BRUTALIST) -->
+  <div id="voteKickDialog" class="hidden fixed top-20 left-1/2 -translate-x-1/2 z-50 w-full max-w-md px-4 pointer-events-auto">
+    <div class="bg-[#FFFDF0] neo-card p-4 sm:p-5 flex flex-col gap-3 text-[#1A1A1A] border-[3px] border-[#1A1A1A] shadow-[6px_6px_0px_#1A1A1A] animate-view-in">
+      <div class="flex items-center justify-between border-b-2 border-[#1A1A1A] pb-2">
+        <div class="flex items-center gap-2">
+          <span class="text-xl">🚫</span>
+          <span class="font-black text-xs sm:text-sm uppercase tracking-wide">BỎ PHIẾU TRỤC XUẤT (VOTE KICK)</span>
+        </div>
+        <span id="voteKickTimerBadge" class="px-2.5 py-0.5 rounded-full bg-[#FFCE38] border-2 border-[#1A1A1A] text-xs font-black shadow-[1.5px_1.5px_0px_#1A1A1A]">30s</span>
+      </div>
+
+      <div class="text-xs font-bold text-[#1A1A1A]" id="voteKickDesc">
+        <strong>Thành viên</strong> muốn trục xuất <strong>Ai đó</strong> ra khỏi phòng họp.
+      </div>
+
+      <!-- Vote Progress Bar -->
+      <div class="space-y-1">
+        <div class="flex justify-between text-[11px] font-black uppercase text-[#1A1A1A]">
+          <span>Tiến độ đồng ý:</span>
+          <span id="voteKickProgressText">1 / 2 phiếu (Cần 50%)</span>
+        </div>
+        <div class="w-full h-3 bg-white rounded-full border-2 border-[#1A1A1A] overflow-hidden">
+          <div id="voteKickProgressBar" class="h-full bg-[#F26B1D] transition-all duration-300" style="width: 50%;"></div>
+        </div>
+      </div>
+
+      <!-- Action Buttons (for non-target voters) -->
+      <div id="voteKickActions" class="flex gap-2 pt-1">
+        <button id="voteKickYesBtn" type="button" class="neo-btn flex-1 py-2 px-3 rounded-full bg-[#F26B1D] text-white text-xs font-black uppercase flex items-center justify-center gap-1.5 hover:bg-[#d95d18]">
+          <span>✅ Đồng ý Kick</span>
+        </button>
+        <button id="voteKickNoBtn" type="button" class="neo-btn flex-1 py-2 px-3 rounded-full bg-[#FFFDF0] hover:bg-gray-100 text-[#1A1A1A] text-xs font-black uppercase flex items-center justify-center gap-1.5">
+          <span>❌ Phản đối</span>
+        </button>
+      </div>
+
+      <!-- Target notification message (shown only to the person being voted on) -->
+      <div id="voteKickTargetNotice" class="hidden text-xs font-black text-[#D92D20] bg-[#F26B1D]/15 p-2.5 rounded-xl border-2 border-[#D92D20] text-center">
+        ⚠️ Bạn đang là đối tượng bị đề xuất bỏ phiếu trục xuất.
+      </div>
+    </div>
+  </div>
+
+  <!-- KICKED OUT NOTIFICATION MODAL (When local user is kicked) -->
+  <div id="kickedOutModal" class="hidden fixed inset-0 z-50 bg-black/75 backdrop-blur-md flex items-center justify-center p-4">
+    <div class="bg-[#FFFDF0] neo-card w-full max-w-sm p-6 flex flex-col items-center text-center gap-4 border-[3px] border-[#1A1A1A] shadow-[8px_8px_0px_#1A1A1A]">
+      <div class="w-16 h-16 rounded-full bg-[#F26B1D] text-white text-3xl flex items-center justify-center border-[3px] border-[#1A1A1A] shadow-[4px_4px_0px_#1A1A1A]">
+        🚫
+      </div>
+      <div>
+        <h2 class="text-xl font-black uppercase text-[#1A1A1A]">BẠN ĐÃ BỊ TRỤC XUẤT!</h2>
+        <p class="text-xs font-bold text-gray-600 mt-2 leading-relaxed" id="kickedOutReasonText">
+          Bạn đã bị đưa ra khỏi phòng họp do có từ 50% thành viên trong phòng đồng ý bỏ phiếu trục xuất.
+        </p>
+      </div>
+      <button id="kickedOutAcknowledgeBtn" type="button" class="neo-btn w-full py-2.5 rounded-full bg-[#FFCE38] text-[#1A1A1A] text-xs font-black uppercase hover:bg-[#ffd859]">
+        Về sảnh chờ →
+      </button>
+    </div>
+  </div>
+
   <!-- FLOATING PUSH-TO-TALK INDICATOR -->
   <div id="pushToTalkIndicator" class="hidden fixed bottom-28 left-1/2 -translate-x-1/2 z-50 bg-[#FFCE38] border-[3px] border-[#1A1A1A] shadow-[4px_4px_0px_#1A1A1A] px-5 py-2 rounded-full text-xs font-black text-[#1A1A1A] flex items-center gap-2 animate-bounce pointer-events-none">
     <span class="w-3 h-3 rounded-full bg-[#2E8B57] animate-ping"></span>
@@ -904,7 +965,9 @@
       wasMicMutedBeforePtt: false,
       selectedAudioInput: '',
       selectedVideoInput: '',
-      selectedAudioOutput: ''
+      selectedAudioOutput: '',
+      // Vote Kick Trục xuất thành viên
+      activeVoteKick: null
     };
 
     const seenMsgIds = new Set();
@@ -1692,6 +1755,11 @@
             <button type="button" data-pin-id="${peer.id}" class="pin-peer-btn neo-btn px-2.5 py-1 rounded-full bg-[#FFFDF0] hover:bg-[#FFCE38] text-[#1A1A1A] text-xs font-extrabold" title="Ghim lên tiêu điểm">
               📌 Ghim
             </button>
+            ${!peer.isLocal ? `
+              <button type="button" data-kick-id="${peer.id}" data-kick-name="${peer.name}" class="tile-kick-btn neo-btn px-2.5 py-1 rounded-full bg-[#FFFDF0] hover:bg-[#F26B1D] hover:text-white text-[#1A1A1A] text-xs font-extrabold shadow-[2px_2px_0px_#1A1A1A]" title="Bỏ phiếu trục xuất thành viên">
+                🚫 Kick
+              </button>
+            ` : ''}
           </div>
         </div>
         <div class="absolute bottom-3 inset-x-3 flex items-center justify-between gap-2 pointer-events-none">
@@ -1800,6 +1868,15 @@
           renderVideoStage();
         };
       });
+
+      document.querySelectorAll('.tile-kick-btn').forEach(btn => {
+        btn.onclick = (e) => {
+          e.stopPropagation();
+          const targetId = btn.getAttribute('data-kick-id');
+          const targetName = btn.getAttribute('data-kick-name');
+          initiateVoteKick(targetId, targetName);
+        };
+      });
     }
 
     function updateLayoutButtonsUI() {
@@ -1840,9 +1917,23 @@
             <span class="px-2.5 py-1 rounded-full border-2 border-[#1A1A1A] ${peer.micOn ? 'bg-[#FFCE38]' : 'bg-[#F26B1D] text-white'} text-xs font-extrabold">
               ${peer.micOn ? '🎙️' : '🔇'}
             </span>
+            ${!peer.isLocal ? `
+              <button type="button" data-kick-id="${peer.id}" data-kick-name="${peer.name}" class="drawer-kick-btn neo-btn px-2.5 py-1 rounded-full bg-[#FFFDF0] hover:bg-[#F26B1D] hover:text-white text-[#1A1A1A] text-xs font-extrabold shadow-[2px_2px_0px_#1A1A1A] transition-colors" title="Bỏ phiếu trục xuất">
+                🚫 Kick
+              </button>
+            ` : ''}
           </div>
         `;
         container.appendChild(row);
+      });
+
+      container.querySelectorAll('.drawer-kick-btn').forEach(btn => {
+        btn.onclick = (e) => {
+          e.stopPropagation();
+          const targetId = btn.getAttribute('data-kick-id');
+          const targetName = btn.getAttribute('data-kick-name');
+          initiateVoteKick(targetId, targetName);
+        };
       });
     }
 
@@ -1913,6 +2004,12 @@
         handleRemoteWbDraw(data);
       } else if (data.type === 'wb-clear') {
         handleRemoteWbClear();
+      } else if (data.type === 'vote-kick-start') {
+        handleRemoteVoteKickStart(data);
+      } else if (data.type === 'vote-kick-cast') {
+        handleRemoteVoteKickCast(data);
+      } else if (data.type === 'vote-kick-success') {
+        handleVoteKickKicked(data.targetId, data.targetName);
       }
     }
 
@@ -2107,6 +2204,12 @@
             handleRemoteWbDraw(msg);
           } else if (msg.type === 'wb-clear') {
             handleRemoteWbClear();
+          } else if (msg.type === 'vote-kick-start') {
+            handleRemoteVoteKickStart(msg);
+          } else if (msg.type === 'vote-kick-cast') {
+            handleRemoteVoteKickCast(msg);
+          } else if (msg.type === 'vote-kick-success') {
+            handleVoteKickKicked(msg.targetId, msg.targetName);
           }
         });
 
@@ -2294,6 +2397,12 @@
           handleRemoteWbDraw(msg);
         } else if (msg.type === 'wb-clear') {
           handleRemoteWbClear();
+        } else if (msg.type === 'vote-kick-start') {
+          handleRemoteVoteKickStart(msg);
+        } else if (msg.type === 'vote-kick-cast') {
+          handleRemoteVoteKickCast(msg);
+        } else if (msg.type === 'vote-kick-success') {
+          handleVoteKickKicked(msg.targetId, msg.targetName);
         } else if (msg.type === 'screen-share') {
           if (msg.active) {
             state.screenShareOwnerName = msg.owner || 'Thành viên';
@@ -2414,6 +2523,9 @@
       if (idx > -1) {
         const peer = state.participants[idx];
         state.participants.splice(idx, 1);
+        if (state.activeVoteKick && state.activeVoteKick.targetId === peerKey) {
+          closeVoteKickDialog();
+        }
         showToast(`${peer.name} đã rời phòng họp.`, 'info');
         SoundFX.playLeave();
         updateParticipantCounters();
@@ -2528,6 +2640,7 @@
       const nameVal = nameInput.value.trim() || (state.isInvitedGuestView ? 'Khách mời' : 'Chủ phòng');
       const roomVal = (state.isInvitedGuestView ? state.roomCode : document.getElementById('roomCodeInput').value.trim()) || 'leet-team-10';
 
+      state.localUser.id = myPeerId;
       state.localUser.name = nameVal;
       state.roomCode = roomVal;
       state.inCall = true;
@@ -2568,6 +2681,7 @@
 
     function leaveMeeting() {
       SoundFX.playLeave();
+      closeVoteKickDialog();
       if (state.isRecording) stopMeetingRecording();
       if (state.isScreenSharing) stopScreenShare();
       cleanupPeerJSMesh();
@@ -3002,6 +3116,229 @@
           initWhiteboardCanvasSize();
         }
       });
+    }
+
+    // ==================== VOTE KICK PARTICIPANTS (>= 50% THRESHOLD) ====================
+    function initiateVoteKick(targetId, targetName) {
+      if (!state.inCall) return;
+      if (state.participants.length < 2) {
+        showToast('Phòng phải có ít nhất 2 người để bỏ phiếu kick!', 'warn');
+        return;
+      }
+      if (targetId === myPeerId || targetId === state.localUser.id) {
+        showToast('Bạn không thể tự bỏ phiếu kick chính mình!', 'warn');
+        return;
+      }
+      if (state.activeVoteKick) {
+        showToast('Đang có một cuộc bỏ phiếu kick diễn ra, vui lòng chờ!', 'warn');
+        return;
+      }
+
+      SoundFX.playPop();
+      const voteId = 'vk_' + Date.now() + '_' + Math.random().toString(36).slice(2, 7);
+      const neededVotes = Math.max(1, Math.ceil(state.participants.length * 0.5));
+
+      const payload = {
+        voteId: voteId,
+        targetId: targetId,
+        targetName: targetName || 'Thành viên',
+        initiatorId: myPeerId,
+        initiatorName: state.localUser.name,
+        neededVotes: neededVotes,
+        totalParticipants: state.participants.length
+      };
+
+      broadcastRoomEvent({
+        type: 'vote-kick-start',
+        ...payload
+      });
+
+      handleRemoteVoteKickStart(payload);
+    }
+
+    function handleRemoteVoteKickStart(data) {
+      if (state.activeVoteKick && state.activeVoteKick.timerInterval) {
+        clearInterval(state.activeVoteKick.timerInterval);
+      }
+
+      const yesVotes = new Set();
+      const noVotes = new Set();
+      yesVotes.add(data.initiatorId);
+
+      const isMeInitiator = (data.initiatorId === myPeerId || data.initiatorId === state.localUser.id);
+
+      state.activeVoteKick = {
+        voteId: data.voteId,
+        targetId: data.targetId,
+        targetName: data.targetName,
+        initiatorId: data.initiatorId,
+        initiatorName: data.initiatorName,
+        neededVotes: data.neededVotes || Math.max(1, Math.ceil(state.participants.length * 0.5)),
+        yesVotes: yesVotes,
+        noVotes: noVotes,
+        secondsLeft: 30,
+        hasVoted: isMeInitiator,
+        timerInterval: null
+      };
+
+      SoundFX.playDing();
+      updateVoteKickUI();
+
+      if (yesVotes.size >= state.activeVoteKick.neededVotes) {
+        executeVoteKickSuccess(data.voteId, data.targetId, data.targetName);
+        return;
+      }
+
+      state.activeVoteKick.timerInterval = setInterval(() => {
+        if (!state.activeVoteKick) return;
+        state.activeVoteKick.secondsLeft--;
+        const badge = document.getElementById('voteKickTimerBadge');
+        if (badge) badge.textContent = `${state.activeVoteKick.secondsLeft}s`;
+
+        if (state.activeVoteKick.secondsLeft <= 0) {
+          clearInterval(state.activeVoteKick.timerInterval);
+          const name = state.activeVoteKick.targetName;
+          closeVoteKickDialog();
+          showToast(`Cuộc bỏ phiếu kick ${name} không đủ 50% số phiếu (kết thúc).`, 'info');
+        }
+      }, 1000);
+    }
+
+    function updateVoteKickUI() {
+      const dialog = document.getElementById('voteKickDialog');
+      if (!state.activeVoteKick) {
+        if (dialog) dialog.classList.add('hidden');
+        return;
+      }
+
+      const { targetName, initiatorName, neededVotes, yesVotes, targetId, hasVoted, secondsLeft } = state.activeVoteKick;
+      const isMeTarget = (targetId === myPeerId || targetId === state.localUser.id);
+
+      dialog.classList.remove('hidden');
+
+      const badge = document.getElementById('voteKickTimerBadge');
+      if (badge) badge.textContent = `${secondsLeft}s`;
+
+      const desc = document.getElementById('voteKickDesc');
+      if (desc) {
+        desc.innerHTML = `<strong>${initiatorName}</strong> đã khởi xướng bỏ phiếu trục xuất <strong>${targetName}</strong> ra khỏi phòng họp.`;
+      }
+
+      const count = yesVotes.size;
+      const pct = Math.min(100, Math.round((count / neededVotes) * 100));
+      const progText = document.getElementById('voteKickProgressText');
+      if (progText) progText.textContent = `${count} / ${neededVotes} phiếu đồng ý (Cần 50%)`;
+      const progBar = document.getElementById('voteKickProgressBar');
+      if (progBar) progBar.style.width = `${pct}%`;
+
+      const actionsEl = document.getElementById('voteKickActions');
+      const targetNoticeEl = document.getElementById('voteKickTargetNotice');
+
+      if (isMeTarget) {
+        if (actionsEl) actionsEl.classList.add('hidden');
+        if (targetNoticeEl) targetNoticeEl.classList.remove('hidden');
+      } else {
+        if (actionsEl) actionsEl.classList.remove('hidden');
+        if (targetNoticeEl) targetNoticeEl.classList.add('hidden');
+
+        const yesBtn = document.getElementById('voteKickYesBtn');
+        const noBtn = document.getElementById('voteKickNoBtn');
+
+        if (yesBtn && noBtn) {
+          if (hasVoted) {
+            yesBtn.disabled = true;
+            noBtn.disabled = true;
+            yesBtn.className = 'neo-btn flex-1 py-2 px-3 rounded-full bg-gray-200 text-gray-500 text-xs font-black uppercase cursor-not-allowed';
+            noBtn.className = 'neo-btn flex-1 py-2 px-3 rounded-full bg-gray-200 text-gray-500 text-xs font-black uppercase cursor-not-allowed';
+            yesBtn.innerHTML = '<span>Đã ghi nhận phiếu</span>';
+            noBtn.innerHTML = '<span>✕</span>';
+          } else {
+            yesBtn.disabled = false;
+            noBtn.disabled = false;
+            yesBtn.className = 'neo-btn flex-1 py-2 px-3 rounded-full bg-[#F26B1D] text-white text-xs font-black uppercase flex items-center justify-center gap-1.5 hover:bg-[#d95d18]';
+            noBtn.className = 'neo-btn flex-1 py-2 px-3 rounded-full bg-[#FFFDF0] hover:bg-gray-100 text-[#1A1A1A] text-xs font-black uppercase flex items-center justify-center gap-1.5';
+            yesBtn.innerHTML = '<span>✅ Đồng ý Kick</span>';
+            noBtn.innerHTML = '<span>❌ Phản đối</span>';
+          }
+        }
+      }
+    }
+
+    function castVoteKick(agree) {
+      if (!state.activeVoteKick || state.activeVoteKick.hasVoted) return;
+      state.activeVoteKick.hasVoted = true;
+      SoundFX.playPop();
+
+      if (agree) {
+        state.activeVoteKick.yesVotes.add(myPeerId);
+      } else {
+        state.activeVoteKick.noVotes.add(myPeerId);
+      }
+
+      broadcastRoomEvent({
+        type: 'vote-kick-cast',
+        voteId: state.activeVoteKick.voteId,
+        targetId: state.activeVoteKick.targetId,
+        voterId: myPeerId,
+        vote: Boolean(agree)
+      });
+
+      updateVoteKickUI();
+
+      if (state.activeVoteKick.yesVotes.size >= state.activeVoteKick.neededVotes) {
+        executeVoteKickSuccess(state.activeVoteKick.voteId, state.activeVoteKick.targetId, state.activeVoteKick.targetName);
+      } else {
+        showToast(agree ? 'Bạn đã bỏ phiếu: ĐỒNG Ý KICK' : 'Bạn đã bỏ phiếu: PHẢN ĐỐI', 'info');
+      }
+    }
+
+    function handleRemoteVoteKickCast(data) {
+      if (!state.activeVoteKick || state.activeVoteKick.voteId !== data.voteId) return;
+      if (data.vote) {
+        state.activeVoteKick.yesVotes.add(data.voterId);
+      } else {
+        state.activeVoteKick.noVotes.add(data.voterId);
+      }
+      updateVoteKickUI();
+
+      if (state.activeVoteKick.yesVotes.size >= state.activeVoteKick.neededVotes) {
+        executeVoteKickSuccess(state.activeVoteKick.voteId, state.activeVoteKick.targetId, state.activeVoteKick.targetName);
+      }
+    }
+
+    function executeVoteKickSuccess(voteId, targetId, targetName) {
+      broadcastRoomEvent({
+        type: 'vote-kick-success',
+        voteId: voteId,
+        targetId: targetId,
+        targetName: targetName
+      });
+      handleVoteKickKicked(targetId, targetName);
+    }
+
+    function handleVoteKickKicked(targetId, targetName) {
+      closeVoteKickDialog();
+
+      const isMe = (targetId === myPeerId || targetId === state.localUser.id);
+      if (isMe) {
+        leaveMeeting();
+        const modal = document.getElementById('kickedOutModal');
+        if (modal) modal.classList.remove('hidden');
+        SoundFX.playLeave();
+      } else {
+        removeRemoteRealPeer(targetId);
+        showToast(`🚫 ${targetName} đã bị trục xuất khỏi phòng họp (đạt đủ 50% số phiếu).`, 'warn');
+        SoundFX.playPop();
+      }
+    }
+
+    function closeVoteKickDialog() {
+      if (state.activeVoteKick && state.activeVoteKick.timerInterval) {
+        clearInterval(state.activeVoteKick.timerInterval);
+      }
+      state.activeVoteKick = null;
+      const dialog = document.getElementById('voteKickDialog');
+      if (dialog) dialog.classList.add('hidden');
     }
 
     // ==================== EVENT LISTENERS ====================
@@ -3545,6 +3882,17 @@
             broadcastRoomEvent({ type: 'peer-update', name: state.localUser.name, micOn: false, camOn: state.localUser.camOn, handRaised: state.localUser.handRaised });
           }
         }
+      });
+
+      // Vote Kick Modal Controls
+      document.getElementById('voteKickYesBtn')?.addEventListener('click', () => {
+        castVoteKick(true);
+      });
+      document.getElementById('voteKickNoBtn')?.addEventListener('click', () => {
+        castVoteKick(false);
+      });
+      document.getElementById('kickedOutAcknowledgeBtn')?.addEventListener('click', () => {
+        document.getElementById('kickedOutModal')?.classList.add('hidden');
       });
     });
   </script>
