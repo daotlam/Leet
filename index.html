@@ -6,6 +6,11 @@
   <title>Leet — Họp Trực Tuyến Không Giới Hạn</title>
   <script src="https://cdn.tailwindcss.com/3.4.17"></script>
   <script src="https://unpkg.com/mqtt@5.3.5/dist/mqtt.min.js"></script>
+  <link rel="manifest" href="./manifest.json">
+  <meta name="theme-color" content="#6B8E4E">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Leet Meet">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -316,6 +321,93 @@
     </div>
   </div>
 
+  <!-- DEVICE SELECTION MODAL (POP-ART STYLE) -->
+  <div id="deviceModal" class="hidden fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-[#FFFDF0] neo-card w-full max-w-md p-5 sm:p-6 flex flex-col gap-4 text-[#1A1A1A]">
+      <div class="flex items-center justify-between border-b-2 border-[#1A1A1A] pb-3">
+        <div class="flex items-center gap-2">
+          <span class="text-xl">🎙️</span>
+          <h2 class="text-base sm:text-lg font-extrabold uppercase">Cài đặt Thiết bị Mic / Cam / Loa</h2>
+        </div>
+        <button id="closeDeviceModalBtn" type="button" class="neo-btn w-8 h-8 rounded-full bg-white font-extrabold text-sm flex items-center justify-center">✕</button>
+      </div>
+
+      <div class="flex flex-col gap-3 text-xs">
+        <div>
+          <label class="block font-extrabold uppercase mb-1">Microphone</label>
+          <select id="audioSourceSelect" class="neo-input w-full px-3 py-2 rounded-xl bg-white font-bold"></select>
+        </div>
+        <div>
+          <label class="block font-extrabold uppercase mb-1">Camera</label>
+          <select id="videoSourceSelect" class="neo-input w-full px-3 py-2 rounded-xl bg-white font-bold"></select>
+        </div>
+        <div>
+          <label class="block font-extrabold uppercase mb-1">Loa / Tai nghe (Audio Output)</label>
+          <select id="audioOutputSelect" class="neo-input w-full px-3 py-2 rounded-xl bg-white font-bold"></select>
+        </div>
+      </div>
+
+      <div class="flex gap-2 pt-2 border-t-2 border-[#1A1A1A]">
+        <button id="applyDeviceBtn" type="button" class="neo-btn flex-1 py-2.5 rounded-full bg-[#FFCE38] hover:bg-[#ffd859] text-xs font-extrabold uppercase text-[#1A1A1A]">
+          Áp dụng thiết bị
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- KEYBOARD SHORTCUTS MODAL -->
+  <div id="shortcutsModal" class="hidden fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-[#FFFDF0] neo-card w-full max-w-md p-5 sm:p-6 flex flex-col gap-4 text-[#1A1A1A]">
+      <div class="flex items-center justify-between border-b-2 border-[#1A1A1A] pb-3">
+        <div class="flex items-center gap-2">
+          <span class="text-xl">⌨️</span>
+          <h2 class="text-base sm:text-lg font-extrabold uppercase">Phím tắt bàn phím</h2>
+        </div>
+        <button id="closeShortcutsModalBtn" type="button" class="neo-btn w-8 h-8 rounded-full bg-white font-extrabold text-sm flex items-center justify-center">✕</button>
+      </div>
+      <div class="grid grid-cols-2 gap-2 text-xs font-bold">
+        <div class="flex items-center justify-between p-2 bg-white rounded-xl border-2 border-[#1A1A1A]">
+          <span>Push-to-Talk</span>
+          <kbd class="px-2 py-0.5 bg-[#FFCE38] rounded border border-[#1A1A1A]">Giữ Space</kbd>
+        </div>
+        <div class="flex items-center justify-between p-2 bg-white rounded-xl border-2 border-[#1A1A1A]">
+          <span>Bật/Tắt Micro</span>
+          <kbd class="px-2 py-0.5 bg-[#FFFDF0] rounded border border-[#1A1A1A]">M</kbd>
+        </div>
+        <div class="flex items-center justify-between p-2 bg-white rounded-xl border-2 border-[#1A1A1A]">
+          <span>Bật/Tắt Camera</span>
+          <kbd class="px-2 py-0.5 bg-[#FFFDF0] rounded border border-[#1A1A1A]">V</kbd>
+        </div>
+        <div class="flex items-center justify-between p-2 bg-white rounded-xl border-2 border-[#1A1A1A]">
+          <span>Chia sẻ màn hình</span>
+          <kbd class="px-2 py-0.5 bg-[#FFFDF0] rounded border border-[#1A1A1A]">S</kbd>
+        </div>
+        <div class="flex items-center justify-between p-2 bg-white rounded-xl border-2 border-[#1A1A1A]">
+          <span>Giơ tay phát biểu</span>
+          <kbd class="px-2 py-0.5 bg-[#FFFDF0] rounded border border-[#1A1A1A]">H</kbd>
+        </div>
+        <div class="flex items-center justify-between p-2 bg-white rounded-xl border-2 border-[#1A1A1A]">
+          <span>Mở/Đóng Chat</span>
+          <kbd class="px-2 py-0.5 bg-[#FFFDF0] rounded border border-[#1A1A1A]">C</kbd>
+        </div>
+        <div class="flex items-center justify-between p-2 bg-white rounded-xl border-2 border-[#1A1A1A]">
+          <span>Cửa sổ nổi PiP</span>
+          <kbd class="px-2 py-0.5 bg-[#FFFDF0] rounded border border-[#1A1A1A]">P</kbd>
+        </div>
+        <div class="flex items-center justify-between p-2 bg-white rounded-xl border-2 border-[#1A1A1A]">
+          <span>Xem phím tắt</span>
+          <kbd class="px-2 py-0.5 bg-[#FFFDF0] rounded border border-[#1A1A1A]">?</kbd>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- FLOATING PUSH-TO-TALK INDICATOR -->
+  <div id="pushToTalkIndicator" class="hidden fixed bottom-28 left-1/2 -translate-x-1/2 z-50 bg-[#FFCE38] border-[3px] border-[#1A1A1A] shadow-[4px_4px_0px_#1A1A1A] px-5 py-2 rounded-full text-xs font-black text-[#1A1A1A] flex items-center gap-2 animate-bounce pointer-events-none">
+    <span class="w-3 h-3 rounded-full bg-[#2E8B57] animate-ping"></span>
+    <span>🎙️ ĐANG NÓI (PUSH-TO-TALK)</span>
+  </div>
+
   <!-- TOAST NOTIFICATION CONTAINER -->
   <div id="toastContainer" class="fixed top-4 right-4 z-50 flex flex-col gap-2.5 max-w-sm w-full pointer-events-none px-3 sm:px-0"></div>
 
@@ -529,13 +621,22 @@
         </div>
       </div>
 
-      <!-- Center: Real Participant Counter Pill -->
-      <div class="flex items-center gap-2 bg-[#6B8E4E] text-white border-2 border-[#1A1A1A] shadow-[3px_3px_0px_#1A1A1A] rounded-full px-3.5 py-1">
-        <span class="text-xs font-extrabold uppercase">Trong phòng: <strong id="participantCounterBadge" class="text-[#FFCE38]">1/10</strong></span>
+      <!-- Center: Real Participant Counter Pill & Recording Status -->
+      <div class="flex items-center gap-2">
+        <div class="flex items-center gap-2 bg-[#6B8E4E] text-white border-2 border-[#1A1A1A] shadow-[3px_3px_0px_#1A1A1A] rounded-full px-3.5 py-1">
+          <span class="text-xs font-extrabold uppercase">Trong phòng: <strong id="participantCounterBadge" class="text-[#FFCE38]">1/10</strong></span>
+        </div>
+        <div id="recordingBadge" class="hidden flex items-center gap-1.5 bg-[#F26B1D] text-white border-2 border-[#1A1A1A] shadow-[2px_2px_0px_#1A1A1A] rounded-full px-3 py-1 text-xs font-black animate-pulse">
+          <span>🔴 REC</span>
+          <span id="recordingTimerText">00:00</span>
+        </div>
       </div>
 
-      <!-- Right: Layout Switcher & TURN Relay & SFX -->
+      <!-- Right: Layout Switcher & TURN Relay & Shortcuts & SFX -->
       <div class="flex items-center gap-1.5 sm:gap-2">
+        <button id="shortcutsHeaderBtn" type="button" class="neo-btn px-2.5 py-1 rounded-full bg-white hover:bg-[#FFCE38] text-[#1A1A1A] text-xs font-extrabold flex items-center gap-1 shadow-[2px_2px_0px_#1A1A1A]" title="Phím tắt bàn phím (?)">
+          <span>⌨️</span><span class="hidden lg:inline">Phím tắt</span>
+        </button>
         <button id="callSfxToggleBtn" type="button" class="sfx-toggle-btn neo-btn px-2.5 py-1 rounded-full bg-[#FFCE38] text-[#1A1A1A] text-xs font-extrabold flex items-center gap-1 shadow-[2px_2px_0px_#1A1A1A]" title="Bật/Tắt hiệu ứng âm thanh">
           <span>🔊</span>
         </button>
@@ -579,12 +680,15 @@
       <!-- Right Side Drawer (Participants & Chat in Warm Cream #FFFDF0) -->
       <aside id="sideDrawer" class="hidden w-full sm:w-80 md:w-96 shrink-0 bg-[#FFFDF0] border-l-[3px] border-[#1A1A1A] flex flex-col h-full z-20 absolute sm:static inset-0 sm:inset-auto">
         <div class="p-3.5 border-b-[3px] border-[#1A1A1A] flex items-center justify-between bg-[#6B8E4E]">
-          <div class="flex gap-1.5 bg-[#FFFDF0] p-1 rounded-full border-2 border-[#1A1A1A] shadow-[3px_3px_0px_#1A1A1A] flex-1 mr-2">
-            <button id="tabParticipantsBtn" type="button" class="flex-1 py-1.5 rounded-full text-xs font-extrabold bg-[#FFCE38] text-[#1A1A1A] border border-[#1A1A1A] transition">
-              Mọi người (<span id="drawerPeopleCount">1</span>/10)
+          <div class="flex gap-1 bg-[#FFFDF0] p-1 rounded-full border-2 border-[#1A1A1A] shadow-[3px_3px_0px_#1A1A1A] flex-1 mr-2 overflow-x-auto no-scrollbar">
+            <button id="tabParticipantsBtn" type="button" class="flex-1 py-1.5 px-2 rounded-full text-xs font-extrabold bg-[#FFCE38] text-[#1A1A1A] border border-[#1A1A1A] transition whitespace-nowrap">
+              👥 (<span id="drawerPeopleCount">1</span>)
             </button>
-            <button id="tabChatBtn" type="button" class="flex-1 py-1.5 rounded-full text-xs font-extrabold text-[#1A1A1A] transition">
-              Trò chuyện
+            <button id="tabChatBtn" type="button" class="flex-1 py-1.5 px-2 rounded-full text-xs font-extrabold text-[#1A1A1A] transition whitespace-nowrap">
+              💬 Chat
+            </button>
+            <button id="tabWhiteboardBtn" type="button" class="flex-1 py-1.5 px-2 rounded-full text-xs font-extrabold text-[#1A1A1A] transition whitespace-nowrap">
+              🎨 Bảng vẽ
             </button>
           </div>
           <button id="closeDrawerBtn" type="button" class="neo-btn w-9 h-9 rounded-full bg-[#FFFDF0] text-[#1A1A1A] flex items-center justify-center font-extrabold">
@@ -615,22 +719,57 @@
             </button>
           </form>
         </div>
+
+        <!-- TAB 3: POP-ART COLLABORATIVE WHITEBOARD -->
+        <div id="whiteboardPanel" class="hidden flex-1 flex flex-col min-h-0 bg-[#FFFDF0]">
+          <!-- Whiteboard Toolbar -->
+          <div class="p-2 border-b-2 border-[#1A1A1A] bg-white flex flex-wrap items-center justify-between gap-1.5">
+            <div class="flex items-center gap-1">
+              <button type="button" data-wb-color="#1A1A1A" class="wb-color-btn w-6 h-6 rounded-full bg-[#1A1A1A] border-2 border-white ring-2 ring-[#1A1A1A] transition-transform scale-110" title="Màu Đen"></button>
+              <button type="button" data-wb-color="#F26B1D" class="wb-color-btn w-6 h-6 rounded-full bg-[#F26B1D] border-2 border-white transition-transform" title="Màu Cam"></button>
+              <button type="button" data-wb-color="#3B66FF" class="wb-color-btn w-6 h-6 rounded-full bg-[#3B66FF] border-2 border-white transition-transform" title="Màu Xanh"></button>
+              <button type="button" data-wb-color="#6B8E4E" class="wb-color-btn w-6 h-6 rounded-full bg-[#6B8E4E] border-2 border-white transition-transform" title="Màu Olive"></button>
+              <button type="button" data-wb-color="#FFCE38" class="wb-color-btn w-6 h-6 rounded-full bg-[#FFCE38] border-2 border-white transition-transform" title="Màu Vàng"></button>
+              <button type="button" data-wb-color="#FFFFFF" class="wb-color-btn w-6 h-6 rounded-full bg-white border-2 border-[#1A1A1A] flex items-center justify-center text-[10px]" title="Tẩy">🧹</button>
+            </div>
+            <div class="flex items-center gap-1">
+              <select id="wbBrushSize" class="neo-input px-1.5 py-0.5 rounded text-[11px] font-bold bg-[#FFFDF0]">
+                <option value="2">Nét mảnh</option>
+                <option value="5" selected>Nét vừa</option>
+                <option value="12">Nét to</option>
+              </select>
+              <button id="wbClearBtn" type="button" class="neo-btn px-2 py-0.5 rounded-full bg-[#F26B1D] text-white text-[11px] font-extrabold uppercase">Xóa</button>
+              <button id="wbSaveBtn" type="button" class="neo-btn px-2 py-0.5 rounded-full bg-[#FFCE38] text-[#1A1A1A] text-[11px] font-extrabold uppercase">Lưu</button>
+            </div>
+          </div>
+          <!-- Whiteboard Canvas Container with Graph Paper Background -->
+          <div class="flex-1 relative overflow-hidden tid-page-grid p-2 flex flex-col">
+            <canvas id="whiteboardCanvas" class="w-full h-full flex-1 bg-white neo-card-sm cursor-crosshair touch-none"></canvas>
+          </div>
+        </div>
       </aside>
     </div>
 
     <!-- Bottom Control Bar (TID Deep Forest Green #1B3312 + Neo-Brutalist Pills) -->
     <footer class="h-20 shrink-0 px-3 sm:px-6 bg-[#1B3312] border-t-[3px] border-[#1A1A1A] flex items-center justify-between gap-2 z-30">
-      <div class="hidden lg:flex items-center gap-2 min-w-[180px]">
-        <div class="text-xs">
-          <div id="p2pBrokerStatus" class="font-extrabold text-[#FFCE38] uppercase">Đang kết nối P2P...</div>
-          <div class="text-[11px] font-semibold text-gray-300">Opus HD • Wi-Fi & 4G/5G TURN</div>
+      <!-- Left Controls: Network Info, Device Settings & PiP -->
+      <div class="flex items-center gap-1.5 sm:gap-2">
+        <div class="hidden xl:flex flex-col text-xs pr-1">
+          <div id="p2pBrokerStatus" class="font-extrabold text-[#FFCE38] uppercase text-[11px]">Đang kết nối P2P...</div>
+          <div class="text-[10px] font-semibold text-gray-300">Opus HD • P2P Mesh</div>
         </div>
+        <button id="openDeviceSettingsBtn" type="button" class="neo-btn px-2.5 sm:px-3 h-11 rounded-full bg-[#FFFDF0] hover:bg-[#FFCE38] text-xs font-extrabold text-[#1A1A1A] flex items-center gap-1" title="Cài đặt Mic/Cam/Loa">
+          <span>⚙️</span><span class="hidden md:inline">Thiết bị</span>
+        </button>
+        <button id="togglePipBtn" type="button" class="neo-btn px-2.5 sm:px-3 h-11 rounded-full bg-[#FFFDF0] hover:bg-[#FFCE38] text-xs font-extrabold text-[#1A1A1A] flex items-center gap-1" title="Cửa sổ nổi PiP (Picture-in-Picture)">
+          <span>🪟</span><span class="hidden md:inline">PiP</span>
+        </button>
       </div>
 
       <!-- Center Main Controls -->
-      <div class="flex items-center justify-center gap-2 sm:gap-3 mx-auto">
+      <div class="flex items-center justify-center gap-1.5 sm:gap-2.5 mx-auto">
         <!-- Mic Button -->
-        <button id="callToggleMicBtn" type="button" class="neo-btn w-11 h-11 sm:w-12 sm:h-12 rounded-full bg-[#FFFDF0] text-[#1A1A1A] flex items-center justify-center" title="Bật/Tắt Micro">
+        <button id="callToggleMicBtn" type="button" class="neo-btn w-11 h-11 sm:w-12 sm:h-12 rounded-full bg-[#FFFDF0] text-[#1A1A1A] flex items-center justify-center" title="Bật/Tắt Micro (M)">
           <svg id="callMicOnIcon" class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z"/>
           </svg>
@@ -641,7 +780,7 @@
         </button>
 
         <!-- Camera Button -->
-        <button id="callToggleCamBtn" type="button" class="neo-btn w-11 h-11 sm:w-12 sm:h-12 rounded-full bg-[#FFFDF0] text-[#1A1A1A] flex items-center justify-center" title="Bật/Tắt Camera">
+        <button id="callToggleCamBtn" type="button" class="neo-btn w-11 h-11 sm:w-12 sm:h-12 rounded-full bg-[#FFFDF0] text-[#1A1A1A] flex items-center justify-center" title="Bật/Tắt Camera (V)">
           <svg id="callCamOnIcon" class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/>
           </svg>
@@ -656,20 +795,26 @@
         </button>
 
         <!-- Screen Share Button -->
-        <button id="callScreenShareBtn" type="button" class="neo-btn px-4 h-11 sm:h-12 rounded-full bg-[#3B66FF] text-white flex items-center gap-2 text-xs sm:text-sm font-extrabold" title="Chia sẻ màn hình">
+        <button id="callScreenShareBtn" type="button" class="neo-btn px-3 sm:px-4 h-11 sm:h-12 rounded-full bg-[#3B66FF] text-white flex items-center gap-1.5 text-xs sm:text-sm font-extrabold" title="Chia sẻ màn hình (S)">
           <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
           </svg>
-          <span id="screenShareBtnLabel" class="hidden md:inline">Chia sẻ màn hình</span>
+          <span id="screenShareBtnLabel" class="hidden md:inline">Chia sẻ</span>
+        </button>
+
+        <!-- Meeting Recording Button (Pure Client-side MediaRecorder) -->
+        <button id="callRecordMeetingBtn" type="button" class="neo-btn px-3 sm:px-3.5 h-11 sm:h-12 rounded-full bg-[#FFFDF0] hover:bg-[#FFCE38] text-[#1A1A1A] flex items-center gap-1.5 text-xs sm:text-sm font-extrabold" title="Ghi hình cuộc họp">
+          <span id="recordIcon" class="w-3 h-3 rounded-full bg-[#F26B1D]"></span>
+          <span id="recordBtnLabel" class="hidden md:inline">Ghi hình</span>
         </button>
 
         <!-- Raise Hand Button -->
-        <button id="callRaiseHandBtn" type="button" class="neo-btn w-11 h-11 sm:w-12 sm:h-12 rounded-full bg-[#FFFDF0] text-[#1A1A1A] flex items-center justify-center text-lg" title="Giơ tay phát biểu">
+        <button id="callRaiseHandBtn" type="button" class="neo-btn w-11 h-11 sm:w-12 sm:h-12 rounded-full bg-[#FFFDF0] text-[#1A1A1A] flex items-center justify-center text-lg" title="Giơ tay phát biểu (H)">
           ✋
         </button>
 
         <!-- Emoji Reactions Bar -->
-        <div class="flex items-center bg-[#FFFDF0] border-2 border-[#1A1A1A] shadow-[3px_3px_0px_#1A1A1A] rounded-full px-1 sm:px-2 h-10 sm:h-11 gap-0.5 sm:gap-1">
+        <div class="hidden sm:flex items-center bg-[#FFFDF0] border-2 border-[#1A1A1A] shadow-[3px_3px_0px_#1A1A1A] rounded-full px-1 sm:px-2 h-10 sm:h-11 gap-0.5 sm:gap-1">
           <button type="button" data-emoji="👍" class="reaction-btn w-7 h-7 sm:w-8 sm:h-8 rounded-full hover:bg-[#FFCE38] flex items-center justify-center text-sm sm:text-base transition-transform hover:scale-125 active:scale-90" title="Thích">👍</button>
           <button type="button" data-emoji="❤️" class="reaction-btn w-7 h-7 sm:w-8 sm:h-8 rounded-full hover:bg-[#FFCE38] flex items-center justify-center text-sm sm:text-base transition-transform hover:scale-125 active:scale-90" title="Thả tim">❤️</button>
           <button type="button" data-emoji="🎉" class="reaction-btn w-7 h-7 sm:w-8 sm:h-8 rounded-full hover:bg-[#FFCE38] flex items-center justify-center text-sm sm:text-base transition-transform hover:scale-125 active:scale-90" title="Ăn mừng">🎉</button>
@@ -677,19 +822,24 @@
         </div>
 
         <!-- Leave Call Button -->
-        <button id="leaveCallBtn" type="button" class="neo-btn px-4 sm:px-5 h-11 sm:h-12 rounded-full bg-[#F26B1D] hover:bg-[#ff782b] text-white font-extrabold text-xs sm:text-sm uppercase flex items-center gap-1.5" title="Rời khỏi cuộc họp">
+        <button id="leaveCallBtn" type="button" class="neo-btn px-3.5 sm:px-5 h-11 sm:h-12 rounded-full bg-[#F26B1D] hover:bg-[#ff782b] text-white font-extrabold text-xs sm:text-sm uppercase flex items-center gap-1.5" title="Rời khỏi cuộc họp">
           <span>Kết thúc →</span>
         </button>
       </div>
 
       <!-- Right Drawer Toggle Buttons -->
-      <div class="flex items-center gap-2">
-        <button id="togglePeopleDrawerBtn" type="button" class="neo-btn px-3.5 h-11 rounded-full bg-[#FFCE38] text-xs font-extrabold text-[#1A1A1A] flex items-center gap-1.5">
+      <div class="flex items-center gap-1.5 sm:gap-2">
+        <button id="toggleWhiteboardDrawerBtn" type="button" class="neo-btn px-2.5 sm:px-3 h-11 rounded-full bg-[#FFFDF0] hover:bg-[#FFCE38] text-xs font-extrabold text-[#1A1A1A] flex items-center gap-1" title="Mở bảng vẽ tương tác">
+          <span>🎨</span>
+          <span class="hidden lg:inline">Bảng vẽ</span>
+        </button>
+
+        <button id="togglePeopleDrawerBtn" type="button" class="neo-btn px-3 sm:px-3.5 h-11 rounded-full bg-[#FFCE38] text-xs font-extrabold text-[#1A1A1A] flex items-center gap-1.5" title="Mọi người">
           <span>👥</span>
           <span id="bottomPeopleCount">1</span>
         </button>
 
-        <button id="toggleChatDrawerBtn" type="button" class="neo-btn relative p-2.5 h-11 w-11 rounded-full bg-[#FFFDF0] text-[#1A1A1A] flex items-center justify-center font-extrabold" title="Mở trò chuyện">
+        <button id="toggleChatDrawerBtn" type="button" class="neo-btn relative p-2.5 h-11 w-11 rounded-full bg-[#FFFDF0] text-[#1A1A1A] flex items-center justify-center font-extrabold" title="Mở trò chuyện (C)">
           💬
           <span id="unreadChatDot" class="hidden absolute -top-1 -right-1 w-3.5 h-3.5 rounded-full bg-[#F26B1D] border-2 border-[#1A1A1A]"></span>
         </button>
@@ -741,8 +891,30 @@
       usingSyntheticCam: false,
       drawerOpen: false,
       activeDrawerTab: 'participants',
-      chatMessages: []
+      chatMessages: [],
+      // Gói Tính năng & Tiện ích Mới
+      isRecording: false,
+      recordingSeconds: 0,
+      recordingTimerInterval: null,
+      mediaRecorder: null,
+      recordedChunks: [],
+      wbColor: '#1A1A1A',
+      wbSize: 5,
+      isPushToTalking: false,
+      wasMicMutedBeforePtt: false,
+      selectedAudioInput: '',
+      selectedVideoInput: '',
+      selectedAudioOutput: ''
     };
+
+    const seenMsgIds = new Set();
+    function markAndCheckMsgSeen(msgId) {
+      if (!msgId) return false;
+      if (seenMsgIds.has(msgId)) return true;
+      seenMsgIds.add(msgId);
+      setTimeout(() => seenMsgIds.delete(msgId), 10000);
+      return false;
+    }
 
     try {
       const savedBase = localStorage.getItem('leet_public_base_url');
@@ -1727,6 +1899,7 @@
 
     function handleBroadcastMessage(data) {
       if (!data || data.roomCode !== state.roomCode || !state.inCall) return;
+      if (data.id && markAndCheckMsgSeen(data.id)) return;
       if (data.type === 'chat') {
         SoundFX.playChat();
         state.chatMessages.push({ sender: data.sender, time: data.time, text: data.text });
@@ -1736,6 +1909,10 @@
         }
       } else if (data.type === 'reaction') {
         triggerFloatingReaction(data.emoji, data.sender);
+      } else if (data.type === 'wb-draw') {
+        handleRemoteWbDraw(data);
+      } else if (data.type === 'wb-clear') {
+        handleRemoteWbClear();
       }
     }
 
@@ -1887,6 +2064,7 @@
           let msg;
           try { msg = JSON.parse(payload.toString()); } catch (e) { return; }
           if (!msg || msg.from === myPeerId) return;
+          if (msg.id && markAndCheckMsgSeen(msg.id)) return;
 
           const remoteId = msg.from;
           const peerObj = activePeers.get(remoteId);
@@ -1925,6 +2103,10 @@
             }
           } else if (msg.type === 'reaction') {
             triggerFloatingReaction(msg.emoji, msg.sender);
+          } else if (msg.type === 'wb-draw') {
+            handleRemoteWbDraw(msg);
+          } else if (msg.type === 'wb-clear') {
+            handleRemoteWbClear();
           }
         });
 
@@ -2092,6 +2274,7 @@
         let msg;
         try { msg = JSON.parse(e.data); } catch (err) { return; }
         if (!msg || typeof msg !== 'object') return;
+        if (msg.id && markAndCheckMsgSeen(msg.id)) return;
 
         const peerObj = activePeers.get(remoteId);
         if (peerObj) peerObj.lastSeen = Date.now();
@@ -2107,6 +2290,10 @@
           }
         } else if (msg.type === 'reaction') {
           triggerFloatingReaction(msg.emoji, msg.sender);
+        } else if (msg.type === 'wb-draw') {
+          handleRemoteWbDraw(msg);
+        } else if (msg.type === 'wb-clear') {
+          handleRemoteWbClear();
         } else if (msg.type === 'screen-share') {
           if (msg.active) {
             state.screenShareOwnerName = msg.owner || 'Thành viên';
@@ -2236,6 +2423,9 @@
     }
 
     function broadcastPeerJSData(payload) {
+      if (!payload.id) {
+        payload.id = 'msg_' + Math.random().toString(36).slice(2, 9) + '_' + Date.now();
+      }
       activePeers.forEach((p) => {
         try {
           if (p.dc && p.dc.readyState === 'open') {
@@ -2378,6 +2568,7 @@
 
     function leaveMeeting() {
       SoundFX.playLeave();
+      if (state.isRecording) stopMeetingRecording();
       if (state.isScreenSharing) stopScreenShare();
       cleanupPeerJSMesh();
       state.inCall = false;
@@ -2387,6 +2578,430 @@
       document.getElementById('lobbyView').classList.add('animate-view-in');
       setTimeout(() => { document.getElementById('lobbyView').classList.remove('animate-view-in'); }, 400);
       showToast('Bạn đã rời khỏi cuộc họp.', 'info');
+    }
+
+    // ==================== DEVICE SELECTION (MIC / CAM / AUDIO OUTPUT) ====================
+    async function populateDeviceLists() {
+      if (!navigator.mediaDevices || !navigator.mediaDevices.enumerateDevices) return;
+      try {
+        const devices = await navigator.mediaDevices.enumerateDevices();
+        const audioInSelect = document.getElementById('audioSourceSelect');
+        const videoInSelect = document.getElementById('videoSourceSelect');
+        const audioOutSelect = document.getElementById('audioOutputSelect');
+
+        if (audioInSelect) audioInSelect.innerHTML = '';
+        if (videoInSelect) videoInSelect.innerHTML = '';
+        if (audioOutSelect) audioOutSelect.innerHTML = '';
+
+        let aIn = 0, vIn = 0, aOut = 0;
+        devices.forEach(d => {
+          const opt = document.createElement('option');
+          opt.value = d.deviceId;
+          if (d.kind === 'audioinput') {
+            aIn++;
+            opt.textContent = d.label || `Microphone ${aIn}`;
+            if (d.deviceId === state.selectedAudioInput) opt.selected = true;
+            if (audioInSelect) audioInSelect.appendChild(opt);
+          } else if (d.kind === 'videoinput') {
+            vIn++;
+            opt.textContent = d.label || `Camera ${vIn}`;
+            if (d.deviceId === state.selectedVideoInput) opt.selected = true;
+            if (videoInSelect) videoInSelect.appendChild(opt);
+          } else if (d.kind === 'audiooutput') {
+            aOut++;
+            opt.textContent = d.label || `Loa/Tai nghe ${aOut}`;
+            if (d.deviceId === state.selectedAudioOutput) opt.selected = true;
+            if (audioOutSelect) audioOutSelect.appendChild(opt);
+          }
+        });
+
+        if (aIn === 0 && audioInSelect) audioInSelect.innerHTML = '<option value="">Mặc định</option>';
+        if (vIn === 0 && videoInSelect) videoInSelect.innerHTML = '<option value="">Mặc định</option>';
+        if (aOut === 0 && audioOutSelect) audioOutSelect.innerHTML = '<option value="">Mặc định</option>';
+      } catch (e) {
+        console.warn('Lỗi enumerateDevices:', e);
+      }
+    }
+
+    async function applyDeviceSelection() {
+      const audioIn = document.getElementById('audioSourceSelect')?.value;
+      const videoIn = document.getElementById('videoSourceSelect')?.value;
+      const audioOut = document.getElementById('audioOutputSelect')?.value;
+
+      state.selectedAudioInput = audioIn || '';
+      state.selectedVideoInput = videoIn || '';
+      state.selectedAudioOutput = audioOut || '';
+
+      if (audioOut && typeof HTMLMediaElement.prototype.setSinkId === 'function') {
+        document.querySelectorAll('audio, video').forEach(el => {
+          try { el.setSinkId(audioOut); } catch (e) {}
+        });
+      }
+
+      const constraints = {
+        audio: audioIn ? { deviceId: audioIn } : true,
+        video: videoIn ? { deviceId: videoIn, width: { ideal: 1280 }, height: { ideal: 720 } } : true
+      };
+
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia(constraints);
+        if (state.localStream && !state.usingSyntheticCam) {
+          state.localStream.getTracks().forEach(t => t.stop());
+        }
+        state.localStream = stream;
+        state.usingSyntheticCam = false;
+
+        const lobbyVideo = document.getElementById('lobbyVideoPreview');
+        if (lobbyVideo && !state.inCall) {
+          lobbyVideo.srcObject = stream;
+          lobbyVideo.play().catch(() => {});
+        }
+        if (state.inCall) {
+          replaceOutgoingMediaTracks(stream);
+          renderVideoStage();
+        }
+        setupRealAudioMonitor(stream);
+        updateMediaUI();
+        showToast('Đã áp dụng thiết bị mới thành công!', 'success');
+      } catch (err) {
+        console.warn('Lỗi chuyển thiết bị:', err);
+        showToast('Không thể kích hoạt thiết bị đã chọn: ' + (err.message || ''), 'warn');
+      } finally {
+        document.getElementById('deviceModal')?.classList.add('hidden');
+      }
+    }
+
+    // ==================== PICTURE-IN-PICTURE (PIP) ====================
+    async function togglePictureInPicture() {
+      try {
+        if (document.pictureInPictureElement) {
+          await document.exitPictureInPicture();
+          showToast('Đã đóng cửa sổ PiP', 'info');
+          return;
+        }
+        const videos = Array.from(document.querySelectorAll('#videoGridContainer video'));
+        let targetVideo = videos.find(v => v.srcObject && v.videoWidth > 0) || document.getElementById('lobbyVideoPreview');
+
+        if (targetVideo && targetVideo.requestPictureInPicture) {
+          await targetVideo.requestPictureInPicture();
+          showToast('Đã mở cửa sổ thu nhỏ PiP!', 'success');
+        } else {
+          showToast('Trình duyệt chưa hỗ trợ PiP hoặc chưa có luồng video nào phát!', 'warn');
+        }
+      } catch (err) {
+        console.warn('PiP error:', err);
+        showToast('Không thể bật PiP: ' + (err.message || ''), 'warn');
+      }
+    }
+
+    // ==================== MEETING RECORDING (MEDIARECORDER + WEB AUDIO MIX) ====================
+    let recAudioCtx = null;
+    async function startMeetingRecording() {
+      try {
+        if (state.isRecording) return;
+        state.recordedChunks = [];
+
+        let videoTrack = null;
+        if (state.isScreenSharing && state.screenStream && state.screenStream.getVideoTracks().length > 0) {
+          videoTrack = state.screenStream.getVideoTracks()[0];
+        } else if (state.localStream && state.localStream.getVideoTracks().length > 0) {
+          videoTrack = state.localStream.getVideoTracks()[0];
+        } else if (synthCamCanvas) {
+          const syn = synthCamCanvas.captureStream(25);
+          videoTrack = syn.getVideoTracks()[0];
+        }
+
+        if (!videoTrack) {
+          showToast('Không tìm thấy luồng hình ảnh để ghi hình!', 'warn');
+          return;
+        }
+
+        const AudioCtx = window.AudioContext || window.webkitAudioContext;
+        let mixDest = null;
+        if (AudioCtx) {
+          recAudioCtx = new AudioCtx();
+          mixDest = recAudioCtx.createMediaStreamDestination();
+
+          if (state.localStream && state.localStream.getAudioTracks().length > 0) {
+            try {
+              const localSrc = recAudioCtx.createMediaStreamSource(state.localStream);
+              localSrc.connect(mixDest);
+            } catch (e) {}
+          }
+
+          document.querySelectorAll('#remoteAudioContainer audio').forEach(audioEl => {
+            try {
+              if (audioEl.srcObject && audioEl.srcObject.getAudioTracks().length > 0) {
+                const remoteSrc = recAudioCtx.createMediaStreamSource(audioEl.srcObject);
+                remoteSrc.connect(mixDest);
+              }
+            } catch (e) {}
+          });
+        }
+
+        const recStream = new MediaStream();
+        recStream.addTrack(videoTrack);
+        if (mixDest && mixDest.stream.getAudioTracks().length > 0) {
+          recStream.addTrack(mixDest.stream.getAudioTracks()[0]);
+        }
+
+        const mimeTypes = [
+          'video/webm;codecs=vp9,opus',
+          'video/webm;codecs=vp8,opus',
+          'video/webm',
+          'video/mp4'
+        ];
+        let selectedMime = '';
+        for (const mime of mimeTypes) {
+          if (typeof MediaRecorder !== 'undefined' && MediaRecorder.isTypeSupported && MediaRecorder.isTypeSupported(mime)) {
+            selectedMime = mime;
+            break;
+          }
+        }
+
+        const options = selectedMime ? { mimeType: selectedMime } : {};
+        const recorder = new MediaRecorder(recStream, options);
+
+        recorder.ondataavailable = (e) => {
+          if (e.data && e.data.size > 0) {
+            state.recordedChunks.push(e.data);
+          }
+        };
+
+        recorder.onstop = () => {
+          if (state.recordedChunks.length === 0) return;
+          const blob = new Blob(state.recordedChunks, { type: selectedMime || 'video/webm' });
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.style.display = 'none';
+          a.href = url;
+          const now = new Date();
+          const dateStr = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}_${String(now.getHours()).padStart(2,'0')}-${String(now.getMinutes()).padStart(2,'0')}`;
+          a.download = `Leet-Meeting-${state.roomCode}-${dateStr}.webm`;
+          document.body.appendChild(a);
+          a.click();
+          setTimeout(() => {
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+          }, 1000);
+          showToast('Đã lưu bản ghi cuộc họp thành công!', 'success');
+          SoundFX.playCopy();
+          try { if (recAudioCtx) recAudioCtx.close(); } catch (e) {}
+        };
+
+        recorder.start(1000);
+        state.mediaRecorder = recorder;
+        state.isRecording = true;
+        state.recordingSeconds = 0;
+
+        document.getElementById('recordingBadge').classList.remove('hidden');
+        document.getElementById('recordBtnLabel').textContent = 'Dừng ghi';
+        document.getElementById('recordIcon').className = 'w-3 h-3 rounded-sm bg-[#D92D20] animate-pulse';
+        SoundFX.playPop();
+        showToast('Bắt đầu ghi hình cuộc họp...', 'info');
+
+        if (state.recordingTimerInterval) clearInterval(state.recordingTimerInterval);
+        state.recordingTimerInterval = setInterval(() => {
+          state.recordingSeconds++;
+          const m = String(Math.floor(state.recordingSeconds / 60)).padStart(2, '0');
+          const s = String(state.recordingSeconds % 60).padStart(2, '0');
+          const el = document.getElementById('recordingTimerText');
+          if (el) el.textContent = `${m}:${s}`;
+        }, 1000);
+      } catch (err) {
+        console.error('Lỗi khi bắt đầu ghi hình:', err);
+        showToast('Không thể ghi hình: ' + (err.message || ''), 'warn');
+      }
+    }
+
+    function stopMeetingRecording() {
+      if (!state.isRecording) return;
+      state.isRecording = false;
+      if (state.recordingTimerInterval) {
+        clearInterval(state.recordingTimerInterval);
+        state.recordingTimerInterval = null;
+      }
+      if (state.mediaRecorder && state.mediaRecorder.state !== 'inactive') {
+        state.mediaRecorder.stop();
+      }
+      document.getElementById('recordingBadge').classList.add('hidden');
+      document.getElementById('recordBtnLabel').textContent = 'Ghi hình';
+      document.getElementById('recordIcon').className = 'w-3 h-3 rounded-full bg-[#F26B1D]';
+      SoundFX.playPop();
+    }
+
+    // ==================== COLLABORATIVE WHITEBOARD ====================
+    let wbCanvas = null;
+    let wbCtx = null;
+    let isWbDrawing = false;
+    let lastWbX = 0;
+    let lastWbY = 0;
+
+    function initWhiteboardCanvasSize() {
+      wbCanvas = document.getElementById('whiteboardCanvas');
+      if (!wbCanvas) return;
+      const rect = wbCanvas.getBoundingClientRect();
+      if (rect.width === 0 || rect.height === 0) return;
+
+      let tempImage = null;
+      if (wbCanvas.width > 0 && wbCanvas.height > 0) {
+        try { tempImage = wbCtx?.getImageData(0, 0, wbCanvas.width, wbCanvas.height); } catch (e) {}
+      }
+
+      wbCanvas.width = rect.width;
+      wbCanvas.height = rect.height;
+      wbCtx = wbCanvas.getContext('2d');
+      wbCtx.lineCap = 'round';
+      wbCtx.lineJoin = 'round';
+
+      if (tempImage) {
+        try { wbCtx.putImageData(tempImage, 0, 0); } catch (e) {}
+      }
+    }
+
+    function drawWbLine(x0, y0, x1, y1, color, size, isLocal = false) {
+      if (!wbCanvas) wbCanvas = document.getElementById('whiteboardCanvas');
+      if (!wbCtx && wbCanvas) wbCtx = wbCanvas.getContext('2d');
+      if (!wbCtx) return;
+
+      wbCtx.beginPath();
+      wbCtx.moveTo(x0, y0);
+      wbCtx.lineTo(x1, y1);
+      wbCtx.strokeStyle = color;
+      wbCtx.lineWidth = size;
+      wbCtx.stroke();
+      wbCtx.closePath();
+
+      if (isLocal && wbCanvas.width > 0 && wbCanvas.height > 0) {
+        broadcastRoomEvent({
+          type: 'wb-draw',
+          x0: x0 / wbCanvas.width,
+          y0: y0 / wbCanvas.height,
+          x1: x1 / wbCanvas.width,
+          y1: y1 / wbCanvas.height,
+          color: color,
+          size: size
+        });
+      }
+    }
+
+    function handleRemoteWbDraw(msg) {
+      if (!wbCanvas) wbCanvas = document.getElementById('whiteboardCanvas');
+      if (!wbCanvas) return;
+      if (wbCanvas.width === 0 || wbCanvas.height === 0) initWhiteboardCanvasSize();
+      const x0 = msg.x0 * wbCanvas.width;
+      const y0 = msg.y0 * wbCanvas.height;
+      const x1 = msg.x1 * wbCanvas.width;
+      const y1 = msg.y1 * wbCanvas.height;
+      drawWbLine(x0, y0, x1, y1, msg.color, msg.size, false);
+    }
+
+    function handleRemoteWbClear() {
+      if (!wbCanvas) wbCanvas = document.getElementById('whiteboardCanvas');
+      if (!wbCtx && wbCanvas) wbCtx = wbCanvas.getContext('2d');
+      if (wbCanvas && wbCtx) {
+        wbCtx.clearRect(0, 0, wbCanvas.width, wbCanvas.height);
+        showToast('Bảng vẽ đã được xóa', 'info');
+      }
+    }
+
+    function setupWhiteboardListeners() {
+      wbCanvas = document.getElementById('whiteboardCanvas');
+      if (!wbCanvas) return;
+
+      const getCanvasPos = (e) => {
+        const rect = wbCanvas.getBoundingClientRect();
+        const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+        const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+        return {
+          x: clientX - rect.left,
+          y: clientY - rect.top
+        };
+      };
+
+      const startDraw = (e) => {
+        e.preventDefault();
+        if (wbCanvas.width === 0 || wbCanvas.height === 0) initWhiteboardCanvasSize();
+        isWbDrawing = true;
+        const pos = getCanvasPos(e);
+        lastWbX = pos.x;
+        lastWbY = pos.y;
+        drawWbLine(lastWbX, lastWbY, lastWbX + 0.1, lastWbY + 0.1, state.wbColor, state.wbSize, true);
+      };
+
+      const drawMove = (e) => {
+        if (!isWbDrawing) return;
+        e.preventDefault();
+        const pos = getCanvasPos(e);
+        drawWbLine(lastWbX, lastWbY, pos.x, pos.y, state.wbColor, state.wbSize, true);
+        lastWbX = pos.x;
+        lastWbY = pos.y;
+      };
+
+      const stopDraw = (e) => {
+        if (isWbDrawing) {
+          e.preventDefault();
+          isWbDrawing = false;
+        }
+      };
+
+      wbCanvas.addEventListener('mousedown', startDraw);
+      wbCanvas.addEventListener('mousemove', drawMove);
+      window.addEventListener('mouseup', stopDraw);
+
+      wbCanvas.addEventListener('touchstart', startDraw, { passive: false });
+      wbCanvas.addEventListener('touchmove', drawMove, { passive: false });
+      window.addEventListener('touchend', stopDraw, { passive: false });
+
+      document.querySelectorAll('.wb-color-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          SoundFX.playPop();
+          state.wbColor = btn.getAttribute('data-wb-color');
+          document.querySelectorAll('.wb-color-btn').forEach(b => {
+            b.classList.remove('ring-2', 'ring-[#1A1A1A]', 'scale-110');
+          });
+          btn.classList.add('ring-2', 'ring-[#1A1A1A]', 'scale-110');
+        });
+      });
+
+      const brushSelect = document.getElementById('wbBrushSize');
+      if (brushSelect) {
+        brushSelect.addEventListener('change', (e) => {
+          state.wbSize = parseInt(e.target.value, 10) || 5;
+        });
+      }
+
+      const clearBtn = document.getElementById('wbClearBtn');
+      if (clearBtn) {
+        clearBtn.addEventListener('click', () => {
+          SoundFX.playPop();
+          if (wbCanvas && wbCtx) {
+            wbCtx.clearRect(0, 0, wbCanvas.width, wbCanvas.height);
+          }
+          broadcastRoomEvent({ type: 'wb-clear' });
+          showToast('Đã xóa trắng bảng vẽ', 'info');
+        });
+      }
+
+      const saveBtn = document.getElementById('wbSaveBtn');
+      if (saveBtn) {
+        saveBtn.addEventListener('click', () => {
+          SoundFX.playCopy();
+          if (!wbCanvas) return;
+          const dataUrl = wbCanvas.toDataURL('image/png');
+          const a = document.createElement('a');
+          a.href = dataUrl;
+          a.download = `Leet-Whiteboard-${Date.now()}.png`;
+          a.click();
+          showToast('Đã lưu ảnh bảng vẽ!', 'success');
+        });
+      }
+
+      window.addEventListener('resize', () => {
+        if (state.drawerOpen && state.activeDrawerTab === 'whiteboard') {
+          initWhiteboardCanvasSize();
+        }
+      });
     }
 
     // ==================== EVENT LISTENERS ====================
@@ -2757,19 +3372,28 @@
         drawer.classList.add('animate-drawer-in');
 
         const isPeople = tab === 'participants';
+        const isChat = tab === 'chat';
+        const isWhiteboard = tab === 'whiteboard';
+
         document.getElementById('participantsPanel').classList.toggle('hidden', !isPeople);
-        document.getElementById('chatPanel').classList.toggle('hidden', isPeople);
+        document.getElementById('chatPanel').classList.toggle('hidden', !isChat);
+        document.getElementById('whiteboardPanel').classList.toggle('hidden', !isWhiteboard);
 
         document.getElementById('tabParticipantsBtn').className = isPeople
           ? 'flex-1 py-1.5 rounded-full text-xs font-extrabold bg-[#FFCE38] text-[#1A1A1A] border border-[#1A1A1A] transition'
           : 'flex-1 py-1.5 rounded-full text-xs font-extrabold text-[#1A1A1A] transition';
-        document.getElementById('tabChatBtn').className = !isPeople
+        document.getElementById('tabChatBtn').className = isChat
+          ? 'flex-1 py-1.5 rounded-full text-xs font-extrabold bg-[#FFCE38] text-[#1A1A1A] border border-[#1A1A1A] transition'
+          : 'flex-1 py-1.5 rounded-full text-xs font-extrabold text-[#1A1A1A] transition';
+        document.getElementById('tabWhiteboardBtn').className = isWhiteboard
           ? 'flex-1 py-1.5 rounded-full text-xs font-extrabold bg-[#FFCE38] text-[#1A1A1A] border border-[#1A1A1A] transition'
           : 'flex-1 py-1.5 rounded-full text-xs font-extrabold text-[#1A1A1A] transition';
 
-        if (!isPeople) {
+        if (isChat) {
           document.getElementById('unreadChatDot').classList.add('hidden');
           renderChatMessages();
+        } else if (isWhiteboard) {
+          setTimeout(initWhiteboardCanvasSize, 60);
         }
       }
 
@@ -2777,6 +3401,9 @@
       document.getElementById('toggleChatDrawerBtn').addEventListener('click', () => openDrawer('chat'));
       document.getElementById('tabParticipantsBtn').addEventListener('click', () => openDrawer('participants'));
       document.getElementById('tabChatBtn').addEventListener('click', () => openDrawer('chat'));
+      document.getElementById('tabWhiteboardBtn').addEventListener('click', () => openDrawer('whiteboard'));
+      document.getElementById('toggleWhiteboardDrawerBtn').addEventListener('click', () => openDrawer('whiteboard'));
+
       document.getElementById('closeDrawerBtn').addEventListener('click', () => {
         SoundFX.playPop();
         state.drawerOpen = false;
@@ -2796,6 +3423,128 @@
         input.value = '';
         renderChatMessages();
         broadcastRoomEvent({ type: 'chat', sender: state.localUser.name, time, text });
+      });
+
+      // PWA Service Worker Registration
+      if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('./sw.js').catch(err => {
+          console.log('[PWA] Service Worker registration skipped or failed:', err);
+        });
+      }
+
+      // Device Modal
+      document.getElementById('openDeviceSettingsBtn')?.addEventListener('click', async () => {
+        SoundFX.playPop();
+        await populateDeviceLists();
+        document.getElementById('deviceModal').classList.remove('hidden');
+      });
+      document.getElementById('closeDeviceModalBtn')?.addEventListener('click', () => {
+        SoundFX.playPop();
+        document.getElementById('deviceModal').classList.add('hidden');
+      });
+      document.getElementById('applyDeviceBtn')?.addEventListener('click', () => {
+        SoundFX.playPop();
+        applyDeviceSelection();
+      });
+
+      // Picture-in-Picture (PiP)
+      document.getElementById('togglePipBtn')?.addEventListener('click', () => {
+        SoundFX.playPop();
+        togglePictureInPicture();
+      });
+
+      // Meeting Recording
+      document.getElementById('callRecordMeetingBtn')?.addEventListener('click', () => {
+        if (state.isRecording) {
+          stopMeetingRecording();
+        } else {
+          startMeetingRecording();
+        }
+      });
+
+      // Shortcuts Modal
+      document.getElementById('shortcutsHeaderBtn')?.addEventListener('click', () => {
+        SoundFX.playPop();
+        document.getElementById('shortcutsModal')?.classList.remove('hidden');
+      });
+      document.getElementById('closeShortcutsModalBtn')?.addEventListener('click', () => {
+        SoundFX.playPop();
+        document.getElementById('shortcutsModal')?.classList.add('hidden');
+      });
+
+      // Collaborative Whiteboard
+      setupWhiteboardListeners();
+
+      // Keyboard Shortcuts & Push-to-Talk
+      window.addEventListener('keydown', (e) => {
+        if (['INPUT', 'TEXTAREA', 'SELECT'].includes(document.activeElement?.tagName) || document.activeElement?.isContentEditable) {
+          return;
+        }
+
+        // Push-to-Talk with Space
+        if (e.code === 'Space' && !e.repeat && state.inCall) {
+          e.preventDefault();
+          if (!state.isPushToTalking) {
+            state.isPushToTalking = true;
+            state.wasMicMutedBeforePtt = !state.localUser.micOn;
+            if (!state.localUser.micOn) {
+              state.localUser.micOn = true;
+              updateMediaUI();
+              broadcastRoomEvent({ type: 'peer-update', name: state.localUser.name, micOn: true, camOn: state.localUser.camOn, handRaised: state.localUser.handRaised });
+            }
+            const indicator = document.getElementById('pushToTalkIndicator');
+            if (indicator) indicator.classList.remove('hidden');
+          }
+          return;
+        }
+
+        if (e.ctrlKey || e.altKey || e.metaKey) return;
+
+        const key = e.key.toUpperCase();
+        if (key === 'M') {
+          e.preventDefault();
+          toggleMic();
+          showToast(state.localUser.micOn ? 'Đã bật Micro (M)' : 'Đã tắt Micro (M)', 'info');
+        } else if (key === 'V') {
+          e.preventDefault();
+          toggleCam();
+          showToast(state.localUser.camOn ? 'Đã bật Camera (V)' : 'Đã tắt Camera (V)', 'info');
+        } else if (key === 'S' && state.inCall) {
+          e.preventDefault();
+          SoundFX.playPop();
+          toggleScreenShare();
+        } else if (key === 'H' && state.inCall) {
+          e.preventDefault();
+          document.getElementById('callRaiseHandBtn')?.click();
+        } else if (key === 'C' && state.inCall) {
+          e.preventDefault();
+          openDrawer('chat');
+        } else if (key === 'P' && state.inCall) {
+          e.preventDefault();
+          togglePictureInPicture();
+        } else if (key === '?' || (e.shiftKey && e.code === 'Slash')) {
+          e.preventDefault();
+          const modal = document.getElementById('shortcutsModal');
+          if (modal) modal.classList.toggle('hidden');
+        }
+      });
+
+      window.addEventListener('keyup', (e) => {
+        if (['INPUT', 'TEXTAREA', 'SELECT'].includes(document.activeElement?.tagName) || document.activeElement?.isContentEditable) {
+          return;
+        }
+
+        if (e.code === 'Space' && state.isPushToTalking) {
+          e.preventDefault();
+          state.isPushToTalking = false;
+          const indicator = document.getElementById('pushToTalkIndicator');
+          if (indicator) indicator.classList.add('hidden');
+          if (state.wasMicMutedBeforePtt) {
+            state.localUser.micOn = false;
+            updateMediaUI();
+            broadcastRoomEvent({ type: 'peer-update', name: state.localUser.name, micOn: false, camOn: state.localUser.camOn, handRaised: state.localUser.handRaised });
+          }
+        }
       });
     });
   </script>

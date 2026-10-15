@@ -1,0 +1,24 @@
+{
+  "name": "Leet — Họp Trực Tuyến Không Giới Hạn",
+  "short_name": "Leet Meet",
+  "description": "Ứng dụng họp trực tuyến P2P phong cách Neo-Brutalist Pop-Art không giới hạn thời gian",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#F4F6F8",
+  "theme_color": "#6B8E4E",
+  "orientation": "any",
+  "icons": [
+    {
+      "src": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'%3E%3Crect width='192' height='192' rx='42' fill='%236B8E4E' stroke='%231A1A1A' stroke-width='10'/%3E%3Cpath d='M50 68h62a10 10 0 0 1 10 10v36a10 10 0 0 1-10 10H50a10 10 0 0 1-10-10V78a10 10 0 0 1 10-10z' fill='%23FFCE38' stroke='%231A1A1A' stroke-width='8'/%3E%3Cpath d='M122 88l30-16v48l-30-16' fill='%23F26B1D' stroke='%231A1A1A' stroke-width='8' stroke-linejoin='round'/%3E%3C/svg%3E",
+      "sizes": "192x192",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' rx='112' fill='%236B8E4E' stroke='%231A1A1A' stroke-width='24'/%3E%3Cpath d='M134 182h166a26 26 0 0 1 26 26v96a26 26 0 0 1-26 26H134a26 26 0 0 1-26-26v-96a26 26 0 0 1 26-26z' fill='%23FFCE38' stroke='%231A1A1A' stroke-width='20'/%3E%3Cpath d='M326 236l80-42v124l-80-42' fill='%23F26B1D' stroke='%231A1A1A' stroke-width='20' stroke-linejoin='round'/%3E%3C/svg%3E",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
