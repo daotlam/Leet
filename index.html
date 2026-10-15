@@ -347,12 +347,16 @@
         <div id="turnModal" class="settings-tab-pane hidden flex flex-col gap-3">
           <div class="text-xs space-y-2">
             <p class="font-bold text-gray-700">
-              Khi 2 người ở <strong>khác mạng WiFi</strong> (hoặc 1 máy dùng 4G, 1 máy dùng WiFi), nhà mạng sẽ chặn kết nối P2P trực tiếp do tường lửa NAT đối xứng. Bạn cần <strong>TURN Relay</strong> để làm cầu nối trung gian chuyển tiếp video.
+              Khi 2 người ở <strong>khác mạng WiFi</strong> (hoặc 1 máy dùng 4G, 1 máy dùng WiFi), nhà mạng sẽ chặn kết nối P2P trực tiếp do tường lửa NAT đối xứng. Bạn cần <strong>TURN Relay</strong> để làm cầu nối trung gian chuyển tiếp âm thanh & hình ảnh.
             </p>
+            <div class="bg-[#2E8B57]/15 border-2 border-[#1A1A1A] rounded-xl p-3 text-[11px] font-bold text-[#1B3312]">
+              ✨ <strong>TỰ ĐỘNG CHIA SẺ TRONG PHÒNG:</strong><br/>
+              Chỉ cần <strong>1 người trong phòng</strong> cấu hình TURN (ví dụ bạn thao tác trên máy tính), toàn bộ điện thoại 4G và người tham gia khác sẽ <strong>tự động nhận máy chủ TURN Relay</strong> mà không cần cài đặt gì thêm!
+            </div>
             <div class="bg-[#FFCE38]/40 border-2 border-[#1A1A1A] rounded-xl p-3 text-[11px] font-bold">
               💡 <strong>Cách lấy TURN miễn phí 100% (50GB/tháng, chỉ mất 1 phút):</strong><br/>
-              1. Đăng ký tài khoản miễn phí tại <a href="https://www.metered.ca/" target="_blank" class="text-[#3B66FF] underline">metered.ca</a> (không cần thẻ).<br/>
-              2. Vào <strong>TURN Server Dashboard</strong> → Copy <strong>App Name</strong> & <strong>API Key</strong> (hoặc Username & Password) dán vào dưới:
+              1. Đăng ký tài khoản miễn phí tại <a href="https://www.metered.ca/" target="_blank" class="text-[#3B66FF] font-black underline">metered.ca</a> (đăng nhập bằng Google hoặc Email, không cần thẻ tín dụng).<br/>
+              2. Trong <strong>TURN Server Dashboard</strong> → Copy <strong>App Name</strong> & <strong>API Key</strong> dán vào dưới rồi bấm "Lưu cấu hình":
             </div>
           </div>
 
@@ -525,6 +529,12 @@
   <div id="pushToTalkIndicator" class="hidden fixed bottom-28 left-1/2 -translate-x-1/2 z-50 bg-[#FFCE38] border-[3px] border-[#1A1A1A] shadow-[4px_4px_0px_#1A1A1A] px-5 py-2 rounded-full text-xs font-black text-[#1A1A1A] flex items-center gap-2 animate-bounce pointer-events-none">
     <span class="w-3 h-3 rounded-full bg-[#2E8B57] animate-ping"></span>
     <span>🎙️ ĐANG NÓI (PUSH-TO-TALK)</span>
+  </div>
+
+  <!-- FLOATING AUDIO UNLOCK BANNER (FOR MOBILE IOS/ANDROID AUTOPLAY) -->
+  <div id="audioUnlockFloatingBanner" class="hidden fixed top-20 left-1/2 -translate-x-1/2 z-50 px-4 py-2 bg-[#FFCE38] border-2 border-[#1A1A1A] rounded-full shadow-[3px_3px_0px_#1A1A1A] text-xs font-black text-[#1A1A1A] flex items-center gap-2 cursor-pointer animate-bounce pointer-events-auto">
+    <span>🔊</span>
+    <span>Nhấn vào màn hình để bật âm thanh cuộc họp</span>
   </div>
 
   <!-- TOAST NOTIFICATION CONTAINER -->
@@ -760,6 +770,11 @@
             Tiêu điểm
           </button>
         </div>
+        <!-- In-Call Network Status Pill (Click to open TURN settings) -->
+        <button id="inCallNetworkStatusPill" type="button" class="neo-btn px-2.5 py-1 rounded-full bg-white hover:bg-[#FFCE38] text-[11px] font-black flex items-center gap-1.5 shadow-[2px_2px_0px_#1A1A1A] border-2 border-[#1A1A1A]" title="Xem trạng thái mạng P2P / TURN Relay">
+          <span id="inCallNetDot" class="w-2 h-2 rounded-full bg-[#2E8B57] animate-pulse"></span>
+          <span id="inCallNetText" class="truncate max-w-[85px] sm:max-w-none text-[#1A1A1A]">P2P HD</span>
+        </button>
         <button id="meetingSettingsBtn" type="button" class="neo-btn px-3 py-1.5 rounded-full bg-white hover:bg-[#FFCE38] text-[#1A1A1A] text-xs font-extrabold flex items-center gap-1.5 shadow-[2px_2px_0px_#1A1A1A]" title="Cài đặt hệ thống (Thiết bị, Mạng, Phím tắt)">
           <span>⚙️</span><span class="hidden sm:inline">Cài đặt</span>
         </button>
@@ -1022,8 +1037,8 @@
     <footer class="h-20 shrink-0 px-3 sm:px-6 bg-[#1B3312] border-t-[3px] border-[#1A1A1A] flex items-center justify-between gap-2 z-30">
       <!-- Left Controls: Network Info, Device Settings & PiP -->
       <div class="flex items-center gap-1.5 sm:gap-2">
-        <div class="hidden xl:flex flex-col text-xs pr-1">
-          <div id="p2pBrokerStatus" class="font-extrabold text-[#FFCE38] uppercase text-[11px]">Đang kết nối P2P...</div>
+        <div class="hidden sm:flex flex-col text-xs pr-1 cursor-pointer" title="Bấm để kiểm tra cài đặt mạng / TURN Relay">
+          <div id="p2pBrokerStatus" class="font-extrabold text-[#FFCE38] uppercase text-[11px] truncate max-w-[130px] sm:max-w-none">Đang kết nối P2P...</div>
           <div class="text-[10px] font-semibold text-gray-300">Opus HD • P2P Mesh</div>
         </div>
         <button id="openDeviceSettingsBtn" type="button" class="neo-btn px-3 sm:px-3.5 h-11 rounded-full bg-[#FFFDF0] hover:bg-[#FFCE38] text-xs font-extrabold text-[#1A1A1A] flex items-center gap-1.5 shadow-[2px_2px_0px_#1A1A1A]" title="Cài đặt hệ thống">
@@ -2485,6 +2500,8 @@
         audioEl.id = `remote-audio-${peerId}`;
         audioEl.autoplay = true;
         audioEl.playsInline = true;
+        audioEl.setAttribute('autoplay', '');
+        audioEl.setAttribute('playsinline', '');
         audioEl.setAttribute('webkit-playsinline', 'true');
         container.appendChild(audioEl);
       }
@@ -2494,7 +2511,13 @@
       audioEl.muted = false;
       audioEl.volume = 1.0;
       const playP = audioEl.play();
-      if (playP !== undefined) playP.catch(() => {});
+      if (playP !== undefined) {
+        playP.catch((err) => {
+          console.warn('[Audio] Autoplay bị chặn bởi trình duyệt di động:', err);
+          const banner = document.getElementById('audioUnlockFloatingBanner');
+          if (banner) banner.classList.remove('hidden');
+        });
+      }
     }
 
     function removeRemoteAudioStream(peerId) {
@@ -2593,12 +2616,26 @@
         fallbackEl.style.backgroundColor = peer.bgHex || '#6B8E4E';
         fallbackEl.style.backgroundImage = 'linear-gradient(to right, rgba(255,255,255,0.14) 1px, transparent 1px), linear-gradient(to bottom, rgba(255,255,255,0.14) 1px, transparent 1px)';
         fallbackEl.style.backgroundSize = '24px 24px';
+
+        let tileStatusText = peer.camOn ? 'Đang kết nối...' : 'Camera tắt';
+        let tileBadgeStyle = 'bg-[#FFFDF0] text-[#1A1A1A]';
+        if (!peer.isLocal && peer.camOn && !hasVideoTrack && peerObj && peerObj.pc) {
+          const ice = peerObj.pc.iceConnectionState;
+          if (ice === 'failed' || ice === 'disconnected') {
+            tileStatusText = '⚠️ Mạng chặn P2P (Cần TURN)';
+            tileBadgeStyle = 'bg-[#F26B1D] text-white animate-pulse cursor-pointer';
+          } else if (ice === 'checking') {
+            tileStatusText = '⏳ Đang dò kết nối...';
+            tileBadgeStyle = 'bg-[#FFCE38] text-[#1A1A1A]';
+          }
+        }
+
         fallbackEl.innerHTML = `
           <div class="neo-stamp w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-[#FFCE38] flex items-center justify-center text-[#1A1A1A] font-extrabold text-xl sm:text-2xl">
             ${getInitials(peer.name)}
           </div>
-          <span class="mt-2.5 px-3 py-0.5 rounded-full bg-[#FFFDF0] border-2 border-[#1A1A1A] shadow-[2px_2px_0px_#1A1A1A] text-[11px] font-extrabold uppercase text-[#1A1A1A]">
-            ${peer.camOn ? 'Đang kết nối...' : 'Camera tắt'}
+          <span class="tile-status-badge mt-2.5 px-3 py-0.5 rounded-full ${tileBadgeStyle} border-2 border-[#1A1A1A] shadow-[2px_2px_0px_#1A1A1A] text-[11px] font-extrabold uppercase" title="Bấm để mở cài đặt TURN nếu mạng bị chặn">
+            ${tileStatusText}
           </span>
         `;
       }
@@ -2941,34 +2978,33 @@
       return (code || 'default').toLowerCase().replace(/[^a-z0-9]/g, '').slice(0, 24) || 'leet';
     }
 
-    async function getIceServersAsync() {
-      const servers = [
+    let cachedRoomIceServers = null;
+    let cachedResolvedIceServers = null;
+    window.cachedRoomIceServers = null;
+    window.cachedResolvedIceServers = null;
+    window.getIceServersAsync = getIceServersAsync;
+
+    async function getIceServersAsync(forceRefresh = false) {
+      if (!forceRefresh && cachedResolvedIceServers) {
+        return cachedResolvedIceServers;
+      }
+
+      const defaultStuns = [
         { urls: 'stun:stun.l.google.com:19302' },
         { urls: 'stun:stun1.l.google.com:19302' },
         { urls: 'stun:stun2.l.google.com:19302' },
         { urls: 'stun:stun3.l.google.com:19302' },
         { urls: 'stun:stun4.l.google.com:19302' },
         { urls: 'stun:stun.cloudflare.com:3478' },
-        { urls: 'stun:openrelay.metered.ca:80' },
-        { urls: 'stun:openrelay.metered.ca:443' },
-        { urls: 'stun:global.relay.metered.ca:80' },
-        { urls: 'stun:stun.relay.metered.ca:80' },
-        { urls: 'stun:stun.relay.metered.ca:443' },
-        // Free Public TURN relay by Open Relay Project (bypasses 4G/LTE Symmetric NAT & strict Wi-Fi firewalls)
-        {
-          urls: [
-            'turn:openrelay.metered.ca:80',
-            'turn:openrelay.metered.ca:443',
-            'turn:openrelay.metered.ca:443?transport=tcp',
-            'turn:openrelay.metered.ca:80?transport=tcp'
-          ],
-          username: 'openrelayproject',
-          credential: 'openrelayproject'
-        },
         { urls: 'stun:stun.services.mozilla.com:3478' },
-        { urls: 'stun:stun.nextcloud.com:443' }
+        { urls: 'stun:stun.nextcloud.com:443' },
+        { urls: 'stun:stun.relay.metered.ca:80' },
+        { urls: 'stun:stun.relay.metered.ca:443' }
       ];
 
+      const servers = [...defaultStuns];
+
+      // Priority 1: User's own saved TURN config in localStorage
       try {
         const savedTurn = localStorage.getItem('leet_turn_config');
         if (savedTurn) {
@@ -2979,27 +3015,38 @@
               const res = await fetch(`https://${parsed.appName}.metered.live/api/v1/turn/credentials?apiKey=${parsed.apiKey}`);
               if (res.ok) {
                 const data = await res.json();
-                if (Array.isArray(data)) {
-                  servers.push(...data);
+                if (Array.isArray(data) && data.length > 0) {
+                  servers.unshift(...data);
+                  cachedResolvedIceServers = servers;
                   return servers;
                 }
               }
             } catch (e) {
-              console.warn('Không thể nạp Metered TURN credentials tự động:', e);
+              console.warn('[ICE] Không thể nạp Metered TURN credentials tự động:', e);
             }
           }
           // Case 2: Static TURN URL, username, password
           if (parsed.username && parsed.credential) {
             const turnUrl = parsed.turnUrl || 'turn:standard.relay.metered.ca:443';
-            servers.push({
+            servers.unshift({
               urls: [turnUrl, `${turnUrl}?transport=tcp`],
               username: parsed.username,
               credential: parsed.credential
             });
+            cachedResolvedIceServers = servers;
+            return servers;
           }
         }
       } catch (e) {}
 
+      // Priority 2: Room-shared TURN Relay credentials (from host or peer in room)
+      if (cachedRoomIceServers && Array.isArray(cachedRoomIceServers) && cachedRoomIceServers.length > 0) {
+        console.log('[ICE] Áp dụng máy chủ TURN Relay được chia sẻ từ thành viên trong phòng.');
+        cachedResolvedIceServers = [...cachedRoomIceServers];
+        return cachedResolvedIceServers;
+      }
+
+      cachedResolvedIceServers = servers;
       return servers;
     }
 
@@ -3040,14 +3087,16 @@
           console.log(`[MQTT] Đã kết nối signaling broker cho phòng "${cleanRoom}" (ID: ${myPeerId})`);
           if (statusEl) statusEl.textContent = `✦ Đã vào phòng (${cleanRoom})`;
 
-          client.subscribe([topicAll, topicMe], () => {
+          client.subscribe([topicAll, topicMe], async () => {
+            const currentServers = await getIceServersAsync();
             publishMeshEvent(topicAll, {
               type: 'announce',
               from: myPeerId,
               name: state.localUser.name,
               micOn: state.localUser.micOn,
               camOn: state.localUser.camOn,
-              handRaised: state.localUser.handRaised
+              handRaised: state.localUser.handRaised,
+              iceServers: currentServers
             });
           });
 
@@ -3085,6 +3134,19 @@
 
           if (msg.type === 'announce') {
             console.log(`[Mesh] Nhận announce từ ${remoteId} (${msg.name})`);
+            if (Array.isArray(msg.iceServers) && msg.iceServers.length > 0) {
+              const hasTurn = msg.iceServers.some(s => {
+                const u = Array.isArray(s.urls) ? s.urls : [s.urls];
+                return u.some(url => url && (url.startsWith('turn:') || url.startsWith('turns:')));
+              });
+              if (hasTurn && !cachedRoomIceServers) {
+                console.log(`[Mesh] Nhận máy chủ TURN Relay từ ${remoteId}`);
+                cachedRoomIceServers = msg.iceServers;
+                cachedResolvedIceServers = null;
+                window.cachedRoomIceServers = cachedRoomIceServers;
+              }
+            }
+            const myServers = await getIceServersAsync();
             publishMeshEvent(`leet/mesh/v3/${cleanRoom}/p/${remoteId}`, {
               type: 'welcome',
               from: myPeerId,
@@ -3092,12 +3154,39 @@
               name: state.localUser.name,
               micOn: state.localUser.micOn,
               camOn: state.localUser.camOn,
-              handRaised: state.localUser.handRaised
+              handRaised: state.localUser.handRaised,
+              iceServers: myServers
             });
             await getOrCreatePeerConnection(remoteId, msg.name, cleanRoom, msg);
           } else if (msg.type === 'welcome') {
             console.log(`[Mesh] Nhận welcome từ ${remoteId} (${msg.name})`);
+            if (Array.isArray(msg.iceServers) && msg.iceServers.length > 0) {
+              const hasTurn = msg.iceServers.some(s => {
+                const u = Array.isArray(s.urls) ? s.urls : [s.urls];
+                return u.some(url => url && (url.startsWith('turn:') || url.startsWith('turns:')));
+              });
+              if (hasTurn && !cachedRoomIceServers) {
+                console.log(`[Mesh] Nhận cấu hình TURN Relay được chia sẻ từ ${remoteId}`);
+                cachedRoomIceServers = msg.iceServers;
+                cachedResolvedIceServers = null;
+                window.cachedRoomIceServers = cachedRoomIceServers;
+              }
+            }
             await getOrCreatePeerConnection(remoteId, msg.name, cleanRoom, msg);
+          } else if (msg.type === 'turn-update') {
+            if (Array.isArray(msg.iceServers) && msg.iceServers.length > 0) {
+              console.log('[Mesh] Nhận cập nhật máy chủ TURN Relay từ thành viên:', msg.from);
+              cachedRoomIceServers = msg.iceServers;
+              cachedResolvedIceServers = null;
+              window.cachedRoomIceServers = cachedRoomIceServers;
+              showToast('✦ Đã nhận máy chủ TURN Relay từ thành viên phòng! Đang kết nối lại...', 'success');
+              activePeers.forEach((p, rId) => {
+                if (p && p.pc) {
+                  try { p.pc.setConfiguration({ iceServers: msg.iceServers }); } catch (e) {}
+                  sendOfferToPeer(rId, cleanRoom, true);
+                }
+              });
+            }
           } else if (msg.type === 'signal') {
             await handleSignalingMessage(remoteId, msg, cleanRoom);
           } else if (msg.type === 'peer-update') {
@@ -3184,7 +3273,9 @@
       const iceServers = await getIceServersAsync();
       const pc = new RTCPeerConnection({
         sdpSemantics: 'unified-plan',
-        iceServers: iceServers
+        iceServers: iceServers,
+        iceCandidatePoolSize: 10,
+        bundlePolicy: 'max-bundle'
       });
 
       const peerObj = {
@@ -3194,6 +3285,8 @@
         dc: null,
         remoteStream: null,
         iceQueue: [],
+        iceFailCount: 0,
+        iceCheckTimeout: null,
         lastSeen: Date.now()
       };
       activePeers.set(remoteId, peerObj);
@@ -3229,21 +3322,65 @@
         const st = pc.iceConnectionState;
         console.log(`[ICE] ${remoteId} state: ${st}`);
         const statusEl = document.getElementById('p2pBrokerStatus');
+        const inCallDot = document.getElementById('inCallNetDot');
+        const inCallText = document.getElementById('inCallNetText');
+        const inCallPill = document.getElementById('inCallNetworkStatusPill');
+
         if (st === 'connected' || st === 'completed') {
           if (statusEl) statusEl.textContent = '✦ Đã kết nối P2P · HD Voice';
+          if (inCallDot) inCallDot.className = 'w-2 h-2 rounded-full bg-[#2E8B57] animate-pulse';
+          if (inCallText) {
+            inCallText.textContent = 'P2P HD';
+            inCallText.className = 'text-[#1A1A1A] font-black truncate max-w-[85px] sm:max-w-none';
+          }
+          if (inCallPill) inCallPill.className = 'neo-btn px-2.5 py-1 rounded-full bg-white hover:bg-[#FFCE38] text-[11px] font-black flex items-center gap-1.5 shadow-[2px_2px_0px_#1A1A1A] border-2 border-[#1A1A1A]';
+          if (peerObj.iceCheckTimeout) clearTimeout(peerObj.iceCheckTimeout);
+          peerObj.iceFailCount = 0;
           if (peerObj.remoteStream) {
             attachRemoteAudioStream(remoteId, peerObj.remoteStream);
             renderVideoStage();
           }
+        } else if (st === 'checking') {
+          if (statusEl) statusEl.textContent = '⏳ Đang dò kết nối P2P...';
+          if (inCallDot) inCallDot.className = 'w-2 h-2 rounded-full bg-[#FFCE38] animate-ping';
+          if (inCallText) inCallText.textContent = 'Đang dò...';
+          renderVideoStage();
         } else if (st === 'failed') {
           console.log(`[ICE] ${remoteId} failed, attempting ICE restart...`);
-          if (isInitiator) {
-            sendOfferToPeer(remoteId, cleanRoom, true);
+          if (statusEl) statusEl.textContent = '⚠️ Mạng chặn P2P';
+          if (inCallDot) inCallDot.className = 'w-2 h-2 rounded-full bg-[#D92D20]';
+          if (inCallText) {
+            inCallText.textContent = 'Mạng chặn P2P';
+            inCallText.className = 'text-white font-black truncate max-w-[85px] sm:max-w-none';
+          }
+          if (inCallPill) inCallPill.className = 'neo-btn px-2.5 py-1 rounded-full bg-[#F26B1D] text-white text-[11px] font-black flex items-center gap-1.5 shadow-[2px_2px_0px_#1A1A1A] border-2 border-[#1A1A1A] animate-pulse';
+          renderVideoStage();
+
+          peerObj.iceFailCount = (peerObj.iceFailCount || 0) + 1;
+          if (peerObj.iceFailCount <= 2) {
+            setTimeout(() => {
+              if (activePeers.has(remoteId)) {
+                sendOfferToPeer(remoteId, cleanRoom, true);
+              }
+            }, 1000);
+          } else {
+            showToast('⚠️ Mạng 4G/tường lửa NAT đang chặn video! Hãy mở Cài đặt ⚙️ → TURN Relay để kích hoạt chuyển tiếp (miễn phí 50GB).', 'warn');
           }
         } else if (st === 'disconnected') {
           console.log(`[ICE] ${remoteId} disconnected temporarily...`);
+          renderVideoStage();
         }
       };
+
+      peerObj.iceCheckTimeout = setTimeout(() => {
+        if (pc.iceConnectionState === 'checking' || pc.iceConnectionState === 'new') {
+          console.warn(`[ICE] ${remoteId} chưa kết nối được sau 8s, nghi ngờ bị chặn NAT/4G.`);
+          const inCallText = document.getElementById('inCallNetText');
+          if (inCallText && (pc.iceConnectionState === 'checking')) {
+            showToast('💡 Đang gặp khó khăn kết nối qua 4G/WiFi. Hãy mở Cài đặt ⚙️ → TURN Relay nếu cần kích hoạt máy chủ chuyển tiếp.', 'info');
+          }
+        }
+      }, 8000);
 
       pc.ontrack = (event) => {
         console.log(`[Stream] Nhận luồng media từ ${remoteId}, kind: ${event.track.kind}`);
@@ -3658,7 +3795,10 @@
         try { if (p.pc) p.pc.close(); } catch (e) {}
       });
       activePeers.clear();
-      document.getElementById('remoteAudioContainer').innerHTML = '';
+      const audioCont = document.getElementById('remoteAudioContainer');
+      if (audioCont) {
+        audioCont.querySelectorAll('audio:not(#customMusicAudioElement)').forEach(el => el.remove());
+      }
     }
 
     const cleanupPeerJSMesh = cleanupMeshNetworking;
@@ -4559,7 +4699,7 @@
       }
 
       if (saveTurnBtn) {
-        saveTurnBtn.addEventListener('click', () => {
+        saveTurnBtn.addEventListener('click', async () => {
           const appName = document.getElementById('turnAppNameInput').value.trim();
           const apiKey = document.getElementById('turnApiKeyInput').value.trim();
           const turnUrl = document.getElementById('turnUrlInput') ? document.getElementById('turnUrlInput').value.trim() : '';
@@ -4573,13 +4713,34 @@
 
           const configObj = { appName, apiKey, turnUrl, username, credential };
           localStorage.setItem('leet_turn_config', JSON.stringify(configObj));
-          showToast('Đã lưu cấu hình TURN Relay thành công!', 'success');
-          closeSettingsModal();
+          cachedResolvedIceServers = null; // force reload
+          showToast('Đang kiểm tra và kích hoạt cấu hình TURN...', 'info');
 
-          if (state.inCall) {
-            showToast('Đang áp dụng TURN mới cho cuộc họp...', 'info');
-            cleanupPeerJSMesh();
-            initPeerJSMesh(state.roomCode);
+          try {
+            const newServers = await getIceServersAsync(true);
+            showToast('✅ Đã lưu cấu hình TURN Relay thành công!', 'success');
+            closeSettingsModal();
+
+            if (state.inCall) {
+              const cleanRoom = sanitizeRoomKey(state.roomCode);
+              // Broadcast to all peers in room via MQTT
+              publishMeshEvent(`leet/mesh/v3/${cleanRoom}/all`, {
+                type: 'turn-update',
+                from: myPeerId,
+                iceServers: newServers
+              });
+
+              // Reconfigure all existing active connections
+              activePeers.forEach((p, rId) => {
+                if (p && p.pc) {
+                  try { p.pc.setConfiguration({ iceServers: newServers }); } catch (e) {}
+                  sendOfferToPeer(rId, cleanRoom, true);
+                }
+              });
+              showToast('✦ Đã áp dụng TURN mới và đồng bộ tới toàn bộ phòng họp!', 'success');
+            }
+          } catch (e) {
+            showToast('Đã lưu cấu hình, sẽ áp dụng cho lần kết nối tiếp theo.', 'info');
           }
         });
       }
@@ -4587,6 +4748,7 @@
       if (clearTurnBtn) {
         clearTurnBtn.addEventListener('click', () => {
           localStorage.removeItem('leet_turn_config');
+          cachedResolvedIceServers = null;
           document.getElementById('turnAppNameInput').value = '';
           document.getElementById('turnApiKeyInput').value = '';
           if (document.getElementById('turnUrlInput')) document.getElementById('turnUrlInput').value = '';
@@ -4601,13 +4763,13 @@
         testTurnBtn.addEventListener('click', async () => {
           testResultBox.classList.remove('hidden');
           testResultBox.className = 'p-3 rounded-xl border-2 border-[#1A1A1A] bg-[#FFCE38]/30 text-xs font-bold text-[#1A1A1A]';
-          testResultBox.textContent = '⏳ Đang gửi gói tin kiểm tra tới TURN Relay...';
+          testResultBox.textContent = '⏳ Đang gửi gói tin kiểm tra tới máy chủ TURN Relay...';
 
           try {
-            const servers = await getIceServersAsync();
+            const servers = await getIceServersAsync(true);
             const turnServers = servers.filter(s => {
               const u = Array.isArray(s.urls) ? s.urls : [s.urls];
-              return u.some(url => url && url.startsWith('turn:'));
+              return u.some(url => url && (url.startsWith('turn:') || url.startsWith('turns:')));
             });
 
             if (turnServers.length === 0) {
@@ -4616,7 +4778,11 @@
               return;
             }
 
-            const pc = new RTCPeerConnection({ iceServers: servers });
+            // Force iceTransportPolicy: 'relay' to explicitly probe TURN server allocation
+            const pc = new RTCPeerConnection({
+              iceServers: servers,
+              iceTransportPolicy: 'relay'
+            });
             let relayFound = false;
 
             pc.onicecandidate = (event) => {
@@ -4635,7 +4801,7 @@
             setTimeout(() => {
               if (!relayFound) {
                 testResultBox.className = 'p-3 rounded-xl border-2 border-[#1A1A1A] bg-[#F26B1D]/20 text-[#D92D20] text-xs font-bold';
-                testResultBox.innerHTML = '❌ <strong>KHÔNG NHẬN ĐƯỢC PHẢN HỒI TURN!</strong> Kiểm tra lại App Name & API Key xem có gõ sai hoặc bị quá hạn ngạch không.';
+                testResultBox.innerHTML = '❌ <strong>KHÔNG NHẬN ĐƯỢC PHẢN HỒI TURN!</strong> Kiểm tra lại App Name & API Key xem có gõ sai hoặc hết hạn ngạch không.';
                 try { pc.close(); } catch (e) {}
               }
             }, 6000);
@@ -4643,6 +4809,52 @@
             testResultBox.className = 'p-3 rounded-xl border-2 border-[#1A1A1A] bg-[#F26B1D]/20 text-[#D92D20] text-xs font-bold';
             testResultBox.textContent = '❌ Lỗi: ' + (err.message || err);
           }
+        });
+      }
+
+      // In-call network status pill listener
+      const inCallNetPill = document.getElementById('inCallNetworkStatusPill');
+      if (inCallNetPill) {
+        inCallNetPill.addEventListener('click', () => {
+          openSettingsModal('turn');
+        });
+      }
+
+      // Tile status click listener: if badge mentions TURN, open TURN settings
+      document.addEventListener('click', (e) => {
+        const badge = e.target.closest('.tile-status-badge');
+        if (badge && badge.textContent.includes('TURN')) {
+          openSettingsModal('turn');
+        }
+      });
+
+      // Global Mobile Audio Autoplay Unlocker
+      function unlockAllRemoteAudios() {
+        if (audioContext && audioContext.state === 'suspended') {
+          audioContext.resume().catch(() => {});
+        }
+        const container = document.getElementById('remoteAudioContainer');
+        if (container) {
+          container.querySelectorAll('audio').forEach(a => {
+            if (a.paused && (a.srcObject || a.src)) {
+              a.play().then(() => {
+                const banner = document.getElementById('audioUnlockFloatingBanner');
+                if (banner) banner.classList.add('hidden');
+              }).catch(() => {});
+            }
+          });
+        }
+      }
+
+      window.addEventListener('click', unlockAllRemoteAudios, { passive: true });
+      window.addEventListener('touchstart', unlockAllRemoteAudios, { passive: true });
+      window.addEventListener('keydown', unlockAllRemoteAudios, { passive: true });
+
+      const audioUnlockBanner = document.getElementById('audioUnlockFloatingBanner');
+      if (audioUnlockBanner) {
+        audioUnlockBanner.addEventListener('click', () => {
+          unlockAllRemoteAudios();
+          audioUnlockBanner.classList.add('hidden');
         });
       }
 
@@ -4983,6 +5195,10 @@
       document.getElementById('openDeviceSettingsBtn')?.addEventListener('click', () => {
         SoundFX.playPop();
         openSettingsModal('devices');
+      });
+      document.getElementById('p2pBrokerStatus')?.parentElement?.addEventListener('click', () => {
+        SoundFX.playPop();
+        openSettingsModal('turn');
       });
       document.getElementById('lobbySettingsBtn')?.addEventListener('click', () => {
         SoundFX.playPop();
