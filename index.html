@@ -1127,8 +1127,8 @@
     </div>
   </div>
 
-  <!-- Hidden Audio Container for crystal-clear remote voice and music -->
-  <div id="remoteAudioContainer" class="hidden">
+  <!-- Hidden Audio Container for crystal-clear remote voice and music (Styled off-screen for iOS WebKit audio policy) -->
+  <div id="remoteAudioContainer" style="position:fixed; top:-9999px; left:-9999px; width:1px; height:1px; opacity:0.01; pointer-events:none;">
     <audio id="customMusicAudioElement" loop crossorigin="anonymous"></audio>
   </div>
 
@@ -1190,6 +1190,7 @@
       // Vote Kick Trục xuất thành viên
       activeVoteKick: null
     };
+    window.state = state;
 
     const seenMsgIds = new Set();
     function markAndCheckMsgSeen(msgId) {
@@ -2278,7 +2279,7 @@
             const hasVideo = stream.getVideoTracks().length > 0;
             const hasAudio = stream.getAudioTracks().length > 0;
 
-            if (!hasVideo) {
+            if (!hasVideo && !state.usingSyntheticCam && !forceRealPrompt) {
               state.localUser.camOn = false;
             }
             if (videoEl.srcObject !== stream) {
@@ -2489,9 +2490,11 @@
       }
       if (audioEl.srcObject !== stream) {
         audioEl.srcObject = stream;
-        audioEl.volume = 1.0;
-        audioEl.play().catch(() => {});
       }
+      audioEl.muted = false;
+      audioEl.volume = 1.0;
+      const playP = audioEl.play();
+      if (playP !== undefined) playP.catch(() => {});
     }
 
     function removeRemoteAudioStream(peerId) {
@@ -2556,14 +2559,27 @@
         tile.appendChild(overlayEl);
       }
 
-      const activeStream = peer.isLocal ? state.localStream : peer.remoteStream;
-      const videoTracks = activeStream ? activeStream.getVideoTracks() : [];
-      const hasVideoTrack = videoTracks.length > 0 && videoTracks.some(t => t.readyState === 'live');
+      const peerObj = activePeers.get(peer.id);
+      let activeStream = peer.isLocal ? state.localStream : (peer.remoteStream || (peerObj ? peerObj.remoteStream : null));
+      let videoTracks = activeStream ? activeStream.getVideoTracks() : [];
+      let hasVideoTrack = videoTracks.length > 0 && videoTracks.some(t => t.readyState === 'live');
+
+      if (peer.isLocal && peer.camOn && (!activeStream || !hasVideoTrack)) {
+        state.localStream = createSyntheticCameraStream(state.localUser.name);
+        state.usingSyntheticCam = true;
+        activeStream = state.localStream;
+        videoTracks = activeStream.getVideoTracks();
+        hasVideoTrack = videoTracks.length > 0 && videoTracks.some(t => t.readyState === 'live');
+        if (state.inCall) replaceOutgoingMediaTracks(activeStream);
+      }
+
       const showVideo = Boolean(peer.camOn && activeStream && hasVideoTrack);
 
       if (showVideo) {
         videoEl.classList.remove('hidden');
         videoEl.classList.toggle('video-mirror', Boolean(peer.isLocal && state.cameraFacingMode === 'user'));
+        videoEl.muted = true;
+        videoEl.defaultMuted = true;
         if (videoEl.srcObject !== activeStream) {
           videoEl.srcObject = activeStream;
         }
@@ -2919,6 +2935,7 @@
     let myPeerId = 'leet_' + Math.random().toString(36).substring(2, 9) + '_' + Date.now().toString(36);
     let meshHeartbeatInterval = null;
     const activePeers = new Map(); // remotePeerId -> { id, name, pc, dc, remoteStream, iceQueue, lastSeen }
+    window.activePeers = activePeers;
 
     function sanitizeRoomKey(code) {
       return (code || 'default').toLowerCase().replace(/[^a-z0-9]/g, '').slice(0, 24) || 'leet';
@@ -2929,7 +2946,27 @@
         { urls: 'stun:stun.l.google.com:19302' },
         { urls: 'stun:stun1.l.google.com:19302' },
         { urls: 'stun:stun2.l.google.com:19302' },
-        { urls: 'stun:stun.cloudflare.com:3478' }
+        { urls: 'stun:stun3.l.google.com:19302' },
+        { urls: 'stun:stun4.l.google.com:19302' },
+        { urls: 'stun:stun.cloudflare.com:3478' },
+        { urls: 'stun:openrelay.metered.ca:80' },
+        { urls: 'stun:openrelay.metered.ca:443' },
+        { urls: 'stun:global.relay.metered.ca:80' },
+        { urls: 'stun:stun.relay.metered.ca:80' },
+        { urls: 'stun:stun.relay.metered.ca:443' },
+        // Free Public TURN relay by Open Relay Project (bypasses 4G/LTE Symmetric NAT & strict Wi-Fi firewalls)
+        {
+          urls: [
+            'turn:openrelay.metered.ca:80',
+            'turn:openrelay.metered.ca:443',
+            'turn:openrelay.metered.ca:443?transport=tcp',
+            'turn:openrelay.metered.ca:80?transport=tcp'
+          ],
+          username: 'openrelayproject',
+          credential: 'openrelayproject'
+        },
+        { urls: 'stun:stun.services.mozilla.com:3478' },
+        { urls: 'stun:stun.nextcloud.com:443' }
       ];
 
       try {
@@ -3067,6 +3104,10 @@
             upsertRemoteRealPeer(remoteId, msg);
           } else if (msg.type === 'ping') {
             upsertRemoteRealPeer(remoteId, msg);
+            const curPeer = activePeers.get(remoteId);
+            if (!curPeer || (curPeer.pc && (curPeer.pc.iceConnectionState === 'failed' || curPeer.pc.iceConnectionState === 'closed'))) {
+              getOrCreatePeerConnection(remoteId, msg.name, cleanRoom, msg);
+            }
           } else if (msg.type === 'leave') {
             console.log(`[Mesh] Peer ${remoteId} thông báo rời phòng`);
             removeRemoteRealPeer(remoteId);
@@ -3089,6 +3130,17 @@
             handleRemoteVoteKickCast(msg);
           } else if (msg.type === 'vote-kick-success') {
             handleVoteKickKicked(msg.targetId, msg.targetName);
+          } else if (msg.type === 'music-bot-sync') {
+            if (window.MusicBot) window.MusicBot.handleRemoteSync(msg);
+          } else if (msg.type === 'screen-share') {
+            if (msg.active) {
+              state.screenShareOwnerName = msg.owner || 'Thành viên';
+              state.layoutMode = 'spotlight';
+              state.pinnedId = remoteId;
+            } else {
+              if (state.pinnedId === remoteId) state.pinnedId = null;
+            }
+            renderVideoStage();
           }
         });
 
@@ -3153,13 +3205,22 @@
         });
       }
 
+      // Ensure transceivers for both audio and video exist with bidirectional direction
+      const currentSenders = pc.getSenders();
+      if (!currentSenders.some(s => s.track && s.track.kind === 'audio')) {
+        try { pc.addTransceiver('audio', { direction: 'sendrecv' }); } catch (e) {}
+      }
+      if (!currentSenders.some(s => s.track && s.track.kind === 'video')) {
+        try { pc.addTransceiver('video', { direction: 'sendrecv' }); } catch (e) {}
+      }
+
       pc.onicecandidate = (event) => {
         if (event.candidate) {
           publishMeshEvent(`leet/mesh/v3/${cleanRoom}/p/${remoteId}`, {
             type: 'signal',
             from: myPeerId,
             to: remoteId,
-            candidate: event.candidate
+            candidate: event.candidate.toJSON ? event.candidate.toJSON() : event.candidate
           });
         }
       };
@@ -3170,30 +3231,40 @@
         const statusEl = document.getElementById('p2pBrokerStatus');
         if (st === 'connected' || st === 'completed') {
           if (statusEl) statusEl.textContent = '✦ Đã kết nối P2P · HD Voice';
-        } else if (st === 'disconnected' || st === 'closed' || st === 'failed') {
-          setTimeout(() => {
-            const currentPeer = activePeers.get(remoteId);
-            if (currentPeer && currentPeer.pc && (currentPeer.pc.iceConnectionState === 'disconnected' || currentPeer.pc.iceConnectionState === 'closed' || currentPeer.pc.iceConnectionState === 'failed')) {
-              console.log(`[ICE] Peer ${remoteId} mất kết nối, tự động dọn dẹp...`);
-              removeRemoteRealPeer(remoteId);
-            }
-          }, 1000);
+          if (peerObj.remoteStream) {
+            attachRemoteAudioStream(remoteId, peerObj.remoteStream);
+            renderVideoStage();
+          }
+        } else if (st === 'failed') {
+          console.log(`[ICE] ${remoteId} failed, attempting ICE restart...`);
+          if (isInitiator) {
+            sendOfferToPeer(remoteId, cleanRoom, true);
+          }
+        } else if (st === 'disconnected') {
+          console.log(`[ICE] ${remoteId} disconnected temporarily...`);
         }
       };
 
       pc.ontrack = (event) => {
-        console.log(`[Stream] Nhận luồng media từ ${remoteId}`);
-        const stream = event.streams && event.streams[0] ? event.streams[0] : new MediaStream([event.track]);
-        peerObj.remoteStream = stream;
-        attachRemoteAudioStream(remoteId, stream);
-        upsertRemoteRealPeer(remoteId, { remoteStream: stream, name: peerObj.name });
+        console.log(`[Stream] Nhận luồng media từ ${remoteId}, kind: ${event.track.kind}`);
+        if (!peerObj.remoteStream) {
+          peerObj.remoteStream = new MediaStream();
+        }
+        if (!peerObj.remoteStream.getTracks().some(t => t.id === event.track.id)) {
+          peerObj.remoteStream.addTrack(event.track);
+        }
+        if (event.track.kind === 'audio') {
+          attachRemoteAudioStream(remoteId, peerObj.remoteStream);
+        }
+        upsertRemoteRealPeer(remoteId, { remoteStream: peerObj.remoteStream, name: peerObj.name });
+        renderVideoStage();
 
-        stream.onaddtrack = () => {
-          upsertRemoteRealPeer(remoteId, { remoteStream: stream });
-        };
-        stream.onremovetrack = () => {
+        event.track.onunmute = () => {
+          if (event.track.kind === 'audio') attachRemoteAudioStream(remoteId, peerObj.remoteStream);
           renderVideoStage();
         };
+        event.track.onmute = () => renderVideoStage();
+        event.track.onended = () => renderVideoStage();
       };
 
       if (isInitiator) {
@@ -3201,24 +3272,18 @@
           const dc = pc.createDataChannel('leet_mesh', { ordered: true });
           peerObj.dc = dc;
           setupDataChannel(remoteId, dc);
-
-          pc.onnegotiationneeded = async () => {
-            try {
-              const offer = await pc.createOffer();
-              await pc.setLocalDescription(offer);
-              publishMeshEvent(`leet/mesh/v3/${cleanRoom}/p/${remoteId}`, {
-                type: 'signal',
-                from: myPeerId,
-                to: remoteId,
-                offer: pc.localDescription
-              });
-            } catch (err) {
-              console.warn(`[WebRTC] Lỗi tạo offer tới ${remoteId}:`, err);
-            }
-          };
         } catch (e) {
           console.warn('Lỗi tạo DataChannel:', e);
         }
+
+        pc.onnegotiationneeded = () => {
+          sendOfferToPeer(remoteId, cleanRoom);
+        };
+
+        // Explicitly send initial offer without relying solely on onnegotiationneeded event
+        setTimeout(() => {
+          sendOfferToPeer(remoteId, cleanRoom);
+        }, 60);
       } else {
         pc.ondatachannel = (event) => {
           peerObj.dc = event.channel;
@@ -3234,6 +3299,33 @@
       });
 
       return peerObj;
+    }
+
+    async function sendOfferToPeer(remoteId, cleanRoom, iceRestart = false) {
+      const peerObj = activePeers.get(remoteId);
+      if (!peerObj || !peerObj.pc) return;
+      const pc = peerObj.pc;
+      if (pc.signalingState !== 'stable' && !iceRestart) return;
+      try {
+        peerObj.isMakingOffer = true;
+        const offer = await pc.createOffer({
+          iceRestart,
+          offerToReceiveAudio: true,
+          offerToReceiveVideo: true
+        });
+        if (pc.signalingState !== 'stable' && !iceRestart) return;
+        await pc.setLocalDescription(offer);
+        publishMeshEvent(`leet/mesh/v3/${cleanRoom}/p/${remoteId}`, {
+          type: 'signal',
+          from: myPeerId,
+          to: remoteId,
+          offer: pc.localDescription
+        });
+      } catch (err) {
+        console.warn(`[WebRTC] Lỗi gửi offer tới ${remoteId}:`, err);
+      } finally {
+        peerObj.isMakingOffer = false;
+      }
     }
 
     function setupDataChannel(remoteId, dc) {
@@ -3312,8 +3404,7 @@
       };
 
       dc.onclose = () => {
-        console.log(`[DataChannel] Kênh đóng với ${remoteId}, đang dọn dẹp...`);
-        removeRemoteRealPeer(remoteId);
+        console.log(`[DataChannel] Kênh đóng với ${remoteId}`);
       };
 
       dc.onerror = (err) => {
@@ -3331,8 +3422,18 @@
 
       try {
         if (msg.offer) {
+          const isPolite = myPeerId > remoteId;
+          const offerCollision = (pc.signalingState !== 'stable' || peerObj.isMakingOffer);
+          if (offerCollision) {
+            if (!isPolite) {
+              console.log(`[WebRTC] Glare: Impolite peer ${myPeerId} ignores offer from ${remoteId}`);
+              return;
+            }
+            console.log(`[WebRTC] Glare: Polite peer ${myPeerId} rolls back local offer`);
+            await pc.setLocalDescription({ type: 'rollback' });
+          }
+
           await pc.setRemoteDescription(new RTCSessionDescription(msg.offer));
-          await drainIceCandidateQueue(remoteId, pc);
           const answer = await pc.createAnswer();
           await pc.setLocalDescription(answer);
           publishMeshEvent(`leet/mesh/v3/${cleanRoom}/p/${remoteId}`, {
@@ -3341,12 +3442,19 @@
             to: remoteId,
             answer: pc.localDescription
           });
-        } else if (msg.answer) {
-          await pc.setRemoteDescription(new RTCSessionDescription(msg.answer));
           await drainIceCandidateQueue(remoteId, pc);
+        } else if (msg.answer) {
+          if (pc.signalingState === 'have-local-offer') {
+            await pc.setRemoteDescription(new RTCSessionDescription(msg.answer));
+            await drainIceCandidateQueue(remoteId, pc);
+          }
         } else if (msg.candidate) {
           if (pc.remoteDescription && pc.remoteDescription.type) {
-            await pc.addIceCandidate(new RTCIceCandidate(msg.candidate));
+            try {
+              await pc.addIceCandidate(new RTCIceCandidate(msg.candidate));
+            } catch (e) {
+              console.warn(`[WebRTC] Lỗi addIceCandidate từ ${remoteId}:`, e);
+            }
           } else {
             peerObj.iceQueue.push(msg.candidate);
           }
@@ -3362,7 +3470,9 @@
       while (peerObj.iceQueue.length > 0) {
         const candidate = peerObj.iceQueue.shift();
         try {
-          await pc.addIceCandidate(new RTCIceCandidate(candidate));
+          if (pc.remoteDescription && pc.remoteDescription.type) {
+            await pc.addIceCandidate(new RTCIceCandidate(candidate));
+          }
         } catch (e) {}
       }
     }
@@ -3458,29 +3568,57 @@
       const newVideoTrack = newStream.getVideoTracks()[0];
       const newAudioTrack = newStream.getAudioTracks()[0];
 
+      if (newVideoTrack) newVideoTrack.enabled = state.localUser.camOn;
+      if (newAudioTrack) newAudioTrack.enabled = state.localUser.micOn;
+
       activePeers.forEach((peerObj) => {
         try {
           if (peerObj && peerObj.pc) {
+            let renegotiate = false;
             const senders = peerObj.pc.getSenders();
+
             if (newVideoTrack) {
-              const vSender = senders.find(s => s.track && s.track.kind === 'video');
+              const vSender = senders.find(s => s.track && s.track.kind === 'video') ||
+                              senders.find(s => !s.track);
               if (vSender) {
                 vSender.replaceTrack(newVideoTrack).catch(() => {});
               } else {
-                try { peerObj.pc.addTrack(newVideoTrack, newStream); } catch (e) {}
+                try {
+                  peerObj.pc.addTrack(newVideoTrack, newStream);
+                  renegotiate = true;
+                } catch (e) {}
               }
             }
+
             if (newAudioTrack) {
-              const aSender = senders.find(s => s.track && s.track.kind === 'audio');
+              const aSender = senders.find(s => s.track && s.track.kind === 'audio') ||
+                              senders.find(s => !s.track);
               if (aSender) {
                 aSender.replaceTrack(newAudioTrack).catch(() => {});
               } else {
-                try { peerObj.pc.addTrack(newAudioTrack, newStream); } catch (e) {}
+                try {
+                  peerObj.pc.addTrack(newAudioTrack, newStream);
+                  renegotiate = true;
+                } catch (e) {}
               }
+            }
+
+            if (renegotiate && state.inCall) {
+              sendOfferToPeer(peerObj.id, sanitizeRoomKey(state.roomCode));
             }
           }
         } catch (e) {}
       });
+
+      if (state.inCall) {
+        broadcastRoomEvent({
+          type: 'peer-update',
+          name: state.localUser.name,
+          micOn: state.localUser.micOn,
+          camOn: state.localUser.camOn,
+          handRaised: state.localUser.handRaised
+        });
+      }
     }
 
     function buildInviteUrl(roomCode) {
@@ -4578,15 +4716,66 @@
         animateCopyButton(this, 'ĐÃ CHÉP LINK! ✓');
       });
 
-      function toggleMic() {
+      async function toggleMic() {
         state.localUser.micOn = !state.localUser.micOn;
+        if (state.localUser.micOn) {
+          const aTrack = state.localStream ? state.localStream.getAudioTracks()[0] : null;
+          if (!aTrack) {
+            await initLocalMedia(true);
+          } else {
+            aTrack.enabled = true;
+          }
+        } else {
+          if (state.localStream) {
+            state.localStream.getAudioTracks().forEach(t => t.enabled = false);
+          }
+        }
         SoundFX.playPop();
         updateMediaUI();
+        if (state.inCall) {
+          broadcastRoomEvent({
+            type: 'peer-update',
+            name: state.localUser.name,
+            micOn: state.localUser.micOn,
+            camOn: state.localUser.camOn,
+            handRaised: state.localUser.handRaised
+          });
+        }
       }
-      function toggleCam() {
+
+      async function toggleCam() {
         state.localUser.camOn = !state.localUser.camOn;
+        if (state.localUser.camOn) {
+          let vTrack = state.localStream ? state.localStream.getVideoTracks()[0] : null;
+          if (!vTrack || state.usingSyntheticCam || vTrack.readyState === 'ended') {
+            await initLocalMedia(true);
+            vTrack = state.localStream ? state.localStream.getVideoTracks()[0] : null;
+            if (!vTrack || vTrack.readyState === 'ended') {
+              state.localStream = createSyntheticCameraStream(state.localUser.name);
+              state.usingSyntheticCam = true;
+              state.localUser.camOn = true;
+              if (state.inCall) replaceOutgoingMediaTracks(state.localStream);
+            }
+          } else {
+            vTrack.enabled = true;
+          }
+        } else {
+          if (state.localStream) {
+            state.localStream.getVideoTracks().forEach(t => t.enabled = false);
+          }
+        }
         SoundFX.playPop();
         updateMediaUI();
+        if (state.inCall) {
+          broadcastRoomEvent({
+            type: 'peer-update',
+            name: state.localUser.name,
+            micOn: state.localUser.micOn,
+            camOn: state.localUser.camOn,
+            handRaised: state.localUser.handRaised
+          });
+          renderVideoStage();
+        }
       }
 
       document.getElementById('lobbyToggleMicBtn').addEventListener('click', toggleMic);
@@ -5017,6 +5206,38 @@
 
       document.getElementById('miniDockCloseBtn')?.addEventListener('click', () => {
         document.getElementById('musicBotMiniDock')?.classList.add('hidden');
+      });
+
+      // ==================== GLOBAL USER GESTURE AUDIO UNLOCK (FOR MOBILE & WEBKIT) ====================
+      const unlockUserMediaAudio = () => {
+        try {
+          if (SoundFX && SoundFX.getCtx) {
+            const sCtx = SoundFX.getCtx();
+            if (sCtx && sCtx.state === 'suspended') sCtx.resume().catch(() => {});
+          }
+        } catch (e) {}
+        try {
+          if (window.MusicBot && window.MusicBot.getCtx) {
+            const mCtx = window.MusicBot.getCtx();
+            if (mCtx && mCtx.state === 'suspended') mCtx.resume().catch(() => {});
+          }
+        } catch (e) {}
+        try {
+          if (audioContext && audioContext.state === 'suspended') {
+            audioContext.resume().catch(() => {});
+          }
+        } catch (e) {}
+        try {
+          document.querySelectorAll('#remoteAudioContainer audio').forEach(a => {
+            if (a.paused && a.srcObject) {
+              a.play().catch(() => {});
+            }
+          });
+        } catch (e) {}
+      };
+
+      ['click', 'touchstart', 'touchend', 'keydown'].forEach(evt => {
+        window.addEventListener(evt, unlockUserMediaAudio, { passive: true });
       });
     });
   </script>
