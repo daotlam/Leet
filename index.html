@@ -231,6 +231,29 @@
 
     .no-scrollbar::-webkit-scrollbar { display: none; }
     .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+    /* Music Bot Equalizer Bar Animations */
+    @keyframes eqBar1 {
+      0%, 100% { height: 4px; }
+      50% { height: 14px; }
+    }
+    @keyframes eqBar2 {
+      0%, 100% { height: 13px; }
+      50% { height: 5px; }
+    }
+    @keyframes eqBar3 {
+      0%, 100% { height: 7px; }
+      50% { height: 16px; }
+    }
+    .animate-eq-1 { animation: eqBar1 0.65s ease-in-out infinite; }
+    .animate-eq-2 { animation: eqBar2 0.48s ease-in-out infinite; }
+    .animate-eq-3 { animation: eqBar3 0.82s ease-in-out infinite; }
+
+    @keyframes bounceSlow {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-3px); }
+    }
+    .animate-bounce-slow { animation: bounceSlow 2s ease-in-out infinite; }
   </style>
 </head>
 <body class="min-h-screen flex flex-col tid-page-grid text-[#1A1A1A] select-none">
@@ -420,6 +443,10 @@
             <div class="flex items-center justify-between p-2.5 bg-white rounded-xl border-2 border-[#1A1A1A] shadow-[1.5px_1.5px_0px_#1A1A1A]">
               <span>Cửa sổ nổi PiP</span>
               <kbd class="px-2 py-0.5 bg-[#FFFDF0] rounded border border-[#1A1A1A]">P</kbd>
+            </div>
+            <div class="flex items-center justify-between p-2.5 bg-white rounded-xl border-2 border-[#1A1A1A] shadow-[1.5px_1.5px_0px_#1A1A1A]">
+              <span>Mở Bot Nhạc</span>
+              <kbd class="px-2 py-0.5 bg-[#FFFDF0] rounded border border-[#1A1A1A]">B</kbd>
             </div>
             <div class="flex items-center justify-between p-2.5 bg-white rounded-xl border-2 border-[#1A1A1A] shadow-[1.5px_1.5px_0px_#1A1A1A]">
               <span>Xem cài đặt</span>
@@ -779,6 +806,9 @@
             <button id="tabWhiteboardBtn" type="button" class="flex-1 py-1.5 px-2 rounded-full text-xs font-extrabold text-[#1A1A1A] transition whitespace-nowrap">
               🎨 Bảng vẽ
             </button>
+            <button id="tabMusicBtn" type="button" class="flex-1 py-1.5 px-2 rounded-full text-xs font-extrabold text-[#1A1A1A] transition whitespace-nowrap">
+              🎧 Bot Nhạc
+            </button>
           </div>
           <button id="closeDrawerBtn" type="button" class="neo-btn w-9 h-9 rounded-full bg-[#FFFDF0] text-[#1A1A1A] flex items-center justify-center font-extrabold">
             ✕
@@ -834,6 +864,155 @@
           <!-- Whiteboard Canvas Container with Graph Paper Background -->
           <div class="flex-1 relative overflow-hidden tid-page-grid p-2 flex flex-col">
             <canvas id="whiteboardCanvas" class="w-full h-full flex-1 bg-white neo-card-sm cursor-crosshair touch-none"></canvas>
+          </div>
+        </div>
+
+        <!-- TAB 4: POP-ART LEET DJ MUSIC BOT -->
+        <div id="musicPanel" class="hidden flex-1 flex flex-col min-h-0 bg-[#FFFDF0] overflow-y-auto">
+          <!-- Bot Header / Cassette Card -->
+          <div class="p-3.5 bg-[#FFCE38] border-b-[3px] border-[#1A1A1A] flex flex-col gap-2.5 shrink-0">
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-2">
+                <span class="text-2xl animate-bounce-slow">🎧</span>
+                <div>
+                  <h3 class="font-black text-xs sm:text-sm uppercase tracking-tight text-[#1A1A1A]">LEET STUDY DJ BOT</h3>
+                  <div class="text-[10px] font-bold text-gray-800">Âm nhạc & Soundscape tập trung học tập</div>
+                </div>
+              </div>
+              <span id="musicBotStatusBadge" class="px-2.5 py-0.5 rounded-full bg-white border-2 border-[#1A1A1A] shadow-[1.5px_1.5px_0px_#1A1A1A] text-[10px] font-black uppercase text-gray-600">
+                SẴN SÀNG
+              </span>
+            </div>
+
+            <!-- Cassette Tape Visualizer Screen -->
+            <div class="bg-[#1A1A1A] text-[#FFFDF0] rounded-xl p-3 border-2 border-[#1A1A1A] flex flex-col gap-2 shadow-[2px_2px_0px_rgba(0,0,0,0.3)]">
+              <div class="flex items-center justify-between text-[11px] font-mono text-[#FFCE38]">
+                <span id="musicNowPlayingTitle" class="truncate font-black">☕ Lo-Fi Chill Study Beats</span>
+                <!-- Equalizer animated bars -->
+                <div id="musicVisualizerBars" class="hidden flex items-end gap-0.5 h-3.5 shrink-0 ml-1">
+                  <span class="w-1 bg-[#FFCE38] rounded-full animate-eq-1 h-3"></span>
+                  <span class="w-1 bg-[#F26B1D] rounded-full animate-eq-2 h-2"></span>
+                  <span class="w-1 bg-[#3B66FF] rounded-full animate-eq-3 h-3.5"></span>
+                  <span class="w-1 bg-[#6B8E4E] rounded-full animate-eq-1 h-2"></span>
+                  <span class="w-1 bg-[#FFCE38] rounded-full animate-eq-2 h-3"></span>
+                </div>
+              </div>
+
+              <!-- Controls row -->
+              <div class="flex items-center justify-between pt-1">
+                <div class="flex items-center gap-1.5">
+                  <button id="musicPrevBtn" type="button" class="w-8 h-8 rounded-full bg-[#FFFDF0] hover:bg-[#FFCE38] text-[#1A1A1A] border-2 border-[#1A1A1A] flex items-center justify-center font-black text-xs transition" title="Bài trước">⏮️</button>
+                  <button id="musicPlayPauseBtn" type="button" class="w-10 h-10 rounded-full bg-[#FFCE38] hover:bg-[#ffd859] text-[#1A1A1A] border-2 border-[#1A1A1A] flex items-center justify-center font-black text-sm shadow-[2px_2px_0px_#1A1A1A] transition active:scale-95" title="Phát / Dừng">▶️</button>
+                  <button id="musicNextBtn" type="button" class="w-8 h-8 rounded-full bg-[#FFFDF0] hover:bg-[#FFCE38] text-[#1A1A1A] border-2 border-[#1A1A1A] flex items-center justify-center font-black text-xs transition" title="Bài kế">⏭️</button>
+                  <button id="musicStopBtn" type="button" class="w-8 h-8 rounded-full bg-white hover:bg-gray-200 text-[#1A1A1A] border-2 border-[#1A1A1A] flex items-center justify-center font-black text-xs transition" title="Dừng hoàn toàn">⏹️</button>
+                </div>
+                <div class="flex items-center gap-1.5">
+                  <label for="musicLoopCheck" class="text-[10px] text-gray-400 font-mono cursor-pointer select-none">🔁 Lặp</label>
+                  <input id="musicLoopCheck" type="checkbox" checked class="w-4 h-4 accent-[#FFCE38] cursor-pointer" />
+                </div>
+              </div>
+            </div>
+
+            <!-- Personal Volume Control Slider -->
+            <div class="bg-white rounded-xl p-2.5 border-2 border-[#1A1A1A] shadow-[2px_2px_0px_#1A1A1A] flex items-center gap-2 text-xs">
+              <button id="musicMuteBtn" type="button" class="text-base select-none cursor-pointer" title="Tắt/Bật tiếng cá nhân">🔊</button>
+              <div class="flex-1 flex flex-col">
+                <div class="flex justify-between text-[10px] font-black uppercase text-gray-500">
+                  <span>Âm lượng cá nhân bạn</span>
+                  <span id="musicVolumeLabel">60%</span>
+                </div>
+                <input id="musicVolumeSlider" type="range" min="0" max="100" value="60" class="w-full accent-[#F26B1D] cursor-pointer h-1.5 bg-gray-200 rounded-lg" />
+              </div>
+            </div>
+            
+            <div class="text-[10px] font-bold text-center text-gray-700 bg-white/70 py-1 px-2 rounded-lg border border-[#1A1A1A]">
+              ✦ Thao tác phát nhạc được đồng bộ trực tiếp tới mọi người trong phòng
+            </div>
+          </div>
+
+          <!-- Playlist / Soundscape List -->
+          <div class="p-3.5 flex flex-col gap-2.5">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-black uppercase tracking-wider text-gray-600">Danh sách giai điệu học tập</span>
+              <span class="text-[10px] font-bold text-[#6B8E4E] bg-[#6B8E4E]/15 px-2 py-0.5 rounded-full border border-[#6B8E4E]">5 Soundscapes</span>
+            </div>
+
+            <div id="musicPlaylistContainer" class="flex flex-col gap-2">
+              <!-- Item 1: Lo-Fi Beats -->
+              <button type="button" data-track-id="lofi" class="music-track-item text-left p-2.5 rounded-xl border-2 border-[#1A1A1A] bg-[#FFCE38] shadow-[2px_2px_0px_#1A1A1A] flex items-center justify-between gap-2 transition hover:-translate-y-0.5">
+                <div class="flex items-center gap-2.5 min-w-0">
+                  <span class="text-xl shrink-0">☕</span>
+                  <div class="truncate">
+                    <div class="text-xs font-black truncate text-[#1A1A1A]">Lo-Fi Chill Study Beats</div>
+                    <div class="text-[10px] font-bold text-gray-700">Jazz chords Rhodes · Hiphop chill beat · Vinyl crackle</div>
+                  </div>
+                </div>
+                <span class="track-indicator px-2 py-0.5 rounded-full bg-[#1A1A1A] text-[#FFCE38] text-[10px] font-black shrink-0">▶ ĐANG CHỌN</span>
+              </button>
+
+              <!-- Item 2: Rain Ambience -->
+              <button type="button" data-track-id="rain" class="music-track-item text-left p-2.5 rounded-xl border-2 border-[#1A1A1A] bg-white shadow-[2px_2px_0px_#1A1A1A] flex items-center justify-between gap-2 transition hover:-translate-y-0.5 hover:bg-[#FFFDF0]">
+                <div class="flex items-center gap-2.5 min-w-0">
+                  <span class="text-xl shrink-0">🌧️</span>
+                  <div class="truncate">
+                    <div class="text-xs font-black truncate text-[#1A1A1A]">Mưa Rơi Bên Cửa Sổ & Sấm Xa</div>
+                    <div class="text-[10px] font-bold text-gray-500">Tiếng mưa êm dịu · Sấm rền ấm · Giảm căng thẳng</div>
+                  </div>
+                </div>
+                <span class="track-indicator px-2 py-0.5 rounded-full bg-gray-100 border border-[#1A1A1A] text-[10px] font-black shrink-0">CHỌN</span>
+              </button>
+
+              <!-- Item 3: Peaceful Piano -->
+              <button type="button" data-track-id="piano" class="music-track-item text-left p-2.5 rounded-xl border-2 border-[#1A1A1A] bg-white shadow-[2px_2px_0px_#1A1A1A] flex items-center justify-between gap-2 transition hover:-translate-y-0.5 hover:bg-[#FFFDF0]">
+                <div class="flex items-center gap-2.5 min-w-0">
+                  <span class="text-xl shrink-0">🎹</span>
+                  <div class="truncate">
+                    <div class="text-xs font-black truncate text-[#1A1A1A]">Peaceful Study Piano (Dạ khúc)</div>
+                    <div class="text-[10px] font-bold text-gray-500">Giai điệu piano mộc thanh tĩnh · Không lời sâu lắng</div>
+                  </div>
+                </div>
+                <span class="track-indicator px-2 py-0.5 rounded-full bg-gray-100 border border-[#1A1A1A] text-[10px] font-black shrink-0">CHỌN</span>
+              </button>
+
+              <!-- Item 4: Binaural Alpha Waves -->
+              <button type="button" data-track-id="binaural" class="music-track-item text-left p-2.5 rounded-xl border-2 border-[#1A1A1A] bg-white shadow-[2px_2px_0px_#1A1A1A] flex items-center justify-between gap-2 transition hover:-translate-y-0.5 hover:bg-[#FFFDF0]">
+                <div class="flex items-center gap-2.5 min-w-0">
+                  <span class="text-xl shrink-0">🧠</span>
+                  <div class="truncate">
+                    <div class="text-xs font-black truncate text-[#1A1A1A]">Sóng Não Alpha 10Hz Deep Focus</div>
+                    <div class="text-[10px] font-bold text-gray-500">Tần số kích thích trí nhớ & tập trung đọc sách</div>
+                  </div>
+                </div>
+                <span class="track-indicator px-2 py-0.5 rounded-full bg-gray-100 border border-[#1A1A1A] text-[10px] font-black shrink-0">CHỌN</span>
+              </button>
+
+              <!-- Item 5: Synthwave Dream Study -->
+              <button type="button" data-track-id="synthwave" class="music-track-item text-left p-2.5 rounded-xl border-2 border-[#1A1A1A] bg-white shadow-[2px_2px_0px_#1A1A1A] flex items-center justify-between gap-2 transition hover:-translate-y-0.5 hover:bg-[#FFFDF0]">
+                <div class="flex items-center gap-2.5 min-w-0">
+                  <span class="text-xl shrink-0">🌌</span>
+                  <div class="truncate">
+                    <div class="text-xs font-black truncate text-[#1A1A1A]">Synthwave Retro Dream Study</div>
+                    <div class="text-[10px] font-bold text-gray-500">Giai điệu retro ấm áp · Thích hợp làm đồ án đêm</div>
+                  </div>
+                </div>
+                <span class="track-indicator px-2 py-0.5 rounded-full bg-gray-100 border border-[#1A1A1A] text-[10px] font-black shrink-0">CHỌN</span>
+              </button>
+            </div>
+
+            <!-- Custom Audio Input / File Upload -->
+            <div class="mt-1 bg-white border-2 border-[#1A1A1A] rounded-xl p-3 shadow-[2px_2px_0px_#1A1A1A] flex flex-col gap-2">
+              <span class="text-[11px] font-black uppercase text-gray-600">Phát tệp nhạc riêng của bạn</span>
+              <div class="flex items-center gap-2">
+                <input id="musicFileInput" type="file" accept="audio/*" class="hidden" />
+                <button id="musicUploadBtn" type="button" class="neo-btn flex-1 py-2 px-3 rounded-full bg-[#3B66FF] hover:bg-[#2d52d9] text-white text-[11px] font-black flex items-center justify-center gap-1.5 uppercase">
+                  <span>📂</span><span>Chọn MP3 / WAV từ máy</span>
+                </button>
+              </div>
+              <div class="flex items-center gap-1.5 pt-1">
+                <input id="musicUrlInput" type="text" placeholder="Dán link stream / MP3 trực tuyến..." class="neo-input flex-1 px-3 py-1.5 rounded-full text-[11px] font-bold" />
+                <button id="musicPlayUrlBtn" type="button" class="neo-btn px-3.5 py-1.5 rounded-full bg-[#FFCE38] text-[11px] font-black text-[#1A1A1A]">Phát</button>
+              </div>
+            </div>
           </div>
         </div>
       </aside>
@@ -914,6 +1093,12 @@
 
       <!-- Right Drawer Toggle Buttons -->
       <div class="flex items-center gap-1.5 sm:gap-2">
+        <button id="toggleMusicDrawerBtn" type="button" class="neo-btn px-2.5 sm:px-3 h-11 rounded-full bg-[#FFFDF0] hover:bg-[#FFCE38] text-xs font-extrabold text-[#1A1A1A] flex items-center gap-1.5" title="Bot phát nhạc phòng học">
+          <span>🎧</span>
+          <span class="hidden xl:inline">Bot Nhạc</span>
+          <span id="botPlayingBadge" class="hidden px-1.5 py-0.5 rounded-full bg-[#2E8B57] text-white text-[9px] font-black uppercase animate-pulse">ON</span>
+        </button>
+
         <button id="toggleWhiteboardDrawerBtn" type="button" class="neo-btn px-2.5 sm:px-3 h-11 rounded-full bg-[#FFFDF0] hover:bg-[#FFCE38] text-xs font-extrabold text-[#1A1A1A] flex items-center gap-1" title="Mở bảng vẽ tương tác">
           <span>🎨</span>
           <span class="hidden lg:inline">Bảng vẽ</span>
@@ -930,10 +1115,22 @@
         </button>
       </div>
     </footer>
+
+    <!-- Compact Floating Bot Music Dock (Shown when bot is playing) -->
+    <div id="musicBotMiniDock" class="hidden fixed bottom-24 right-4 z-40 bg-[#FFFDF0] border-[2.5px] border-[#1A1A1A] shadow-[4px_4px_0px_#1A1A1A] rounded-full px-3.5 py-2 flex items-center gap-2.5 text-xs font-extrabold text-[#1A1A1A] animate-view-in select-none">
+      <div class="flex items-center gap-2 cursor-pointer" id="miniDockOpenDrawerBtn">
+        <span class="animate-bounce-slow text-base">🎧</span>
+        <span id="miniDockTrackTitle" class="truncate max-w-[150px] sm:max-w-[220px] font-black hover:underline">Lo-Fi Chill Study Beats</span>
+      </div>
+      <button id="miniDockPlayPauseBtn" type="button" class="w-7 h-7 rounded-full bg-[#FFCE38] hover:bg-[#ffd859] border border-[#1A1A1A] flex items-center justify-center font-black text-xs transition" title="Tạm dừng / Tiếp tục">⏸️</button>
+      <button id="miniDockCloseBtn" type="button" class="w-6 h-6 rounded-full hover:bg-gray-200 text-gray-500 hover:text-black flex items-center justify-center text-xs font-black transition" title="Ẩn thanh nổi">✕</button>
+    </div>
   </div>
 
-  <!-- Hidden Audio Container for crystal-clear remote voice -->
-  <div id="remoteAudioContainer" class="hidden"></div>
+  <!-- Hidden Audio Container for crystal-clear remote voice and music -->
+  <div id="remoteAudioContainer" class="hidden">
+    <audio id="customMusicAudioElement" loop crossorigin="anonymous"></audio>
+  </div>
 
   <script>
     // ==================== STATE & TID POP-ART PALETTE ====================
@@ -1233,6 +1430,626 @@
         });
       }
     };
+
+    // ==================== POP-ART LEET DJ MUSIC BOT ENGINE ====================
+    const MusicBot = {
+      ctx: null,
+      masterGain: null,
+      volume: 0.6,
+      isMuted: false,
+      isPlaying: false,
+      currentTrackId: 'lofi',
+      loop: true,
+      activeNodes: [],
+      scheduledInterval: null,
+      sourceType: 'synth', // 'synth', 'file', 'url'
+      customUrl: '',
+      customFileName: '',
+
+      tracks: [
+        { id: 'lofi', emoji: '☕', name: 'Lo-Fi Chill Study Beats', desc: 'Jazz chords Rhodes · Hiphop chill beat · Vinyl crackle', type: 'synth' },
+        { id: 'rain', emoji: '🌧️', name: 'Mưa Rơi Bên Cửa Sổ & Sấm Xa', desc: 'Tiếng mưa êm dịu · Sấm rền ấm · Giảm căng thẳng', type: 'synth' },
+        { id: 'piano', emoji: '🎹', name: 'Peaceful Study Piano (Dạ khúc)', desc: 'Giai điệu piano mộc thanh tĩnh · Không lời sâu lắng', type: 'synth' },
+        { id: 'binaural', emoji: '🧠', name: 'Sóng Não Alpha 10Hz Deep Focus', desc: 'Tần số kích thích trí nhớ & tập trung đọc sách', type: 'synth' },
+        { id: 'synthwave', emoji: '🌌', name: 'Synthwave Retro Dream Study', desc: 'Giai điệu retro ấm áp · Thích hợp làm đồ án đêm', type: 'synth' }
+      ],
+
+      init() {
+        try {
+          const savedVol = localStorage.getItem('leet_music_volume');
+          if (savedVol !== null) this.volume = parseFloat(savedVol);
+          const savedMuted = localStorage.getItem('leet_music_muted');
+          if (savedMuted !== null) this.isMuted = savedMuted === 'true';
+        } catch (e) {}
+        this.updateVolumeUI();
+      },
+
+      getCtx() {
+        if (!this.ctx) {
+          const AudioCtx = window.AudioContext || window.webkitAudioContext;
+          if (AudioCtx) {
+            this.ctx = new AudioCtx();
+            this.masterGain = this.ctx.createGain();
+            this.masterGain.connect(this.ctx.destination);
+            this.applyVolume();
+          }
+        }
+        if (this.ctx && this.ctx.state === 'suspended') {
+          this.ctx.resume().catch(() => {});
+        }
+        return this.ctx;
+      },
+
+      applyVolume() {
+        if (!this.masterGain || !this.ctx) return;
+        const actualVol = this.isMuted ? 0 : this.volume;
+        this.masterGain.gain.setValueAtTime(actualVol, this.ctx.currentTime);
+        const audioEl = document.getElementById('customMusicAudioElement');
+        if (audioEl) audioEl.volume = actualVol;
+      },
+
+      setVolume(val) {
+        this.volume = Math.max(0, Math.min(1, val));
+        try { localStorage.setItem('leet_music_volume', String(this.volume)); } catch (e) {}
+        if (this.isMuted && this.volume > 0) {
+          this.isMuted = false;
+          try { localStorage.setItem('leet_music_muted', 'false'); } catch (e) {}
+        }
+        this.applyVolume();
+        this.updateVolumeUI();
+      },
+
+      toggleMute() {
+        this.isMuted = !this.isMuted;
+        try { localStorage.setItem('leet_music_muted', String(this.isMuted)); } catch (e) {}
+        this.applyVolume();
+        this.updateVolumeUI();
+      },
+
+      updateVolumeUI() {
+        const slider = document.getElementById('musicVolumeSlider');
+        const label = document.getElementById('musicVolumeLabel');
+        const muteBtn = document.getElementById('musicMuteBtn');
+        if (slider) slider.value = Math.round(this.volume * 100);
+        if (label) label.textContent = this.isMuted ? 'Tắt tiếng' : `${Math.round(this.volume * 100)}%`;
+        if (muteBtn) muteBtn.textContent = this.isMuted || this.volume === 0 ? '🔇' : '🔊';
+      },
+
+      getCurrentTrackTitle() {
+        if (this.sourceType === 'file') return `📁 ${this.customFileName || 'Tệp âm thanh tải lên'}`;
+        if (this.sourceType === 'url') return '🔗 Luồng nhạc trực tuyến';
+        const t = this.tracks.find(x => x.id === this.currentTrackId);
+        return t ? `${t.emoji} ${t.name}` : '☕ Lo-Fi Chill Study Beats';
+      },
+
+      playTrack(trackId, isRemote = false, options = {}) {
+        this.getCtx();
+        this.stopCurrentAudio();
+
+        this.currentTrackId = trackId;
+        this.sourceType = options.sourceType || 'synth';
+        this.customUrl = options.url || '';
+        this.customFileName = options.fileName || '';
+        this.isPlaying = true;
+
+        if (this.sourceType === 'synth') {
+          if (trackId === 'lofi') this.startLoFiSynth();
+          else if (trackId === 'rain') this.startRainSynth();
+          else if (trackId === 'piano') this.startPianoSynth();
+          else if (trackId === 'binaural') this.startBinauralSynth();
+          else if (trackId === 'synthwave') this.startSynthwaveSynth();
+          else this.startLoFiSynth();
+        } else if (this.sourceType === 'url' || this.sourceType === 'file') {
+          this.startCustomAudio(options.url || this.customUrl);
+        }
+
+        this.updatePlayerUI();
+
+        if (!isRemote) {
+          broadcastRoomEvent({
+            type: 'music-bot-sync',
+            action: 'play',
+            trackId: this.currentTrackId,
+            sourceType: this.sourceType,
+            url: this.sourceType === 'url' ? this.customUrl : '',
+            fileName: this.customFileName,
+            sender: state.localUser.name
+          });
+          const title = this.getCurrentTrackTitle();
+          showToast(`🎧 Đang phát: ${title}`, 'success');
+        }
+      },
+
+      pause(isRemote = false) {
+        if (!this.isPlaying) return;
+        this.isPlaying = false;
+        this.stopCurrentAudio();
+        this.updatePlayerUI();
+
+        if (!isRemote) {
+          broadcastRoomEvent({
+            type: 'music-bot-sync',
+            action: 'pause',
+            sender: state.localUser.name
+          });
+          showToast('⏸️ Bot nhạc đã tạm dừng', 'info');
+        }
+      },
+
+      resume(isRemote = false) {
+        if (this.isPlaying) return;
+        this.playTrack(this.currentTrackId, isRemote, {
+          sourceType: this.sourceType,
+          url: this.customUrl,
+          fileName: this.customFileName
+        });
+      },
+
+      stop(isRemote = false) {
+        this.isPlaying = false;
+        this.stopCurrentAudio();
+        this.updatePlayerUI();
+
+        if (!isRemote) {
+          broadcastRoomEvent({
+            type: 'music-bot-sync',
+            action: 'stop',
+            sender: state.localUser.name
+          });
+          showToast('⏹️ Đã dừng phát nhạc', 'info');
+        }
+      },
+
+      nextTrack() {
+        const curIndex = this.tracks.findIndex(t => t.id === this.currentTrackId);
+        const nextIndex = (curIndex + 1) % this.tracks.length;
+        this.playTrack(this.tracks[nextIndex].id, false, { sourceType: 'synth' });
+      },
+
+      prevTrack() {
+        const curIndex = this.tracks.findIndex(t => t.id === this.currentTrackId);
+        const prevIndex = (curIndex - 1 + this.tracks.length) % this.tracks.length;
+        this.playTrack(this.tracks[prevIndex].id, false, { sourceType: 'synth' });
+      },
+
+      stopCurrentAudio() {
+        if (this.scheduledInterval) {
+          clearInterval(this.scheduledInterval);
+          this.scheduledInterval = null;
+        }
+        this.activeNodes.forEach(node => {
+          try {
+            if (node.stop) node.stop();
+            if (node.disconnect) node.disconnect();
+          } catch (e) {}
+        });
+        this.activeNodes = [];
+
+        const audioEl = document.getElementById('customMusicAudioElement');
+        if (audioEl) {
+          try {
+            audioEl.pause();
+            audioEl.currentTime = 0;
+          } catch (e) {}
+        }
+      },
+
+      updatePlayerUI() {
+        const titleEl = document.getElementById('musicNowPlayingTitle');
+        const badge = document.getElementById('musicBotStatusBadge');
+        const playBtn = document.getElementById('musicPlayPauseBtn');
+        const miniDock = document.getElementById('musicBotMiniDock');
+        const miniDockTitle = document.getElementById('miniDockTrackTitle');
+        const miniDockBtn = document.getElementById('miniDockPlayPauseBtn');
+        const botPlayingBadge = document.getElementById('botPlayingBadge');
+        const visualizer = document.getElementById('musicVisualizerBars');
+
+        const trackTitle = this.getCurrentTrackTitle();
+
+        if (titleEl) titleEl.textContent = trackTitle;
+        if (miniDockTitle) miniDockTitle.textContent = trackTitle;
+
+        if (this.isPlaying) {
+          if (badge) {
+            badge.textContent = 'ĐANG PHÁT';
+            badge.className = 'px-2.5 py-0.5 rounded-full bg-[#2E8B57] text-white border-2 border-[#1A1A1A] shadow-[1.5px_1.5px_0px_#1A1A1A] text-[10px] font-black uppercase animate-pulse';
+          }
+          if (playBtn) playBtn.textContent = '⏸️';
+          if (miniDockBtn) miniDockBtn.textContent = '⏸️';
+          if (botPlayingBadge) botPlayingBadge.classList.remove('hidden');
+          if (visualizer) visualizer.classList.remove('hidden');
+          if (miniDock && state.inCall) miniDock.classList.remove('hidden');
+        } else {
+          if (badge) {
+            badge.textContent = 'TẠM DỪNG';
+            badge.className = 'px-2.5 py-0.5 rounded-full bg-white text-gray-700 border-2 border-[#1A1A1A] shadow-[1.5px_1.5px_0px_#1A1A1A] text-[10px] font-black uppercase';
+          }
+          if (playBtn) playBtn.textContent = '▶️';
+          if (miniDockBtn) miniDockBtn.textContent = '▶️';
+          if (botPlayingBadge) botPlayingBadge.classList.add('hidden');
+          if (visualizer) visualizer.classList.add('hidden');
+        }
+
+        // Highlight active track item in playlist
+        document.querySelectorAll('.music-track-item').forEach(item => {
+          const tId = item.getAttribute('data-track-id');
+          const indicator = item.querySelector('.track-indicator');
+          const isCurrent = this.sourceType === 'synth' && tId === this.currentTrackId;
+
+          if (isCurrent) {
+            item.classList.remove('bg-white');
+            item.classList.add('bg-[#FFCE38]');
+            if (indicator) {
+              indicator.textContent = this.isPlaying ? '▶ ĐANG PHÁT' : '⏸ TẠM DỪNG';
+              indicator.className = 'track-indicator px-2 py-0.5 rounded-full bg-[#1A1A1A] text-[#FFCE38] text-[10px] font-black shrink-0';
+            }
+          } else {
+            item.classList.remove('bg-[#FFCE38]');
+            item.classList.add('bg-white');
+            if (indicator) {
+              indicator.textContent = 'CHỌN';
+              indicator.className = 'track-indicator px-2 py-0.5 rounded-full bg-gray-100 border border-[#1A1A1A] text-[10px] font-black shrink-0';
+            }
+          }
+        });
+
+        // Also refresh participant list if in meeting
+        if (state.inCall) {
+          renderParticipantsList();
+        }
+      },
+
+      handleRemoteSync(msg) {
+        if (!msg) return;
+        if (msg.action === 'play') {
+          this.playTrack(msg.trackId || 'lofi', true, {
+            sourceType: msg.sourceType || 'synth',
+            url: msg.url || '',
+            fileName: msg.fileName || ''
+          });
+          if (msg.sender && msg.sender !== state.localUser.name) {
+            showToast(`🎧 ${msg.sender} đã bật "${this.getCurrentTrackTitle()}"`, 'info');
+          }
+        } else if (msg.action === 'pause') {
+          this.pause(true);
+          if (msg.sender && msg.sender !== state.localUser.name) {
+            showToast(`⏸️ ${msg.sender} đã tạm dừng nhạc`, 'info');
+          }
+        } else if (msg.action === 'stop') {
+          this.stop(true);
+        }
+      },
+
+      // --- PROCEDURAL AUDIO SYNTHESIZERS ---
+      startLoFiSynth() {
+        const ctx = this.getCtx();
+        if (!ctx) return;
+
+        // Vinyl crackle noise
+        try {
+          const bufferSize = ctx.sampleRate * 2;
+          const noiseBuffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+          const output = noiseBuffer.getChannelData(0);
+          for (let i = 0; i < bufferSize; i++) {
+            const white = Math.random() * 2 - 1;
+            const crackle = Math.random() > 0.998 ? (Math.random() * 2 - 1) * 2.5 : 0;
+            output[i] = white * 0.08 + crackle;
+          }
+          const whiteNoise = ctx.createBufferSource();
+          whiteNoise.buffer = noiseBuffer;
+          whiteNoise.loop = true;
+
+          const filter = ctx.createBiquadFilter();
+          filter.type = 'bandpass';
+          filter.frequency.value = 2200;
+          filter.Q.value = 0.8;
+
+          const gain = ctx.createGain();
+          gain.gain.value = 0.09;
+
+          whiteNoise.connect(filter);
+          filter.connect(gain);
+          gain.connect(this.masterGain);
+          whiteNoise.start();
+
+          this.activeNodes.push(whiteNoise, filter, gain);
+        } catch (e) {}
+
+        // Chords sequence: Fmaj7 -> Em7 -> Dm7 -> Cmaj7
+        const chords = [
+          [174.61, 220.00, 261.63, 329.63], // Fmaj7
+          [164.81, 196.00, 246.94, 293.66], // Em7
+          [146.83, 174.61, 220.00, 261.63], // Dm7
+          [130.81, 164.81, 196.00, 246.94]  // Cmaj7
+        ];
+        let chordIndex = 0;
+
+        const playMeasure = () => {
+          if (!this.isPlaying || this.currentTrackId !== 'lofi') return;
+          const now = ctx.currentTime;
+          const currentChord = chords[chordIndex];
+          chordIndex = (chordIndex + 1) % chords.length;
+
+          // Warm electric piano chord
+          currentChord.forEach((freq, idx) => {
+            const osc = ctx.createOscillator();
+            const noteGain = ctx.createGain();
+            const noteFilter = ctx.createBiquadFilter();
+
+            osc.type = idx % 2 === 0 ? 'sine' : 'triangle';
+            osc.frequency.setValueAtTime(freq, now + idx * 0.035);
+
+            noteFilter.type = 'lowpass';
+            noteFilter.frequency.setValueAtTime(800, now);
+
+            // Mellow ADSR envelope
+            noteGain.gain.setValueAtTime(0.001, now + idx * 0.035);
+            noteGain.gain.linearRampToValueAtTime(0.08, now + idx * 0.035 + 0.06);
+            noteGain.gain.exponentialRampToValueAtTime(0.001, now + 3.8);
+
+            osc.connect(noteFilter);
+            noteFilter.connect(noteGain);
+            noteGain.connect(this.masterGain);
+
+            osc.start(now + idx * 0.035);
+            osc.stop(now + 4.0);
+          });
+
+          // Soft Lo-Fi Kick & Snare drum rhythm over 4 seconds
+          [0, 2.0].forEach(offset => {
+            // Kick on beat 1
+            const kickOsc = ctx.createOscillator();
+            const kickGain = ctx.createGain();
+            kickOsc.frequency.setValueAtTime(95, now + offset);
+            kickOsc.frequency.exponentialRampToValueAtTime(38, now + offset + 0.18);
+            kickGain.gain.setValueAtTime(0.35, now + offset);
+            kickGain.gain.exponentialRampToValueAtTime(0.001, now + offset + 0.22);
+            kickOsc.connect(kickGain);
+            kickGain.connect(this.masterGain);
+            kickOsc.start(now + offset);
+            kickOsc.stop(now + offset + 0.25);
+
+            // Snare on beat 2 (offset + 1.0s)
+            const snareOsc = ctx.createOscillator();
+            const snareGain = ctx.createGain();
+            snareOsc.type = 'triangle';
+            snareOsc.frequency.setValueAtTime(160, now + offset + 1.0);
+            snareOsc.frequency.exponentialRampToValueAtTime(80, now + offset + 1.0 + 0.1);
+            snareGain.gain.setValueAtTime(0.18, now + offset + 1.0);
+            snareGain.gain.exponentialRampToValueAtTime(0.001, now + offset + 1.0 + 0.12);
+            snareOsc.connect(snareGain);
+            snareGain.connect(this.masterGain);
+            snareOsc.start(now + offset + 1.0);
+            snareOsc.stop(now + offset + 1.0 + 0.15);
+          });
+        };
+
+        playMeasure();
+        this.scheduledInterval = setInterval(playMeasure, 4000);
+      },
+
+      startRainSynth() {
+        const ctx = this.getCtx();
+        if (!ctx) return;
+
+        // Continuous pink noise bed for rain
+        try {
+          const bufferSize = ctx.sampleRate * 3;
+          const noiseBuffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+          const output = noiseBuffer.getChannelData(0);
+          let b0 = 0, b1 = 0, b2 = 0;
+          for (let i = 0; i < bufferSize; i++) {
+            const white = Math.random() * 2 - 1;
+            b0 = 0.99886 * b0 + white * 0.0555179;
+            b1 = 0.99332 * b1 + white * 0.0750759;
+            b2 = 0.96900 * b2 + white * 0.1538520;
+            output[i] = (b0 + b1 + b2 + white * 0.05) * 0.25;
+          }
+          const rainSource = ctx.createBufferSource();
+          rainSource.buffer = noiseBuffer;
+          rainSource.loop = true;
+
+          const rainFilter = ctx.createBiquadFilter();
+          rainFilter.type = 'lowpass';
+          rainFilter.frequency.value = 650;
+
+          const rainGain = ctx.createGain();
+          rainGain.gain.value = 0.38;
+
+          rainSource.connect(rainFilter);
+          rainFilter.connect(rainGain);
+          rainGain.connect(this.masterGain);
+          rainSource.start();
+
+          this.activeNodes.push(rainSource, rainFilter, rainGain);
+        } catch (e) {}
+
+        // Sporadic raindrops & occasional distant thunder
+        const rainTick = () => {
+          if (!this.isPlaying || this.currentTrackId !== 'rain') return;
+          const now = ctx.currentTime;
+
+          // Raindrop ping
+          const dropOsc = ctx.createOscillator();
+          const dropGain = ctx.createGain();
+          const freq = 800 + Math.random() * 700;
+          dropOsc.type = 'sine';
+          dropOsc.frequency.setValueAtTime(freq, now);
+          dropOsc.frequency.exponentialRampToValueAtTime(freq * 0.7, now + 0.035);
+
+          dropGain.gain.setValueAtTime(0.04, now);
+          dropGain.gain.exponentialRampToValueAtTime(0.001, now + 0.04);
+
+          dropOsc.connect(dropGain);
+          dropGain.connect(this.masterGain);
+          dropOsc.start(now);
+          dropOsc.stop(now + 0.05);
+
+          // 2% chance of soft distant thunder rumble
+          if (Math.random() < 0.03) {
+            const thunOsc = ctx.createOscillator();
+            const thunGain = ctx.createGain();
+            thunOsc.type = 'sine';
+            thunOsc.frequency.setValueAtTime(60, now);
+            thunOsc.frequency.linearRampToValueAtTime(35, now + 3.0);
+            thunGain.gain.setValueAtTime(0.001, now);
+            thunGain.gain.linearRampToValueAtTime(0.2, now + 0.8);
+            thunGain.gain.exponentialRampToValueAtTime(0.001, now + 3.5);
+            thunOsc.connect(thunGain);
+            thunGain.connect(this.masterGain);
+            thunOsc.start(now);
+            thunOsc.stop(now + 3.6);
+          }
+        };
+
+        this.scheduledInterval = setInterval(rainTick, 280);
+      },
+
+      startPianoSynth() {
+        const ctx = this.getCtx();
+        if (!ctx) return;
+
+        const notes = [261.63, 293.66, 329.63, 392.00, 440.00, 523.25, 659.25, 783.99];
+        let step = 0;
+
+        const pianoTick = () => {
+          if (!this.isPlaying || this.currentTrackId !== 'piano') return;
+          const now = ctx.currentTime;
+          const noteIndex = (step * 3) % notes.length;
+          const freq = notes[noteIndex];
+          step++;
+
+          const osc = ctx.createOscillator();
+          const filter = ctx.createBiquadFilter();
+          const noteGain = ctx.createGain();
+
+          osc.type = 'triangle';
+          osc.frequency.setValueAtTime(freq, now);
+
+          filter.type = 'lowpass';
+          filter.frequency.setValueAtTime(1400, now);
+          filter.frequency.exponentialRampToValueAtTime(300, now + 2.0);
+
+          noteGain.gain.setValueAtTime(0.001, now);
+          noteGain.gain.linearRampToValueAtTime(0.14, now + 0.02);
+          noteGain.gain.exponentialRampToValueAtTime(0.001, now + 2.2);
+
+          osc.connect(filter);
+          filter.connect(noteGain);
+          noteGain.connect(this.masterGain);
+
+          osc.start(now);
+          osc.stop(now + 2.3);
+        };
+
+        pianoTick();
+        this.scheduledInterval = setInterval(pianoTick, 1100);
+      },
+
+      startBinauralSynth() {
+        const ctx = this.getCtx();
+        if (!ctx) return;
+
+        const now = ctx.currentTime;
+
+        const oscL = ctx.createOscillator();
+        const panL = ctx.createStereoPanner ? ctx.createStereoPanner() : ctx.createGain();
+        const gainL = ctx.createGain();
+        oscL.type = 'sine';
+        oscL.frequency.setValueAtTime(210, now);
+        if (panL.pan) panL.pan.setValueAtTime(-0.85, now);
+        gainL.gain.setValueAtTime(0.16, now);
+
+        oscL.connect(panL);
+        panL.connect(gainL);
+        gainL.connect(this.masterGain);
+        oscL.start();
+
+        const oscR = ctx.createOscillator();
+        const panR = ctx.createStereoPanner ? ctx.createStereoPanner() : ctx.createGain();
+        const gainR = ctx.createGain();
+        oscR.type = 'sine';
+        oscR.frequency.setValueAtTime(220, now);
+        if (panR.pan) panR.pan.setValueAtTime(0.85, now);
+        gainR.gain.setValueAtTime(0.16, now);
+
+        oscR.connect(panR);
+        panR.connect(gainR);
+        gainR.connect(this.masterGain);
+        oscR.start();
+
+        const drone = ctx.createOscillator();
+        const droneFilter = ctx.createBiquadFilter();
+        const droneGain = ctx.createGain();
+        drone.type = 'triangle';
+        drone.frequency.setValueAtTime(110, now);
+        droneFilter.type = 'lowpass';
+        droneFilter.frequency.setValueAtTime(280, now);
+        droneGain.gain.setValueAtTime(0.1, now);
+
+        drone.connect(droneFilter);
+        droneFilter.connect(droneGain);
+        droneGain.connect(this.masterGain);
+        drone.start();
+
+        this.activeNodes.push(oscL, panL, gainL, oscR, panR, gainR, drone, droneFilter, droneGain);
+      },
+
+      startSynthwaveSynth() {
+        const ctx = this.getCtx();
+        if (!ctx) return;
+
+        const bassNotes = [65.41, 130.81, 98.00, 116.54, 87.31, 130.81, 116.54, 98.00];
+        let noteIdx = 0;
+
+        const synthTick = () => {
+          if (!this.isPlaying || this.currentTrackId !== 'synthwave') return;
+          const now = ctx.currentTime;
+          const freq = bassNotes[noteIdx];
+          noteIdx = (noteIdx + 1) % bassNotes.length;
+
+          const osc = ctx.createOscillator();
+          const filter = ctx.createBiquadFilter();
+          const gain = ctx.createGain();
+
+          osc.type = 'sawtooth';
+          osc.frequency.setValueAtTime(freq, now);
+
+          filter.type = 'lowpass';
+          filter.frequency.setValueAtTime(450, now);
+          filter.Q.value = 3.5;
+
+          gain.gain.setValueAtTime(0.12, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.28);
+
+          osc.connect(filter);
+          filter.connect(gain);
+          gain.connect(this.masterGain);
+
+          osc.start(now);
+          osc.stop(now + 0.3);
+        };
+
+        synthTick();
+        this.scheduledInterval = setInterval(synthTick, 300);
+      },
+
+      startCustomAudio(src) {
+        const audioEl = document.getElementById('customMusicAudioElement');
+        if (!audioEl || !src) return;
+        try {
+          audioEl.src = src;
+          audioEl.loop = this.loop;
+          audioEl.volume = this.isMuted ? 0 : this.volume;
+          audioEl.play().catch(e => {
+            console.warn('Không thể phát custom audio:', e);
+          });
+        } catch (e) {
+          console.warn('Lỗi Audio:', e);
+        }
+      }
+    };
+    window.MusicBot = MusicBot;
 
     // ==================== POP-ART CONFETTI BURST ====================
     function triggerConfettiBurst(originX, originY) {
@@ -1951,6 +2768,42 @@
         container.appendChild(row);
       });
 
+      // Virtual LEET DJ BOT participant card
+      const botRow = document.createElement('div');
+      botRow.className = 'neo-card-sm flex items-center justify-between p-3 bg-[#FFCE38]/20 border-2 border-dashed border-[#1A1A1A]';
+      const isBotPlaying = Boolean(window.MusicBot && window.MusicBot.isPlaying);
+      const curTrackTitle = (window.MusicBot && window.MusicBot.currentTrackId) ? window.MusicBot.getCurrentTrackTitle() : 'Đang tạm dừng';
+      botRow.innerHTML = `
+        <div class="flex items-center gap-2.5 min-w-0">
+          <div class="w-10 h-10 rounded-xl border-2 border-[#1A1A1A] shadow-[2px_2px_0px_#1A1A1A] flex items-center justify-center text-lg bg-[#FFCE38] shrink-0">
+            🎧
+          </div>
+          <div class="min-w-0">
+            <div class="text-xs font-black text-[#1A1A1A] truncate flex items-center gap-1.5">
+              <span>LEET DJ BOT</span>
+              <span class="px-1.5 py-0.5 bg-[#6B8E4E] text-white text-[9px] font-black rounded border border-[#1A1A1A]">AI BOT</span>
+            </div>
+            <div class="text-[11px] font-bold text-gray-600 truncate flex items-center gap-1">
+              <span class="w-2 h-2 rounded-full ${isBotPlaying ? 'bg-green-500 animate-ping' : 'bg-gray-400'} shrink-0"></span>
+              <span class="truncate">${isBotPlaying ? curTrackTitle : 'Đang tạm dừng'}</span>
+            </div>
+          </div>
+        </div>
+        <div class="flex items-center gap-1.5 shrink-0">
+          <button type="button" class="bot-card-action-btn neo-btn px-2.5 py-1 rounded-full bg-[#FFFDF0] hover:bg-[#FFCE38] text-[#1A1A1A] text-xs font-extrabold shadow-[2px_2px_0px_#1A1A1A] transition-colors" title="Mở bot nhạc">
+            ${isBotPlaying ? '🎵 Xem' : '▶ Bật'}
+          </button>
+        </div>
+      `;
+      const botBtn = botRow.querySelector('.bot-card-action-btn');
+      if (botBtn) {
+        botBtn.onclick = (e) => {
+          e.stopPropagation();
+          openDrawer('music');
+        };
+      }
+      container.appendChild(botRow);
+
       container.querySelectorAll('.drawer-kick-btn').forEach(btn => {
         btn.onclick = (e) => {
           e.stopPropagation();
@@ -2034,6 +2887,8 @@
         handleRemoteVoteKickCast(data);
       } else if (data.type === 'vote-kick-success') {
         handleVoteKickKicked(data.targetId, data.targetName);
+      } else if (data.type === 'music-bot-sync') {
+        if (window.MusicBot) window.MusicBot.handleRemoteSync(data);
       }
     }
 
@@ -2395,6 +3250,21 @@
             handRaised: state.localUser.handRaised
           }));
         } catch (e) {}
+
+        // If music bot is playing, sync state to newcomer
+        try {
+          if (window.MusicBot && window.MusicBot.isPlaying && window.MusicBot.currentTrackId) {
+            dc.send(JSON.stringify({
+              type: 'music-bot-sync',
+              action: 'play',
+              trackId: window.MusicBot.currentTrackId,
+              sourceType: window.MusicBot.sourceType,
+              url: window.MusicBot.sourceType === 'url' ? window.MusicBot.customUrl : '',
+              fileName: window.MusicBot.customFileName,
+              sender: state.localUser.name
+            }));
+          }
+        } catch (e) {}
       };
 
       dc.onmessage = (e) => {
@@ -2427,6 +3297,8 @@
           handleRemoteVoteKickCast(msg);
         } else if (msg.type === 'vote-kick-success') {
           handleVoteKickKicked(msg.targetId, msg.targetName);
+        } else if (msg.type === 'music-bot-sync') {
+          if (window.MusicBot) window.MusicBot.handleRemoteSync(msg);
         } else if (msg.type === 'screen-share') {
           if (msg.active) {
             state.screenShareOwnerName = msg.owner || 'Thành viên';
@@ -2706,6 +3578,11 @@
     function leaveMeeting() {
       SoundFX.playLeave();
       closeVoteKickDialog();
+      if (window.MusicBot) {
+        window.MusicBot.stop(true);
+        const miniDock = document.getElementById('musicBotMiniDock');
+        if (miniDock) miniDock.classList.add('hidden');
+      }
       if (state.isRecording) stopMeetingRecording();
       if (state.isScreenSharing) stopScreenShare();
       cleanupPeerJSMesh();
@@ -3841,10 +4718,13 @@
         const isPeople = tab === 'participants';
         const isChat = tab === 'chat';
         const isWhiteboard = tab === 'whiteboard';
+        const isMusic = tab === 'music';
 
         document.getElementById('participantsPanel').classList.toggle('hidden', !isPeople);
         document.getElementById('chatPanel').classList.toggle('hidden', !isChat);
         document.getElementById('whiteboardPanel').classList.toggle('hidden', !isWhiteboard);
+        const musicPanel = document.getElementById('musicPanel');
+        if (musicPanel) musicPanel.classList.toggle('hidden', !isMusic);
 
         document.getElementById('tabParticipantsBtn').className = isPeople
           ? 'flex-1 py-1.5 rounded-full text-xs font-extrabold bg-[#FFCE38] text-[#1A1A1A] border border-[#1A1A1A] transition'
@@ -3855,12 +4735,20 @@
         document.getElementById('tabWhiteboardBtn').className = isWhiteboard
           ? 'flex-1 py-1.5 rounded-full text-xs font-extrabold bg-[#FFCE38] text-[#1A1A1A] border border-[#1A1A1A] transition'
           : 'flex-1 py-1.5 rounded-full text-xs font-extrabold text-[#1A1A1A] transition';
+        const tabMusicBtn = document.getElementById('tabMusicBtn');
+        if (tabMusicBtn) {
+          tabMusicBtn.className = isMusic
+            ? 'flex-1 py-1.5 rounded-full text-xs font-extrabold bg-[#FFCE38] text-[#1A1A1A] border border-[#1A1A1A] transition'
+            : 'flex-1 py-1.5 rounded-full text-xs font-extrabold text-[#1A1A1A] transition';
+        }
 
         if (isChat) {
           document.getElementById('unreadChatDot').classList.add('hidden');
           renderChatMessages();
         } else if (isWhiteboard) {
           setTimeout(initWhiteboardCanvasSize, 60);
+        } else if (isMusic) {
+          if (window.MusicBot) window.MusicBot.updatePlayerUI();
         }
       }
 
@@ -3870,6 +4758,9 @@
       document.getElementById('tabChatBtn').addEventListener('click', () => openDrawer('chat'));
       document.getElementById('tabWhiteboardBtn').addEventListener('click', () => openDrawer('whiteboard'));
       document.getElementById('toggleWhiteboardDrawerBtn').addEventListener('click', () => openDrawer('whiteboard'));
+      document.getElementById('tabMusicBtn')?.addEventListener('click', () => openDrawer('music'));
+      document.getElementById('toggleMusicDrawerBtn')?.addEventListener('click', () => openDrawer('music'));
+      document.getElementById('miniDockOpenDrawerBtn')?.addEventListener('click', () => openDrawer('music'));
 
       document.getElementById('closeDrawerBtn').addEventListener('click', () => {
         SoundFX.playPop();
@@ -3998,6 +4889,9 @@
         } else if (key === 'P' && state.inCall) {
           e.preventDefault();
           togglePictureInPicture();
+        } else if (key === 'B' && state.inCall) {
+          e.preventDefault();
+          openDrawer('music');
         } else if (key === '?' || (e.shiftKey && e.code === 'Slash')) {
           e.preventDefault();
           const modal = document.getElementById('unifiedSettingsModal');
@@ -4038,6 +4932,91 @@
       });
       document.getElementById('kickedOutAcknowledgeBtn')?.addEventListener('click', () => {
         document.getElementById('kickedOutModal')?.classList.add('hidden');
+      });
+
+      // ==================== MUSIC BOT DOM BINDINGS ====================
+      if (window.MusicBot) {
+        window.MusicBot.init();
+      }
+
+      document.getElementById('musicPlayPauseBtn')?.addEventListener('click', () => {
+        if (!window.MusicBot) return;
+        if (window.MusicBot.isPlaying) {
+          window.MusicBot.pause();
+        } else {
+          window.MusicBot.playTrack(window.MusicBot.currentTrackId);
+        }
+      });
+
+      document.getElementById('musicNextBtn')?.addEventListener('click', () => {
+        if (window.MusicBot) window.MusicBot.nextTrack();
+      });
+
+      document.getElementById('musicPrevBtn')?.addEventListener('click', () => {
+        if (window.MusicBot) window.MusicBot.prevTrack();
+      });
+
+      document.getElementById('musicStopBtn')?.addEventListener('click', () => {
+        if (window.MusicBot) window.MusicBot.stop();
+      });
+
+      document.getElementById('musicVolumeSlider')?.addEventListener('input', (e) => {
+        if (window.MusicBot) window.MusicBot.setVolume(parseFloat(e.target.value) / 100);
+      });
+
+      document.getElementById('musicMuteBtn')?.addEventListener('click', () => {
+        if (window.MusicBot) window.MusicBot.toggleMute();
+      });
+
+      document.getElementById('musicLoopCheck')?.addEventListener('change', (e) => {
+        if (window.MusicBot) window.MusicBot.loop = e.target.checked;
+      });
+
+      document.querySelectorAll('.music-track-item').forEach(item => {
+        item.addEventListener('click', () => {
+          const trackId = item.getAttribute('data-track-id');
+          if (window.MusicBot) {
+            window.MusicBot.playTrack(trackId, false, { sourceType: 'synth' });
+          }
+        });
+      });
+
+      document.getElementById('musicUploadBtn')?.addEventListener('click', () => {
+        document.getElementById('musicFileInput')?.click();
+      });
+
+      document.getElementById('musicFileInput')?.addEventListener('change', (e) => {
+        const file = e.target.files && e.target.files[0];
+        if (!file || !window.MusicBot) return;
+        const objectUrl = URL.createObjectURL(file);
+        window.MusicBot.playTrack('custom-file', false, {
+          sourceType: 'file',
+          url: objectUrl,
+          fileName: file.name
+        });
+      });
+
+      document.getElementById('musicPlayUrlBtn')?.addEventListener('click', () => {
+        const input = document.getElementById('musicUrlInput');
+        const url = (input?.value || '').trim();
+        if (!url || !window.MusicBot) return;
+        window.MusicBot.playTrack('custom-url', false, {
+          sourceType: 'url',
+          url: url
+        });
+      });
+
+      document.getElementById('miniDockPlayPauseBtn')?.addEventListener('click', () => {
+        if (!window.MusicBot) return;
+        if (window.MusicBot.isPlaying) {
+          window.MusicBot.pause();
+        } else {
+          window.MusicBot.resume();
+        }
+      });
+
+      document.getElementById('miniDockCloseBtn')?.addEventListener('click', () => {
+        document.getElementById('musicBotMiniDock')?.classList.add('hidden');
       });
     });
   </script>
