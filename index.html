@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <title>Leet — Họp Trực Tuyến Không Giới Hạn</title>
   <script src="https://cdn.tailwindcss.com/3.4.17"></script>
-  <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
+  <script src="https://unpkg.com/mqtt@5.3.5/dist/mqtt.min.js"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -1761,42 +1761,15 @@
       showToast(label, 'success');
     }
 
-    // ==================== REAL INTERNET WEBRTC MESH WITH MOBILE 4G/5G TURN RELAY ====================
-    let activePeer = null;
-    let mySlotIndex = 1;
-    let meshSyncInterval = null;
-    const dataConns = new Map();
-    const mediaCalls = new Map();
+    // ==================== REAL SERVERLESS WEBRTC ROOM MESH WITH MQTT SIGNALING ====================
+    let mqttClient = null;
+    let myPeerId = 'leet_' + Math.random().toString(36).substring(2, 9) + '_' + Date.now().toString(36);
+    let meshHeartbeatInterval = null;
+    const activePeers = new Map(); // remotePeerId -> { id, name, pc, dc, remoteStream, iceQueue, lastSeen }
 
     function sanitizeRoomKey(code) {
-      return (code || 'default').toLowerCase().replace(/[^a-z0-9]/g, '').slice(0, 18) || 'leet';
+      return (code || 'default').toLowerCase().replace(/[^a-z0-9]/g, '').slice(0, 24) || 'leet';
     }
-
-    function getSlotPeerId(roomCode, slot) {
-      return `leet10-${sanitizeRoomKey(roomCode)}-slot-${slot}`;
-    }
-
-    function getActiveOutgoingStream() {
-      if (state.isScreenSharing && state.screenStream) {
-        const combined = new MediaStream();
-        state.screenStream.getVideoTracks().forEach(t => combined.addTrack(t));
-        if (state.localStream && state.localStream.getAudioTracks().length > 0) {
-          state.localStream.getAudioTracks().forEach(t => combined.addTrack(t));
-        } else {
-          state.screenStream.getAudioTracks().forEach(t => combined.addTrack(t));
-        }
-        return combined;
-      }
-      return state.localStream;
-    }
-
-    function initPeerJSMesh(roomCode) {
-      if (typeof Peer === 'undefined') return;
-      cleanupPeerJSMesh();
-      tryClaimSlot(roomCode, 1);
-    }
-
-    const pendingConns = new Set();
 
     async function getIceServersAsync() {
       const servers = [
@@ -1840,149 +1813,291 @@
       return servers;
     }
 
-    function probeAllRoomSlots(roomCode) {
-      if (!activePeer || !state.inCall) return;
-      // QUAN TRỌNG: Chỉ kết nối tới các slot < mySlotIndex (những người đã vào phòng trước mình)
-      for (let s = 1; s < mySlotIndex; s++) {
-        const targetId = getSlotPeerId(roomCode, s);
-        
-        // 1. Data Connection (trao đổi tên, trạng thái mic/cam, chat, emoji)
-        const existingConn = dataConns.get(targetId);
-        if (!existingConn || !existingConn.open) {
-          connectToRemoteSlot(targetId);
+    function getActiveOutgoingStream() {
+      if (state.isScreenSharing && state.screenStream) {
+        const combined = new MediaStream();
+        state.screenStream.getVideoTracks().forEach(t => combined.addTrack(t));
+        if (state.localStream && state.localStream.getAudioTracks().length > 0) {
+          state.localStream.getAudioTracks().forEach(t => combined.addTrack(t));
         } else {
-          try {
-            existingConn.send({
-              type: 'peer-update',
-              id: activePeer.id,
+          state.screenStream.getAudioTracks().forEach(t => combined.addTrack(t));
+        }
+        return combined;
+      }
+      return state.localStream;
+    }
+
+    function initMeshNetworking(roomCode) {
+      cleanupMeshNetworking();
+
+      const cleanRoom = sanitizeRoomKey(roomCode);
+      const topicAll = `leet/mesh/v3/${cleanRoom}/all`;
+      const topicMe = `leet/mesh/v3/${cleanRoom}/p/${myPeerId}`;
+
+      const statusEl = document.getElementById('p2pBrokerStatus');
+      if (statusEl) statusEl.textContent = '✦ Đang kết nối signaling...';
+
+      try {
+        const client = mqtt.connect('wss://broker.emqx.io:8084/mqtt', {
+          clientId: myPeerId,
+          clean: true,
+          connectTimeout: 8000,
+          reconnectPeriod: 2500
+        });
+        mqttClient = client;
+
+        client.on('connect', () => {
+          console.log(`[MQTT] Đã kết nối signaling broker cho phòng "${cleanRoom}" (ID: ${myPeerId})`);
+          if (statusEl) statusEl.textContent = `✦ Đã vào phòng (${cleanRoom})`;
+
+          client.subscribe([topicAll, topicMe], () => {
+            publishMeshEvent(topicAll, {
+              type: 'announce',
+              from: myPeerId,
               name: state.localUser.name,
               micOn: state.localUser.micOn,
               camOn: state.localUser.camOn,
               handRaised: state.localUser.handRaised
             });
-          } catch (e) {}
-        }
+          });
 
-        // 2. Media Call (Khởi tạo trực tiếp song song, không phụ thuộc DataChannel!)
-        if (!mediaCalls.has(targetId)) {
-          callRemoteSlot(targetId);
-        }
+          if (meshHeartbeatInterval) clearInterval(meshHeartbeatInterval);
+          meshHeartbeatInterval = setInterval(() => {
+            if (!state.inCall) return;
+            publishMeshEvent(topicAll, {
+              type: 'ping',
+              from: myPeerId,
+              name: state.localUser.name,
+              micOn: state.localUser.micOn,
+              camOn: state.localUser.camOn,
+              handRaised: state.localUser.handRaised
+            });
+
+            const now = Date.now();
+            activePeers.forEach((p, remoteId) => {
+              if (now - p.lastSeen > 18000) {
+                console.log(`[Mesh] Peer ${remoteId} hết hạn heartbeat, tự động dọn dẹp.`);
+                removeRemoteRealPeer(remoteId);
+              }
+            });
+          }, 5000);
+        });
+
+        client.on('message', async (topic, payload) => {
+          let msg;
+          try { msg = JSON.parse(payload.toString()); } catch (e) { return; }
+          if (!msg || msg.from === myPeerId) return;
+
+          const remoteId = msg.from;
+          const peerObj = activePeers.get(remoteId);
+          if (peerObj) peerObj.lastSeen = Date.now();
+
+          if (msg.type === 'announce') {
+            console.log(`[Mesh] Nhận announce từ ${remoteId} (${msg.name})`);
+            publishMeshEvent(`leet/mesh/v3/${cleanRoom}/p/${remoteId}`, {
+              type: 'welcome',
+              from: myPeerId,
+              to: remoteId,
+              name: state.localUser.name,
+              micOn: state.localUser.micOn,
+              camOn: state.localUser.camOn,
+              handRaised: state.localUser.handRaised
+            });
+            await getOrCreatePeerConnection(remoteId, msg.name, cleanRoom, msg);
+          } else if (msg.type === 'welcome') {
+            console.log(`[Mesh] Nhận welcome từ ${remoteId} (${msg.name})`);
+            await getOrCreatePeerConnection(remoteId, msg.name, cleanRoom, msg);
+          } else if (msg.type === 'signal') {
+            await handleSignalingMessage(remoteId, msg, cleanRoom);
+          } else if (msg.type === 'peer-update') {
+            upsertRemoteRealPeer(remoteId, msg);
+          } else if (msg.type === 'ping') {
+            upsertRemoteRealPeer(remoteId, msg);
+          } else if (msg.type === 'leave') {
+            console.log(`[Mesh] Peer ${remoteId} thông báo rời phòng`);
+            removeRemoteRealPeer(remoteId);
+          } else if (msg.type === 'chat') {
+            SoundFX.playChat();
+            state.chatMessages.push({ sender: msg.sender, time: msg.time, text: msg.text });
+            renderChatMessages();
+            if (!state.drawerOpen || state.activeDrawerTab !== 'chat') {
+              document.getElementById('unreadChatDot').classList.remove('hidden');
+            }
+          } else if (msg.type === 'reaction') {
+            triggerFloatingReaction(msg.emoji, msg.sender);
+          }
+        });
+
+        client.on('error', (err) => {
+          console.warn('[MQTT] Lỗi signaling broker:', err);
+        });
+
+        client.on('offline', () => {
+          if (statusEl && state.inCall) statusEl.textContent = '⚠️ Đang kết nối lại signaling...';
+        });
+
+      } catch (e) {
+        console.warn('Lỗi kết nối MQTT:', e);
       }
     }
 
-    function callRemoteSlot(targetId) {
-      if (!activePeer || mediaCalls.has(targetId) || !state.inCall) return;
-      const streamToSend = getActiveOutgoingStream();
-      if (streamToSend) {
-        console.log(`[Call] Chủ động gọi video/audio tới ${targetId}...`);
+    function publishMeshEvent(topic, data) {
+      if (mqttClient && mqttClient.connected) {
         try {
-          const call = activePeer.call(targetId, streamToSend);
-          setupMediaCall(call);
+          mqttClient.publish(topic, JSON.stringify(data));
+        } catch (e) {}
+      }
+    }
+
+    async function getOrCreatePeerConnection(remoteId, remoteName, cleanRoom, initialInfo = {}) {
+      if (activePeers.has(remoteId)) {
+        const existing = activePeers.get(remoteId);
+        if (remoteName) existing.name = remoteName;
+        upsertRemoteRealPeer(remoteId, initialInfo);
+        return existing;
+      }
+
+      if (state.participants.length >= MAX_PARTICIPANTS) {
+        console.warn('Phòng đã đầy 10 người, bỏ qua peer:', remoteId);
+        return null;
+      }
+
+      const isInitiator = myPeerId < remoteId;
+      console.log(`[WebRTC] Khởi tạo kết nối với ${remoteId}. IsInitiator: ${isInitiator}`);
+
+      const iceServers = await getIceServersAsync();
+      const pc = new RTCPeerConnection({
+        sdpSemantics: 'unified-plan',
+        iceServers: iceServers
+      });
+
+      const peerObj = {
+        id: remoteId,
+        name: remoteName || `Thành viên (${remoteId.slice(-4)})`,
+        pc: pc,
+        dc: null,
+        remoteStream: null,
+        iceQueue: [],
+        lastSeen: Date.now()
+      };
+      activePeers.set(remoteId, peerObj);
+
+      const outgoing = getActiveOutgoingStream();
+      if (outgoing) {
+        outgoing.getTracks().forEach(track => {
+          try { pc.addTrack(track, outgoing); } catch (e) {}
+        });
+      }
+
+      pc.onicecandidate = (event) => {
+        if (event.candidate) {
+          publishMeshEvent(`leet/mesh/v3/${cleanRoom}/p/${remoteId}`, {
+            type: 'signal',
+            from: myPeerId,
+            to: remoteId,
+            candidate: event.candidate
+          });
+        }
+      };
+
+      pc.oniceconnectionstatechange = () => {
+        const st = pc.iceConnectionState;
+        console.log(`[ICE] ${remoteId} state: ${st}`);
+        const statusEl = document.getElementById('p2pBrokerStatus');
+        if (st === 'connected' || st === 'completed') {
+          if (statusEl) statusEl.textContent = '✦ Đã kết nối P2P · HD Voice';
+        } else if (st === 'disconnected' || st === 'closed' || st === 'failed') {
+          setTimeout(() => {
+            const currentPeer = activePeers.get(remoteId);
+            if (currentPeer && currentPeer.pc && (currentPeer.pc.iceConnectionState === 'disconnected' || currentPeer.pc.iceConnectionState === 'closed' || currentPeer.pc.iceConnectionState === 'failed')) {
+              console.log(`[ICE] Peer ${remoteId} mất kết nối, tự động dọn dẹp...`);
+              removeRemoteRealPeer(remoteId);
+            }
+          }, 1000);
+        }
+      };
+
+      pc.ontrack = (event) => {
+        console.log(`[Stream] Nhận luồng media từ ${remoteId}`);
+        const stream = event.streams && event.streams[0] ? event.streams[0] : new MediaStream([event.track]);
+        peerObj.remoteStream = stream;
+        attachRemoteAudioStream(remoteId, stream);
+        upsertRemoteRealPeer(remoteId, { remoteStream: stream, name: peerObj.name });
+
+        stream.onaddtrack = () => {
+          upsertRemoteRealPeer(remoteId, { remoteStream: stream });
+        };
+        stream.onremovetrack = () => {
+          renderVideoStage();
+        };
+      };
+
+      if (isInitiator) {
+        try {
+          const dc = pc.createDataChannel('leet_mesh', { ordered: true });
+          peerObj.dc = dc;
+          setupDataChannel(remoteId, dc);
+
+          pc.onnegotiationneeded = async () => {
+            try {
+              const offer = await pc.createOffer();
+              await pc.setLocalDescription(offer);
+              publishMeshEvent(`leet/mesh/v3/${cleanRoom}/p/${remoteId}`, {
+                type: 'signal',
+                from: myPeerId,
+                to: remoteId,
+                offer: pc.localDescription
+              });
+            } catch (err) {
+              console.warn(`[WebRTC] Lỗi tạo offer tới ${remoteId}:`, err);
+            }
+          };
         } catch (e) {
-          console.warn(`[Call] Lỗi gọi media tới ${targetId}:`, e);
+          console.warn('Lỗi tạo DataChannel:', e);
         }
+      } else {
+        pc.ondatachannel = (event) => {
+          peerObj.dc = event.channel;
+          setupDataChannel(remoteId, event.channel);
+        };
       }
+
+      upsertRemoteRealPeer(remoteId, {
+        name: peerObj.name,
+        micOn: initialInfo.micOn !== undefined ? initialInfo.micOn : true,
+        camOn: initialInfo.camOn !== undefined ? initialInfo.camOn : true,
+        handRaised: Boolean(initialInfo.handRaised)
+      });
+
+      return peerObj;
     }
 
-    async function tryClaimSlot(roomCode, slot) {
-      if (slot > MAX_PARTICIPANTS) {
-        showToast('Phòng họp đã đủ 10/10 người!', 'warn');
-        return;
-      }
-      const candidateId = getSlotPeerId(roomCode, slot);
-      try {
-        const iceServers = await getIceServersAsync();
-        const peer = new Peer(candidateId, {
-          config: {
-            sdpSemantics: 'unified-plan',
-            iceServers: iceServers
-          }
-        });
+    function setupDataChannel(remoteId, dc) {
+      if (!dc) return;
 
-        peer.on('open', () => {
-          activePeer = peer;
-          mySlotIndex = slot;
-          const statusEl = document.getElementById('p2pBrokerStatus');
-          if (statusEl) statusEl.textContent = `✦ Đã vào phòng (Vị trí #${slot}/10)`;
-
-          probeAllRoomSlots(roomCode);
-          if (meshSyncInterval) clearInterval(meshSyncInterval);
-          meshSyncInterval = setInterval(() => probeAllRoomSlots(roomCode), 4000);
-        });
-
-        peer.on('connection', (conn) => {
-          setupDataConnection(conn);
-        });
-
-        peer.on('call', (call) => {
-          console.log(`[Call] Nhận cuộc gọi video/audio từ ${call.peer}, đang trả lời...`);
-          const streamToSend = getActiveOutgoingStream();
-          call.answer(streamToSend || undefined);
-          setupMediaCall(call);
-        });
-
-        peer.on('disconnected', () => {
-          console.warn('Mất kết nối signaling, đang tự động kết nối lại...');
-          try { peer.reconnect(); } catch (e) {}
-        });
-
-        peer.on('error', (err) => {
-          if (err && err.type === 'unavailable-id') {
-            try { peer.destroy(); } catch (e) {}
-            setTimeout(() => {
-              if (state.inCall) tryClaimSlot(roomCode, slot + 1);
-            }, 120);
-          } else if (err && err.type === 'peer-unavailable') {
-            // Slot chưa có người online, bình thường
-          } else {
-            console.warn('PeerJS event:', err);
-          }
-        });
-      } catch (e) {
-        console.warn('Lỗi khởi tạo PeerJS:', e);
-      }
-    }
-
-    function connectToRemoteSlot(remotePeerId) {
-      if (!activePeer || dataConns.has(remotePeerId) || pendingConns.has(remotePeerId)) return;
-      pendingConns.add(remotePeerId);
-      try {
-        const conn = activePeer.connect(remotePeerId, { reliable: true });
-        setupDataConnection(conn);
-      } catch (e) {
-        pendingConns.delete(remotePeerId);
-      }
-    }
-
-    function setupDataConnection(conn) {
-      if (!conn) return;
-
-      function onConnOpen() {
-        pendingConns.delete(conn.peer);
-        dataConns.set(conn.peer, conn);
-        console.log(`[DataChannel] Đã mở kết nối với ${conn.peer}`);
+      dc.onopen = () => {
+        console.log(`[DataChannel] Đã mở kênh P2P với ${remoteId}`);
         try {
-          conn.send({
-            type: 'peer-hello',
-            id: activePeer ? activePeer.id : 'remote',
+          dc.send(JSON.stringify({
+            type: 'peer-update',
             name: state.localUser.name,
             micOn: state.localUser.micOn,
             camOn: state.localUser.camOn,
             handRaised: state.localUser.handRaised
-          });
+          }));
         } catch (e) {}
-      }
+      };
 
-      if (conn.open) {
-        onConnOpen();
-      } else {
-        conn.on('open', onConnOpen);
-      }
-
-      conn.on('data', (msg) => {
+      dc.onmessage = (e) => {
+        let msg;
+        try { msg = JSON.parse(e.data); } catch (err) { return; }
         if (!msg || typeof msg !== 'object') return;
-        if (msg.type === 'peer-hello' || msg.type === 'peer-update') {
-          upsertRemoteRealPeer(conn.peer, msg);
+
+        const peerObj = activePeers.get(remoteId);
+        if (peerObj) peerObj.lastSeen = Date.now();
+
+        if (msg.type === 'peer-update') {
+          upsertRemoteRealPeer(remoteId, msg);
         } else if (msg.type === 'chat') {
           SoundFX.playChat();
           state.chatMessages.push({ sender: msg.sender, time: msg.time, text: msg.text });
@@ -1992,76 +2107,90 @@
           }
         } else if (msg.type === 'reaction') {
           triggerFloatingReaction(msg.emoji, msg.sender);
+        } else if (msg.type === 'screen-share') {
+          if (msg.active) {
+            state.screenShareOwnerName = msg.owner || 'Thành viên';
+            state.layoutMode = 'spotlight';
+            state.pinnedId = remoteId;
+          } else {
+            if (state.pinnedId === remoteId) state.pinnedId = null;
+          }
+          renderVideoStage();
         }
-      });
+      };
 
-      conn.on('close', () => {
-        pendingConns.delete(conn.peer);
-        dataConns.delete(conn.peer);
-        removeRemoteRealPeer(conn.peer);
-      });
+      dc.onclose = () => {
+        console.log(`[DataChannel] Kênh đóng với ${remoteId}, đang dọn dẹp...`);
+        removeRemoteRealPeer(remoteId);
+      };
 
-      conn.on('error', (err) => {
-        pendingConns.delete(conn.peer);
-      });
+      dc.onerror = (err) => {
+        console.warn(`[DataChannel] Lỗi kênh với ${remoteId}:`, err);
+      };
     }
 
-    function setupMediaCall(call) {
-      if (!call) return;
-      mediaCalls.set(call.peer, call);
-
-      if (call.peerConnection) {
-        call.peerConnection.oniceconnectionstatechange = () => {
-          const iceState = call.peerConnection.iceConnectionState;
-          console.log(`[ICE] ${call.peer} state: ${iceState}`);
-          const brokerEl = document.getElementById('p2pBrokerStatus');
-          if (iceState === 'connected' || iceState === 'completed') {
-            if (brokerEl) brokerEl.textContent = `✦ Đã kết nối P2P · HD Voice`;
-          } else if (iceState === 'failed') {
-            if (brokerEl) brokerEl.textContent = `⚠️ Cần TURN Relay (Khác mạng)`;
-            showToast('Không thể kết nối video do tường lửa khác WiFi/4G. Bấm nút ⚙️ Cấu hình TURN ở trên để thông mạng!', 'warn');
-          }
-        };
+    async function handleSignalingMessage(remoteId, msg, cleanRoom) {
+      let peerObj = activePeers.get(remoteId);
+      if (!peerObj) {
+        peerObj = await getOrCreatePeerConnection(remoteId, 'Thành viên', cleanRoom, {});
+        if (!peerObj) return;
       }
+      const pc = peerObj.pc;
 
-      call.on('stream', (remoteStream) => {
-        console.log(`[Stream] Nhận luồng media từ ${call.peer}`);
-        attachRemoteAudioStream(call.peer, remoteStream);
-        upsertRemoteRealPeer(call.peer, { remoteStream });
-
-        // Lắng nghe khi track video đến sau track audio hoặc khi bật lại cam
-        remoteStream.onaddtrack = () => {
-          upsertRemoteRealPeer(call.peer, { remoteStream });
-        };
-        remoteStream.onremovetrack = () => {
-          renderVideoStage();
-        };
-      });
-
-      call.on('close', () => {
-        mediaCalls.delete(call.peer);
-        removeRemoteAudioStream(call.peer);
-        const peer = state.participants.find(p => p.id === call.peer);
-        if (peer) {
-          peer.remoteStream = null;
-          renderVideoStage();
+      try {
+        if (msg.offer) {
+          await pc.setRemoteDescription(new RTCSessionDescription(msg.offer));
+          await drainIceCandidateQueue(remoteId, pc);
+          const answer = await pc.createAnswer();
+          await pc.setLocalDescription(answer);
+          publishMeshEvent(`leet/mesh/v3/${cleanRoom}/p/${remoteId}`, {
+            type: 'signal',
+            from: myPeerId,
+            to: remoteId,
+            answer: pc.localDescription
+          });
+        } else if (msg.answer) {
+          await pc.setRemoteDescription(new RTCSessionDescription(msg.answer));
+          await drainIceCandidateQueue(remoteId, pc);
+        } else if (msg.candidate) {
+          if (pc.remoteDescription && pc.remoteDescription.type) {
+            await pc.addIceCandidate(new RTCIceCandidate(msg.candidate));
+          } else {
+            peerObj.iceQueue.push(msg.candidate);
+          }
         }
-      });
+      } catch (err) {
+        console.warn(`[WebRTC] Lỗi xử lý signaling từ ${remoteId}:`, err);
+      }
+    }
 
-      call.on('error', (err) => {
-        mediaCalls.delete(call.peer);
-        console.warn('Media call error:', err);
-      });
+    async function drainIceCandidateQueue(remoteId, pc) {
+      const peerObj = activePeers.get(remoteId);
+      if (!peerObj || !peerObj.iceQueue) return;
+      while (peerObj.iceQueue.length > 0) {
+        const candidate = peerObj.iceQueue.shift();
+        try {
+          await pc.addIceCandidate(new RTCIceCandidate(candidate));
+        } catch (e) {}
+      }
     }
 
     function upsertRemoteRealPeer(peerKey, info) {
+      // Tự động dọn dẹp peer cũ nếu cùng tên hiển thị (tránh nhân bản khi reload)
+      if (info.name && info.name !== 'Bạn') {
+        const stalePeers = state.participants.filter(p => !p.isLocal && p.id !== peerKey && p.name === info.name);
+        stalePeers.forEach(stale => {
+          removeRemoteRealPeer(stale.id);
+        });
+      }
+
       let existing = state.participants.find(p => p.id === peerKey);
       if (!existing) {
         if (state.participants.length >= MAX_PARTICIPANTS) return;
         const colorHex = TID_SKILL_COLORS[state.participants.length % TID_SKILL_COLORS.length];
         existing = {
           id: peerKey,
-          name: info.name || `Thành viên (${peerKey.slice(-6)})`,
+          name: info.name || `Thành viên (${peerKey.slice(-4)})`,
           role: 'Thành viên',
           bgHex: colorHex,
           micOn: info.micOn !== undefined ? info.micOn : true,
@@ -2088,6 +2217,12 @@
 
     function removeRemoteRealPeer(peerKey) {
       removeRemoteAudioStream(peerKey);
+      const peerObj = activePeers.get(peerKey);
+      if (peerObj) {
+        try { if (peerObj.dc) peerObj.dc.close(); } catch (e) {}
+        try { if (peerObj.pc) peerObj.pc.close(); } catch (e) {}
+        activePeers.delete(peerKey);
+      }
       const idx = state.participants.findIndex(p => p.id === peerKey);
       if (idx > -1) {
         const peer = state.participants[idx];
@@ -2101,35 +2236,48 @@
     }
 
     function broadcastPeerJSData(payload) {
-      dataConns.forEach((conn) => {
+      activePeers.forEach((p) => {
         try {
-          if (conn && conn.open) conn.send(payload);
+          if (p.dc && p.dc.readyState === 'open') {
+            p.dc.send(JSON.stringify(payload));
+          }
         } catch (e) {}
       });
+
+      if (mqttClient && mqttClient.connected && state.roomCode) {
+        const cleanRoom = sanitizeRoomKey(state.roomCode);
+        try {
+          mqttClient.publish(`leet/mesh/v3/${cleanRoom}/all`, JSON.stringify({
+            from: myPeerId,
+            ...payload
+          }));
+        } catch (e) {}
+      }
     }
 
     function replaceOutgoingMediaTracks(newStream) {
       if (!newStream) return;
       const newVideoTrack = newStream.getVideoTracks()[0];
       const newAudioTrack = newStream.getAudioTracks()[0];
-      mediaCalls.forEach((call) => {
+
+      activePeers.forEach((peerObj) => {
         try {
-          if (call && call.peerConnection) {
-            const senders = call.peerConnection.getSenders();
+          if (peerObj && peerObj.pc) {
+            const senders = peerObj.pc.getSenders();
             if (newVideoTrack) {
               const vSender = senders.find(s => s.track && s.track.kind === 'video');
               if (vSender) {
-                vSender.replaceTrack(newVideoTrack);
-              } else if (call.peerConnection.addTrack) {
-                call.peerConnection.addTrack(newVideoTrack, newStream);
+                vSender.replaceTrack(newVideoTrack).catch(() => {});
+              } else {
+                try { peerObj.pc.addTrack(newVideoTrack, newStream); } catch (e) {}
               }
             }
             if (newAudioTrack) {
               const aSender = senders.find(s => s.track && s.track.kind === 'audio');
               if (aSender) {
-                aSender.replaceTrack(newAudioTrack);
-              } else if (call.peerConnection.addTrack) {
-                call.peerConnection.addTrack(newAudioTrack, newStream);
+                aSender.replaceTrack(newAudioTrack).catch(() => {});
+              } else {
+                try { peerObj.pc.addTrack(newAudioTrack, newStream); } catch (e) {}
               }
             }
           }
@@ -2152,22 +2300,33 @@
       return `${window.location.href.split('?')[0]}?room=${code}`;
     }
 
-    function cleanupPeerJSMesh() {
-      if (meshSyncInterval) {
-        clearInterval(meshSyncInterval);
-        meshSyncInterval = null;
+    function cleanupMeshNetworking() {
+      if (meshHeartbeatInterval) {
+        clearInterval(meshHeartbeatInterval);
+        meshHeartbeatInterval = null;
       }
-      pendingConns.clear();
-      mediaCalls.forEach(c => { try { c.close(); } catch (e) {} });
-      mediaCalls.clear();
-      dataConns.forEach(c => { try { c.close(); } catch (e) {} });
-      dataConns.clear();
+      if (mqttClient && mqttClient.connected && state.roomCode) {
+        const cleanRoom = sanitizeRoomKey(state.roomCode);
+        try {
+          mqttClient.publish(`leet/mesh/v3/${cleanRoom}/all`, JSON.stringify({
+            type: 'leave',
+            from: myPeerId
+          }));
+        } catch (e) {}
+        try { mqttClient.end(true); } catch (e) {}
+      }
+      mqttClient = null;
+
+      activePeers.forEach(p => {
+        try { if (p.dc) p.dc.close(); } catch (e) {}
+        try { if (p.pc) p.pc.close(); } catch (e) {}
+      });
+      activePeers.clear();
       document.getElementById('remoteAudioContainer').innerHTML = '';
-      if (activePeer) {
-        try { activePeer.destroy(); } catch (e) {}
-        activePeer = null;
-      }
     }
+
+    const cleanupPeerJSMesh = cleanupMeshNetworking;
+    const initPeerJSMesh = initMeshNetworking;
 
     // ==================== START / LEAVE MEETING ====================
     async function startMeeting() {
