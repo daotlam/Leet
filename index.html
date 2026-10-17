@@ -1181,6 +1181,7 @@
       pinnedId: null,
       isScreenSharing: false,
       screenShareOwnerName: '',
+      screenSharingPeerId: null,
       callSeconds: 0,
       callTimerInterval: null,
       localStream: null,
@@ -2443,49 +2444,129 @@
       }
 
       if (!navigator.mediaDevices || !navigator.mediaDevices.getDisplayMedia) {
-        showToast('Trình duyệt trên điện thoại không hỗ trợ chia sẻ màn hình (Chỉ hỗ trợ trên Máy tính). Bạn có thể dùng nút 🔄 để đổi Camera Sau.', 'warn');
+        showToast('Trình duyệt này không hỗ trợ chia sẻ màn hình (Hãy dùng Chrome/Edge trên máy tính hoặc bấm nút 🔄 để đổi camera sau).', 'warn');
         return;
       }
 
+      let acquiredStream = null;
       try {
-        const acquiredStream = await navigator.mediaDevices.getDisplayMedia({
-          video: { cursor: 'always', frameRate: { ideal: 30 } },
-          audio: true
+        // Attempt with audio first (system/tab audio if supported by browser)
+        acquiredStream = await navigator.mediaDevices.getDisplayMedia({
+          video: {
+            cursor: 'always',
+            frameRate: { ideal: 30, max: 60 }
+          },
+          audio: {
+            echoCancellation: true,
+            noiseSuppression: true
+          }
         });
-        state.screenStream = acquiredStream;
-        state.isScreenSharing = true;
-        state.screenShareOwnerName = state.localUser.name;
-        state.layoutMode = 'spotlight';
-        updateLayoutButtonsUI();
-
-        acquiredStream.getVideoTracks()[0].onended = () => {
-          stopScreenShare();
-        };
-
-        document.getElementById('screenShareBanner').classList.remove('hidden');
-        document.getElementById('screenShareBtnLabel').textContent = 'Đang chia sẻ';
-        document.getElementById('callScreenShareBtn').className = 'neo-btn px-4 h-11 sm:h-12 rounded-full bg-[#FFCE38] text-[#1A1A1A] flex items-center gap-2 text-xs sm:text-sm font-extrabold';
-
-        replaceOutgoingMediaTracks(acquiredStream);
-        broadcastRoomEvent({ type: 'screen-share', active: true, owner: state.localUser.name });
-        renderVideoStage();
-        showToast('Đang chia sẻ màn hình!', 'success');
-      } catch (err) {
-        showToast('Đã hủy chọn chia sẻ màn hình.', 'info');
+      } catch (firstErr) {
+        if (firstErr.name === 'NotAllowedError' || firstErr.name === 'AbortError') {
+          showToast('Đã hủy chọn màn hình chia sẻ.', 'info');
+          return;
+        }
+        console.warn('[ScreenShare] getDisplayMedia với audio không khả dụng, thử lại chỉ video:', firstErr);
+        try {
+          // Fallback to video only (solves macOS Safari, iOS, or strict constraints)
+          acquiredStream = await navigator.mediaDevices.getDisplayMedia({
+            video: {
+              cursor: 'always'
+            }
+          });
+        } catch (secondErr) {
+          console.error('[ScreenShare] Lỗi mở màn hình:', secondErr);
+          if (secondErr.name === 'NotAllowedError' || secondErr.name === 'AbortError') {
+            showToast('Đã hủy chọn màn hình chia sẻ.', 'info');
+          } else if (secondErr.name === 'NotSupportedError') {
+            showToast('⚠️ Trình duyệt hoặc hệ điều hành hiện tại không hỗ trợ chụp màn hình.', 'warn');
+          } else {
+            showToast(`⚠️ Không thể chia sẻ màn hình: ${secondErr.message || secondErr.name}`, 'warn');
+          }
+          return;
+        }
       }
+
+      if (!acquiredStream) return;
+      const vTrack = acquiredStream.getVideoTracks()[0];
+      if (!vTrack) {
+        showToast('⚠️ Không tìm thấy luồng hình ảnh từ màn hình chia sẻ.', 'warn');
+        return;
+      }
+
+      // Ensure video track is enabled!
+      vTrack.enabled = true;
+
+      state.screenStream = acquiredStream;
+      state.isScreenSharing = true;
+      state.screenShareOwnerName = state.localUser.name;
+      state.screenSharingPeerId = myPeerId;
+      state.localUser.isScreenSharing = true;
+      state.layoutMode = 'spotlight';
+      state.pinnedId = myPeerId;
+      updateLayoutButtonsUI();
+
+      vTrack.onended = () => {
+        stopScreenShare();
+      };
+
+      const banner = document.getElementById('screenShareBanner');
+      if (banner) banner.classList.remove('hidden');
+      const btnLabel = document.getElementById('screenShareBtnLabel');
+      if (btnLabel) btnLabel.textContent = 'Đang chia sẻ';
+      const shareBtn = document.getElementById('callScreenShareBtn');
+      if (shareBtn) shareBtn.className = 'neo-btn px-4 h-11 sm:h-12 rounded-full bg-[#FFCE38] text-[#1A1A1A] flex items-center gap-2 text-xs sm:text-sm font-extrabold shadow-[2px_2px_0px_#1A1A1A]';
+
+      replaceOutgoingMediaTracks(acquiredStream, true);
+      broadcastRoomEvent({
+        type: 'screen-share',
+        active: true,
+        owner: state.localUser.name,
+        peerId: myPeerId
+      });
+      renderVideoStage();
+      showToast('🖥️ Đang chia sẻ màn hình!', 'success');
     }
 
     function stopScreenShare() {
+      if (!state.isScreenSharing && !state.screenStream) return;
       if (state.screenStream) {
-        state.screenStream.getTracks().forEach(t => t.stop());
+        try {
+          state.screenStream.getTracks().forEach(t => t.stop());
+        } catch (e) {}
       }
       state.screenStream = null;
       state.isScreenSharing = false;
-      document.getElementById('screenShareBanner').classList.add('hidden');
-      document.getElementById('screenShareBtnLabel').textContent = 'Chia sẻ màn hình';
-      document.getElementById('callScreenShareBtn').className = 'neo-btn px-4 h-11 sm:h-12 rounded-full bg-[#3B66FF] text-white flex items-center gap-2 text-xs sm:text-sm font-extrabold';
-      if (state.localStream) replaceOutgoingMediaTracks(state.localStream);
-      broadcastRoomEvent({ type: 'screen-share', active: false });
+      state.screenSharingPeerId = null;
+      state.localUser.isScreenSharing = false;
+      if (state.pinnedId === myPeerId) state.pinnedId = null;
+
+      const banner = document.getElementById('screenShareBanner');
+      if (banner) banner.classList.add('hidden');
+      const btnLabel = document.getElementById('screenShareBtnLabel');
+      if (btnLabel) btnLabel.textContent = 'Chia sẻ';
+      const shareBtn = document.getElementById('callScreenShareBtn');
+      if (shareBtn) shareBtn.className = 'neo-btn px-3 sm:px-4 h-11 sm:h-12 rounded-full bg-[#3B66FF] text-white flex items-center gap-1.5 text-xs sm:text-sm font-extrabold';
+
+      if (state.localStream) {
+        replaceOutgoingMediaTracks(state.localStream, false);
+      } else {
+        activePeers.forEach(p => {
+          if (p.pc) {
+            p.pc.getSenders().forEach(s => {
+              if (s.track && s.track.kind === 'video') s.replaceTrack(null).catch(() => {});
+            });
+          }
+        });
+      }
+
+      broadcastRoomEvent({
+        type: 'screen-share',
+        active: false,
+        owner: state.localUser.name,
+        peerId: myPeerId
+      });
+      updateLayoutButtonsUI();
       renderVideoStage();
       showToast('Đã dừng chia sẻ màn hình.', 'info');
     }
@@ -2583,11 +2664,17 @@
       }
 
       const peerObj = activePeers.get(peer.id);
-      let activeStream = peer.isLocal ? state.localStream : (peer.remoteStream || (peerObj ? peerObj.remoteStream : null));
+      const isScreenShare = peer.isLocal
+        ? state.isScreenSharing
+        : Boolean(peer.isScreenSharing || state.screenSharingPeerId === peer.id);
+
+      let activeStream = peer.isLocal
+        ? (state.isScreenSharing && state.screenStream ? state.screenStream : state.localStream)
+        : (peer.remoteStream || (peerObj ? peerObj.remoteStream : null));
       let videoTracks = activeStream ? activeStream.getVideoTracks() : [];
       let hasVideoTrack = videoTracks.length > 0 && videoTracks.some(t => t.readyState === 'live');
 
-      if (peer.isLocal && peer.camOn && (!activeStream || !hasVideoTrack)) {
+      if (peer.isLocal && peer.camOn && !state.isScreenSharing && (!activeStream || !hasVideoTrack)) {
         state.localStream = createSyntheticCameraStream(state.localUser.name);
         state.usingSyntheticCam = true;
         activeStream = state.localStream;
@@ -2596,17 +2683,24 @@
         if (state.inCall) replaceOutgoingMediaTracks(activeStream);
       }
 
-      const showVideo = Boolean(peer.camOn && activeStream && hasVideoTrack);
+      const showVideo = Boolean((peer.camOn || isScreenShare) && activeStream && hasVideoTrack);
 
       if (showVideo) {
         videoEl.classList.remove('hidden');
-        videoEl.classList.toggle('video-mirror', Boolean(peer.isLocal && state.cameraFacingMode === 'user'));
+        if (isScreenShare) {
+          videoEl.classList.remove('video-mirror');
+          videoEl.classList.remove('object-cover');
+          videoEl.classList.add('object-contain', 'bg-black');
+        } else {
+          videoEl.classList.remove('object-contain', 'bg-black');
+          videoEl.classList.add('object-cover');
+          videoEl.classList.toggle('video-mirror', Boolean(peer.isLocal && state.cameraFacingMode === 'user'));
+        }
         videoEl.muted = true;
         videoEl.defaultMuted = true;
         if (videoEl.srcObject !== activeStream) {
           videoEl.srcObject = activeStream;
         }
-        // Gọi play() mỗi khi hiển thị video để tránh trình duyệt tự động pause khi thẻ bị ẩn
         const playProm = videoEl.play();
         if (playProm !== undefined) playProm.catch(() => {});
         fallbackEl.classList.add('hidden');
@@ -2617,9 +2711,9 @@
         fallbackEl.style.backgroundImage = 'linear-gradient(to right, rgba(255,255,255,0.14) 1px, transparent 1px), linear-gradient(to bottom, rgba(255,255,255,0.14) 1px, transparent 1px)';
         fallbackEl.style.backgroundSize = '24px 24px';
 
-        let tileStatusText = peer.camOn ? 'Đang kết nối...' : 'Camera tắt';
+        let tileStatusText = isScreenShare ? '⏳ Đang tải màn hình...' : (peer.camOn ? 'Đang kết nối...' : 'Camera tắt');
         let tileBadgeStyle = 'bg-[#FFFDF0] text-[#1A1A1A]';
-        if (!peer.isLocal && peer.camOn && !hasVideoTrack && peerObj && peerObj.pc) {
+        if (!peer.isLocal && (peer.camOn || isScreenShare) && !hasVideoTrack && peerObj && peerObj.pc) {
           const ice = peerObj.pc.iceConnectionState;
           if (ice === 'failed' || ice === 'disconnected') {
             tileStatusText = '⚠️ Mạng chặn P2P (Cần TURN)';
@@ -2632,7 +2726,7 @@
 
         fallbackEl.innerHTML = `
           <div class="neo-stamp w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-[#FFCE38] flex items-center justify-center text-[#1A1A1A] font-extrabold text-xl sm:text-2xl">
-            ${getInitials(peer.name)}
+            ${isScreenShare ? '🖥️' : getInitials(peer.name)}
           </div>
           <span class="tile-status-badge mt-2.5 px-3 py-0.5 rounded-full ${tileBadgeStyle} border-2 border-[#1A1A1A] shadow-[2px_2px_0px_#1A1A1A] text-[11px] font-extrabold uppercase" title="Bấm để mở cài đặt TURN nếu mạng bị chặn">
             ${tileStatusText}
@@ -2658,7 +2752,7 @@
         </div>
         <div class="absolute bottom-3 inset-x-3 flex items-center justify-between gap-2 pointer-events-none">
           <div class="flex items-center gap-1.5 bg-[#FFFDF0] px-3 py-1 rounded-full border-2 border-[#1A1A1A] shadow-[3px_3px_0px_#1A1A1A] max-w-[82%]">
-            <span class="text-xs font-extrabold text-[#1A1A1A] truncate">${peer.name}</span>
+            <span class="text-xs font-extrabold text-[#1A1A1A] truncate">${isScreenShare ? `🖥️ ${peer.name} (Màn hình)` : peer.name}</span>
             ${isPinned ? '<span class="text-[10px] text-[#3B66FF] font-extrabold uppercase">(Ghim)</span>' : ''}
           </div>
           <div class="h-8 px-2 sm:px-2.5 rounded-full border-2 border-[#1A1A1A] shadow-[2px_2px_0px_#1A1A1A] flex items-center gap-1 ${
@@ -2697,44 +2791,30 @@
       const primarySpotlightTile = document.getElementById('primarySpotlightTile');
       const filmstripContainer = document.getElementById('filmstripContainer');
 
-      const useSpotlight = state.layoutMode === 'spotlight' || state.isScreenSharing || Boolean(state.pinnedId);
+      const hasActiveScreenShare = Boolean(state.isScreenSharing || state.screenSharingPeerId);
+      const useSpotlight = state.layoutMode === 'spotlight' || hasActiveScreenShare || Boolean(state.pinnedId);
 
       if (useSpotlight) {
         gridContainer.classList.add('hidden');
         spotlightContainer.classList.remove('hidden');
         spotlightContainer.classList.add('flex');
 
-        if (state.isScreenSharing && state.screenStream) {
-          let screenVideo = primarySpotlightTile.querySelector('video.screen-share-video');
-          if (!screenVideo) {
-            primarySpotlightTile.innerHTML = '';
-            screenVideo = document.createElement('video');
-            screenVideo.autoplay = true;
-            screenVideo.playsInline = true;
-            screenVideo.setAttribute('webkit-playsinline', 'true');
-            screenVideo.muted = true;
-            screenVideo.className = 'screen-share-video w-full h-full object-contain bg-black';
-            primarySpotlightTile.appendChild(screenVideo);
+        let targetPeer = null;
+        if (state.isScreenSharing) {
+          targetPeer = state.localUser;
+        } else if (state.screenSharingPeerId) {
+          targetPeer = state.participants.find(p => p.id === state.screenSharingPeerId);
+        }
+        if (!targetPeer && state.pinnedId) {
+          targetPeer = state.participants.find(p => p.id === state.pinnedId);
+        }
+        if (!targetPeer) {
+          targetPeer = state.participants[0];
+        }
 
-            const overlayLabel = document.createElement('div');
-            overlayLabel.className = 'screen-share-label absolute bottom-3 left-3 bg-[#FFCE38] border-2 border-[#1A1A1A] shadow-[3px_3px_0px_#1A1A1A] px-3.5 py-1.5 rounded-full text-xs font-extrabold text-[#1A1A1A] flex items-center gap-2';
-            primarySpotlightTile.appendChild(overlayLabel);
-          }
-          if (screenVideo.srcObject !== state.screenStream) {
-            screenVideo.srcObject = state.screenStream;
-            screenVideo.play().catch(() => {});
-          }
-          const lbl = primarySpotlightTile.querySelector('.screen-share-label');
-          if (lbl) lbl.innerHTML = `<span>🖥️ Màn hình chia sẻ của ${state.screenShareOwnerName}</span>`;
-
-          reconcileContainerTiles(filmstripContainer, state.participants, true);
-        } else {
-          const screenVideo = primarySpotlightTile.querySelector('video.screen-share-video');
-          if (screenVideo) primarySpotlightTile.innerHTML = '';
-
-          const targetPeer = state.participants.find(p => p.id === state.pinnedId) || state.participants[0];
+        if (targetPeer) {
           reconcileContainerTiles(primarySpotlightTile, [targetPeer], false);
-          reconcileContainerTiles(filmstripContainer, state.participants.filter(p => p.id !== targetPeer.id), true);
+          reconcileContainerTiles(filmstripContainer, state.participants.filter(p => p && p.id !== targetPeer.id), true);
         }
       } else {
         spotlightContainer.classList.add('hidden');
@@ -3096,6 +3176,8 @@
               micOn: state.localUser.micOn,
               camOn: state.localUser.camOn,
               handRaised: state.localUser.handRaised,
+              isScreenSharing: state.isScreenSharing,
+              screenShareOwner: state.localUser.name,
               iceServers: currentServers
             });
           });
@@ -3109,7 +3191,8 @@
               name: state.localUser.name,
               micOn: state.localUser.micOn,
               camOn: state.localUser.camOn,
-              handRaised: state.localUser.handRaised
+              handRaised: state.localUser.handRaised,
+              isScreenSharing: state.isScreenSharing
             });
 
             const now = Date.now();
@@ -3146,6 +3229,13 @@
                 window.cachedRoomIceServers = cachedRoomIceServers;
               }
             }
+            if (msg.isScreenSharing) {
+              state.screenShareOwnerName = msg.screenShareOwner || msg.name || 'Thành viên';
+              state.screenSharingPeerId = remoteId;
+              state.layoutMode = 'spotlight';
+              state.pinnedId = remoteId;
+              updateLayoutButtonsUI();
+            }
             const myServers = await getIceServersAsync();
             publishMeshEvent(`leet/mesh/v3/${cleanRoom}/p/${remoteId}`, {
               type: 'welcome',
@@ -3155,6 +3245,8 @@
               micOn: state.localUser.micOn,
               camOn: state.localUser.camOn,
               handRaised: state.localUser.handRaised,
+              isScreenSharing: state.isScreenSharing,
+              screenShareOwner: state.localUser.name,
               iceServers: myServers
             });
             await getOrCreatePeerConnection(remoteId, msg.name, cleanRoom, msg);
@@ -3171,6 +3263,13 @@
                 cachedResolvedIceServers = null;
                 window.cachedRoomIceServers = cachedRoomIceServers;
               }
+            }
+            if (msg.isScreenSharing) {
+              state.screenShareOwnerName = msg.screenShareOwner || msg.name || 'Thành viên';
+              state.screenSharingPeerId = remoteId;
+              state.layoutMode = 'spotlight';
+              state.pinnedId = remoteId;
+              updateLayoutButtonsUI();
             }
             await getOrCreatePeerConnection(remoteId, msg.name, cleanRoom, msg);
           } else if (msg.type === 'turn-update') {
@@ -3222,13 +3321,23 @@
           } else if (msg.type === 'music-bot-sync') {
             if (window.MusicBot) window.MusicBot.handleRemoteSync(msg);
           } else if (msg.type === 'screen-share') {
+            const senderId = msg.peerId || msg.from || remoteId;
             if (msg.active) {
               state.screenShareOwnerName = msg.owner || 'Thành viên';
+              state.screenSharingPeerId = senderId;
               state.layoutMode = 'spotlight';
-              state.pinnedId = remoteId;
+              state.pinnedId = senderId;
+              showToast(`🖥️ ${state.screenShareOwnerName} đang chia sẻ màn hình`, 'info');
             } else {
-              if (state.pinnedId === remoteId) state.pinnedId = null;
+              if (state.screenSharingPeerId === senderId) {
+                state.screenSharingPeerId = null;
+                if (state.pinnedId === senderId) state.pinnedId = null;
+                showToast(`🖥️ ${msg.owner || 'Thành viên'} đã dừng chia sẻ màn hình`, 'info');
+              }
             }
+            const p = state.participants.find(x => x.id === senderId);
+            if (p) p.isScreenSharing = msg.active;
+            updateLayoutButtonsUI();
             renderVideoStage();
           }
         });
@@ -3529,13 +3638,23 @@
         } else if (msg.type === 'music-bot-sync') {
           if (window.MusicBot) window.MusicBot.handleRemoteSync(msg);
         } else if (msg.type === 'screen-share') {
+          const senderId = msg.peerId || msg.from || remoteId;
           if (msg.active) {
             state.screenShareOwnerName = msg.owner || 'Thành viên';
+            state.screenSharingPeerId = senderId;
             state.layoutMode = 'spotlight';
-            state.pinnedId = remoteId;
+            state.pinnedId = senderId;
+            showToast(`🖥️ ${state.screenShareOwnerName} đang chia sẻ màn hình`, 'info');
           } else {
-            if (state.pinnedId === remoteId) state.pinnedId = null;
+            if (state.screenSharingPeerId === senderId) {
+              state.screenSharingPeerId = null;
+              if (state.pinnedId === senderId) state.pinnedId = null;
+              showToast(`🖥️ ${msg.owner || 'Thành viên'} đã dừng chia sẻ màn hình`, 'info');
+            }
           }
+          const p = state.participants.find(x => x.id === senderId);
+          if (p) p.isScreenSharing = msg.active;
+          updateLayoutButtonsUI();
           renderVideoStage();
         }
       };
@@ -3634,6 +3753,7 @@
           bgHex: colorHex,
           micOn: info.micOn !== undefined ? info.micOn : true,
           camOn: info.camOn !== undefined ? info.camOn : true,
+          isScreenSharing: Boolean(info.isScreenSharing || state.screenSharingPeerId === peerKey),
           handRaised: Boolean(info.handRaised),
           speaking: false,
           remoteStream: info.remoteStream || null
@@ -3646,6 +3766,7 @@
         if (info.name) existing.name = info.name;
         if (info.micOn !== undefined) existing.micOn = info.micOn;
         if (info.camOn !== undefined) existing.camOn = info.camOn;
+        if (info.isScreenSharing !== undefined) existing.isScreenSharing = info.isScreenSharing;
         if (info.handRaised !== undefined) existing.handRaised = info.handRaised;
         if (info.remoteStream) existing.remoteStream = info.remoteStream;
       }
@@ -3656,6 +3777,10 @@
 
     function removeRemoteRealPeer(peerKey) {
       removeRemoteAudioStream(peerKey);
+      if (state.screenSharingPeerId === peerKey) {
+        state.screenSharingPeerId = null;
+        if (state.pinnedId === peerKey) state.pinnedId = null;
+      }
       const peerObj = activePeers.get(peerKey);
       if (peerObj) {
         try { if (peerObj.dc) peerObj.dc.close(); } catch (e) {}
@@ -3700,13 +3825,25 @@
       }
     }
 
-    function replaceOutgoingMediaTracks(newStream) {
+    function replaceOutgoingMediaTracks(newStream, isScreenShare = false) {
       if (!newStream) return;
+      const isSharing = Boolean(state.isScreenSharing || isScreenShare);
       const newVideoTrack = newStream.getVideoTracks()[0];
       const newAudioTrack = newStream.getAudioTracks()[0];
 
-      if (newVideoTrack) newVideoTrack.enabled = state.localUser.camOn;
-      if (newAudioTrack) newAudioTrack.enabled = state.localUser.micOn;
+      // Critical: If screen sharing, the screen track must be enabled!
+      if (newVideoTrack) {
+        newVideoTrack.enabled = isSharing ? true : state.localUser.camOn;
+      }
+
+      // If newStream does not have audio (e.g. video-only screen share), preserve microphone!
+      let effectiveAudioTrack = newAudioTrack;
+      if (!effectiveAudioTrack && state.localStream) {
+        effectiveAudioTrack = state.localStream.getAudioTracks()[0];
+      }
+      if (effectiveAudioTrack) {
+        effectiveAudioTrack.enabled = state.localUser.micOn;
+      }
 
       activePeers.forEach((peerObj) => {
         try {
@@ -3714,27 +3851,32 @@
             let renegotiate = false;
             const senders = peerObj.pc.getSenders();
 
-            if (newVideoTrack) {
-              const vSender = senders.find(s => s.track && s.track.kind === 'video') ||
-                              senders.find(s => !s.track);
-              if (vSender) {
+            // Video sender
+            const vSender = senders.find(s => s.track && s.track.kind === 'video') ||
+                            senders.find(s => !s.track);
+            if (vSender) {
+              if (newVideoTrack && (isSharing || state.localUser.camOn)) {
                 vSender.replaceTrack(newVideoTrack).catch(() => {});
-              } else {
-                try {
-                  peerObj.pc.addTrack(newVideoTrack, newStream);
-                  renegotiate = true;
-                } catch (e) {}
+              } else if (!isSharing && !state.localUser.camOn) {
+                // Not sharing and camera is off: stop sending video frames
+                vSender.replaceTrack(null).catch(() => {});
               }
+            } else if (newVideoTrack) {
+              try {
+                peerObj.pc.addTrack(newVideoTrack, newStream);
+                renegotiate = true;
+              } catch (e) {}
             }
 
-            if (newAudioTrack) {
+            // Audio sender
+            if (effectiveAudioTrack) {
               const aSender = senders.find(s => s.track && s.track.kind === 'audio') ||
                               senders.find(s => !s.track);
               if (aSender) {
-                aSender.replaceTrack(newAudioTrack).catch(() => {});
+                aSender.replaceTrack(effectiveAudioTrack).catch(() => {});
               } else {
                 try {
-                  peerObj.pc.addTrack(newAudioTrack, newStream);
+                  peerObj.pc.addTrack(effectiveAudioTrack, state.localStream || newStream);
                   renegotiate = true;
                 } catch (e) {}
               }
@@ -3753,7 +3895,8 @@
           name: state.localUser.name,
           micOn: state.localUser.micOn,
           camOn: state.localUser.camOn,
-          handRaised: state.localUser.handRaised
+          handRaised: state.localUser.handRaised,
+          isScreenSharing: isSharing
         });
       }
     }
