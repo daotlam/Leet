@@ -346,18 +346,19 @@
         <!-- TAB 2: NETWORK & TURN RELAY (Also keeps #turnModal ID for compatibility) -->
         <div id="turnModal" class="settings-tab-pane hidden flex flex-col gap-3">
           <div class="text-xs space-y-2">
-            <p class="font-bold text-gray-700">
-              Khi 2 người ở <strong>khác mạng WiFi</strong> (hoặc 1 máy dùng 4G, 1 máy dùng WiFi), nhà mạng sẽ chặn kết nối P2P trực tiếp do tường lửa NAT đối xứng. Bạn cần <strong>TURN Relay</strong> để làm cầu nối trung gian chuyển tiếp âm thanh & hình ảnh.
+            <div class="bg-[#2E8B57]/20 border-2 border-[#1A1A1A] rounded-xl p-3 text-xs font-bold text-[#1B3312] flex items-start gap-2.5">
+              <span class="text-xl">🚀</span>
+              <div>
+                <div class="font-black text-xs uppercase text-[#1B3312]">ĐÃ TÍCH HỢP SẴN TURN RELAY TOÀN CẦU (GLOBAL EDGE)</div>
+                <div class="text-[11px] font-medium text-gray-800 mt-1 leading-relaxed">
+                  Hệ thống Zugo Leet đã tự động kết nối máy chủ <strong>Metered Global TURN Relay</strong> (hỗ trợ cổng 80 & 443 UDP/TCP). Bạn và bạn bè ở xa nhau, dù dùng 4G/LTE hay khác mạng WiFi, đều <strong>nghe thấy tiếng mic và nhìn thấy camera ngay lập tức</strong> mà không cần thao tác thêm!
+                </div>
+              </div>
+            </div>
+
+            <p class="font-bold text-gray-700 text-[11px]">
+              Nếu bạn muốn sử dụng máy chủ TURN Relay của riêng mình (từ metered.ca hoặc coturn riêng), bạn có thể điền cấu hình bên dưới:
             </p>
-            <div class="bg-[#2E8B57]/15 border-2 border-[#1A1A1A] rounded-xl p-3 text-[11px] font-bold text-[#1B3312]">
-              ✨ <strong>TỰ ĐỘNG CHIA SẺ TRONG PHÒNG:</strong><br/>
-              Chỉ cần <strong>1 người trong phòng</strong> cấu hình TURN (ví dụ bạn thao tác trên máy tính), toàn bộ điện thoại 4G và người tham gia khác sẽ <strong>tự động nhận máy chủ TURN Relay</strong> mà không cần cài đặt gì thêm!
-            </div>
-            <div class="bg-[#FFCE38]/40 border-2 border-[#1A1A1A] rounded-xl p-3 text-[11px] font-bold">
-              💡 <strong>Cách lấy TURN miễn phí 100% (50GB/tháng, chỉ mất 1 phút):</strong><br/>
-              1. Đăng ký tài khoản miễn phí tại <a href="https://www.metered.ca/" target="_blank" class="text-[#3B66FF] font-black underline">metered.ca</a> (đăng nhập bằng Google hoặc Email, không cần thẻ tín dụng).<br/>
-              2. Trong <strong>TURN Server Dashboard</strong> → Copy <strong>App Name</strong> & <strong>API Key</strong> dán vào dưới rồi bấm "Lưu cấu hình":
-            </div>
           </div>
 
           <div class="flex flex-col gap-3">
@@ -3064,12 +3065,29 @@
     window.cachedResolvedIceServers = null;
     window.getIceServersAsync = getIceServersAsync;
 
+    // Built-in Metered Global TURN Relay (Verified 2026-10-28)
+    // Generates active typ relay candidates on port 80 & 443 (UDP & TCP)
+    // Seamlessly connects 4G/different Wi-Fi users behind Symmetric NAT without any manual setup!
+    const DEFAULT_BUILTIN_TURN = [
+      {
+        urls: [
+          'turn:global.relay.metered.ca:80',
+          'turn:global.relay.metered.ca:80?transport=tcp',
+          'turn:global.relay.metered.ca:443',
+          'turns:global.relay.metered.ca:443?transport=tcp'
+        ],
+        username: 'd10fd09789647f734747195f',
+        credential: 'OGvaubdT31d3qbvA'
+      }
+    ];
+
     async function getIceServersAsync(forceRefresh = false) {
       if (!forceRefresh && cachedResolvedIceServers) {
         return cachedResolvedIceServers;
       }
 
       const defaultStuns = [
+        { urls: 'stun:stun.relay.metered.ca:80' },
         { urls: 'stun:stun.l.google.com:19302' },
         { urls: 'stun:stun1.l.google.com:19302' },
         { urls: 'stun:stun2.l.google.com:19302' },
@@ -3077,12 +3095,11 @@
         { urls: 'stun:stun4.l.google.com:19302' },
         { urls: 'stun:stun.cloudflare.com:3478' },
         { urls: 'stun:stun.services.mozilla.com:3478' },
-        { urls: 'stun:stun.nextcloud.com:443' },
-        { urls: 'stun:stun.relay.metered.ca:80' },
-        { urls: 'stun:stun.relay.metered.ca:443' }
+        { urls: 'stun:stun.nextcloud.com:443' }
       ];
 
-      const servers = [...defaultStuns];
+      // Base servers: Built-in high-speed TURN Relay + STUN fallbacks
+      const servers = [...DEFAULT_BUILTIN_TURN, ...defaultStuns];
 
       // Priority 1: User's own saved TURN config in localStorage
       try {
